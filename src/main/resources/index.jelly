@@ -1,0 +1,5 @@
+<div>
+  This plugin enables use of <a href="http://www.atlassian.com/crowd">Atlassian Crowd</a>
+  as an authentication source. It uses Crowd's REST API (available since Crowd 2.1)
+  to access the services and supports single-sign-on.
+</div>
