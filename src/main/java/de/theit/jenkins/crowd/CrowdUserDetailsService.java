@@ -89,8 +89,7 @@ public class CrowdUserDetailsService implements UserDetailsService {
 	@Override
 	public UserDetails loadUserByUsername(String username)
 			throws UsernameNotFoundException, DataAccessException {
-		// check whether the Hudson / Jenkins user group in Crowd exists and is
-		// active
+		// check whether the Jenkins user group in Crowd exists and is active
 		if (!this.configuration.isGroupActive()) {
 			throw new DataRetrievalFailureException(
 					userGroupNotFound(this.configuration.groupName));

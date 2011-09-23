@@ -54,7 +54,7 @@ import com.atlassian.crowd.exception.OperationFailedException;
  * This class realizes a servlet filter that checks on each request the status
  * of the SSO session. If the session isn't valid anymore, the user is logged
  * out automatically, and vice-versa: If there's a SSO session but the user
- * isn't logged in into Hudson / Jenkins, (s)he is automatically logged in.
+ * isn't logged in into Jenkins, (s)he is automatically logged in.
  * 
  * @author <a href="mailto:theit@gmx.de">Thorsten Heit (theit@gmx.de)</a>
  * @since 09.09.2011

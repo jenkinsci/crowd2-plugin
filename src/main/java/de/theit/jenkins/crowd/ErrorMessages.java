@@ -209,7 +209,7 @@ public class ErrorMessages {
 
 	/**
 	 * Returns the localized error message when the group of users that are
-	 * allowed to login into Hudson / Jenkins does not exist or is not active.
+	 * allowed to login into Jenkins does not exist or is not active.
 	 * 
 	 * @param username
 	 *            The user name. May not be <code>null</code>.
@@ -223,7 +223,7 @@ public class ErrorMessages {
 
 	/**
 	 * Returns the localized error message when a user does not have the
-	 * permission to login into Hudson / Jenkins.
+	 * permission to login into Jenkins.
 	 * 
 	 * @param username
 	 *            The user name. May not be <code>null</code>.
@@ -231,7 +231,7 @@ public class ErrorMessages {
 	 *            The name of the group. May not be <code>null</code>.
 	 * 
 	 * @return The localized error message when a user does not have the
-	 *         permission to login into Hudson / Jenkins.
+	 *         permission to login into Jenkins.
 	 */
 	public static String userNotValid(String username, String groupname) {
 		return holder.format("userNotValid", username, groupname);

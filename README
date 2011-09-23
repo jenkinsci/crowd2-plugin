@@ -1,5 +1,5 @@
-crowd2-plugin for Hudson / Jenkins
-==================================
+crowd2-plugin for Jenkins
+=========================
 
 This plugin delegates the authentication to a remote Crowd server
 (http://www.atlassian.com/software/crowd). With this setting, users can

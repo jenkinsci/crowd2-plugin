@@ -92,8 +92,8 @@ import com.atlassian.crowd.model.user.User;
 import com.atlassian.crowd.service.client.ClientPropertiesImpl;
 
 /**
- * This class provides the Hudson / Jenkins security realm for authenticating
- * users against a remote Crowd server.
+ * This class provides the Jenkins security realm for authenticating users
+ * against a remote Crowd server.
  * 
  * @author <a href="mailto:theit@gmx.de">Thorsten Heit (theit@gmx.de)</a>
  * @since 06.09.2011

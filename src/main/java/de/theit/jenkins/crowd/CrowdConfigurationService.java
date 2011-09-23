@@ -90,8 +90,7 @@ public class CrowdConfigurationService {
 	CrowdHttpAuthenticator crowdHttpAuthenticator;
 
 	/**
-	 * The group name a user must belong to to be allowed to login into Hudson /
-	 * Jenkins.
+	 * The group name a user must belong to to be allowed to login into Jenkins.
 	 */
 	String groupName;
 
@@ -119,7 +118,7 @@ public class CrowdConfigurationService {
 
 	/**
 	 * Checks whether the user is a member of a certain Crowd group whose
-	 * members are allowed to login into Hudson / Jenkins.
+	 * members are allowed to login into Jenkins.
 	 * 
 	 * @param username
 	 *            The name of the user to check. May not be <code>null</code>.

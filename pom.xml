@@ -14,9 +14,7 @@
 	<packaging>hpi</packaging>
 
 	<name>Crowd 2 Integration</name>
-	<description>
-        SecurityRealm that enables the use of Atlassian's Crowd identity management server.
-    </description>
+	<description>SecurityRealm that enables the use of Atlassian's Crowd identity management server.</description>
 
 	<url>http://wiki.jenkins-ci.org/display/JENKINS/Crowd+2+Plugin</url>
 
@@ -54,7 +52,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
-				<version>2.3.2</version>
+				<version>2.3.2</version><!--$NO-MVN-MAN-VER$-->
 				<configuration>
 					<source>1.6</source>
 					<target>1.6</target>

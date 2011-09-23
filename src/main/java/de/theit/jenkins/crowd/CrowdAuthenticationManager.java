@@ -58,7 +58,7 @@ import com.atlassian.crowd.exception.OperationFailedException;
 import com.atlassian.crowd.exception.UserNotFoundException;
 
 /**
- * This class implements the authentication manager for Hudson / Jenkins.
+ * This class implements the authentication manager for Jenkins.
  * 
  * @author <a href="mailto:theit@gmx.de">Thorsten Heit (theit@gmx.de)</a>
  * @since 07.09.2011
