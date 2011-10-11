@@ -140,6 +140,7 @@ public class CrowdAuthenticationToken extends AbstractAuthenticationToken {
 		if (null == this.displayName) {
 			return super.getName();
 		}
-		return this.displayName;
+		// append the user Id stored in getName() at the end of the display name
+		return this.displayName + " (" + super.getName() + ')';
 	}
 }

@@ -48,7 +48,7 @@ public class CrowdUser implements UserDetails {
 	private List<GrantedAuthority> grantedAuthorities;
 
 	/** Holds the Crowd user object. */
-	private User user;
+	private transient User user;
 
 	/**
 	 * Creates a new instance.

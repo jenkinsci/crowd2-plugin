@@ -279,6 +279,9 @@ public class CrowdSecurityRealm extends AbstractPasswordBasedSecurityRealm {
 
 		try {
 			// load the user object from the remote Crowd server
+			if (LOG.isLoggable(Level.FINER)) {
+				LOG.finer("Trying to load group: " + groupname);
+			}
 			final Group crowdGroup = this.configuration.crowdClient
 					.getGroup(groupname);
 
@@ -328,6 +331,13 @@ public class CrowdSecurityRealm extends AbstractPasswordBasedSecurityRealm {
 		User user;
 		try {
 			// authenticate user
+			if (LOG.isLoggable(Level.FINE)) {
+				LOG.fine("Authenticate user '"
+						+ pUsername
+						+ "' using password '"
+						+ (null != pPassword ? "<available>'"
+								: "<not specified>'"));
+			}
 			user = this.configuration.crowdClient.authenticateUser(pUsername,
 					pPassword);
 		} catch (UserNotFoundException ex) {

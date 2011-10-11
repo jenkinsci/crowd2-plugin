@@ -99,6 +99,9 @@ public class CrowdRememberMeServices implements RememberMeServices {
 				.getValidationFactorExtractor().getValidationFactors(request);
 
 		// check whether a SSO token is available
+		if (LOG.isLoggable(Level.FINER)) {
+			LOG.finer("Checking whether a SSO token is available...");
+		}
 		String ssoToken = this.configuration.tokenHelper.getCrowdToken(request,
 				this.configuration.clientProperties.getCookieTokenKey());
 
@@ -106,15 +109,24 @@ public class CrowdRememberMeServices implements RememberMeServices {
 		if (null != ssoToken) {
 			try {
 				// SSO token available => check whether it is still valid
+				if (LOG.isLoggable(Level.FINER)) {
+					LOG.finer("SSO token available => check wehther it is still valid...");
+				}
 				this.configuration.crowdClient.validateSSOAuthentication(
 						ssoToken, validationFactors);
 
 				// retrieve the user that is logged in via SSO
+				if (LOG.isLoggable(Level.FINER)) {
+					LOG.finer("Retrieving SSO user...");
+				}
 				User user = this.configuration.crowdClient
 						.findUserFromSSOToken(ssoToken);
 
 				// check whether the user is a member of the user group in Crowd
 				// that specifies who is allowed to login into Jenkins
+				if (LOG.isLoggable(Level.FINER)) {
+					LOG.finer("Validating group membership of user...");
+				}
 				if (this.configuration.isGroupActive()
 						&& this.configuration.isGroupMember(user.getName())) {
 					// user is authenticated and validated
@@ -152,6 +164,9 @@ public class CrowdRememberMeServices implements RememberMeServices {
 	public void loginFail(HttpServletRequest request,
 			HttpServletResponse response) {
 		try {
+			if (LOG.isLoggable(Level.FINE)) {
+				LOG.fine("Login failed");
+			}
 			this.configuration.crowdHttpAuthenticator.logout(request, response);
 		} catch (ApplicationPermissionException ex) {
 			LOG.warning(applicationPermission());
@@ -189,12 +204,18 @@ public class CrowdRememberMeServices implements RememberMeServices {
 			if (null == ssoToken) {
 				// SSO token not yet available => authenticate the user and
 				// create the SSO token
+				if (LOG.isLoggable(Level.FINE)) {
+					LOG.fine("SSO token not yet available => authenticate user...");
+				}
 				this.configuration.crowdHttpAuthenticator.authenticate(request,
 						response, crowdAuthenticationToken.getPrincipal(),
 						crowdAuthenticationToken.getCredentials());
 
 				// user is successfully authenticated
 				// => retrieve the SSO token
+				if (LOG.isLoggable(Level.FINER)) {
+					LOG.finer("Retrieve SSO token...");
+				}
 				ssoToken = this.configuration.tokenHelper
 						.getCrowdToken(request,
 								this.configuration.clientProperties
@@ -209,10 +230,16 @@ public class CrowdRememberMeServices implements RememberMeServices {
 			}
 
 			// validate the SSO authentication
+			if (LOG.isLoggable(Level.FINE)) {
+				LOG.fine("Validate the SSO authentication...");
+			}
 			this.configuration.crowdClient.validateSSOAuthentication(ssoToken,
 					validationFactors);
 
 			// alright, we're successfully authenticated via SSO
+			if (LOG.isLoggable(Level.FINE)) {
+				LOG.fine("Successfully authenticated via SSO");
+			}
 		} catch (InvalidTokenException ex) {
 			// LOG.log(Level.INFO, invalidToken(), ex);
 		} catch (ApplicationPermissionException ex) {
@@ -243,6 +270,9 @@ public class CrowdRememberMeServices implements RememberMeServices {
 	public void logout(HttpServletRequest request, HttpServletResponse response) {
 		try {
 			// logout the user and close the SSO session
+			if (LOG.isLoggable(Level.FINE)) {
+				LOG.fine("Logout user and close SSO session");
+			}
 			this.configuration.crowdHttpAuthenticator.logout(request, response);
 		} catch (ApplicationPermissionException ex) {
 			LOG.warning(applicationPermission());

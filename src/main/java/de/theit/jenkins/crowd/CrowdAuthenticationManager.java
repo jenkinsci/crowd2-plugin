@@ -102,6 +102,9 @@ public class CrowdAuthenticationManager implements AuthenticationManager {
 				&& null != ((CrowdAuthenticationToken) authentication)
 						.getSSOToken()) {
 			// SSO token available => user already authenticated
+			if (LOG.isLoggable(Level.FINER)) {
+				LOG.finer("User '" + username + "' already authenticated");
+			}
 			return authentication;
 		}
 
@@ -121,6 +124,9 @@ public class CrowdAuthenticationManager implements AuthenticationManager {
 
 		try {
 			// authenticate user
+			if (LOG.isLoggable(Level.FINE)) {
+				LOG.fine("Authenticating user: " + username);
+			}
 			this.configuration.crowdClient.authenticateUser(username, password);
 		} catch (UserNotFoundException ex) {
 			LOG.info(userNotFound(username));
@@ -155,8 +161,10 @@ public class CrowdAuthenticationManager implements AuthenticationManager {
 		// ..and finally all authorities retrieved from the Crowd server
 		authorities.addAll(this.configuration.getAuthoritiesForUser(username));
 
-		// user successfully authenticated => create authentication
-		// token
+		// user successfully authenticated => create authentication token
+		if (LOG.isLoggable(Level.FINE)) {
+			LOG.fine("User successfully authenticated; creating authentication token");
+		}
 		return new CrowdAuthenticationToken(username, password, authorities);
 	}
 }

@@ -62,8 +62,26 @@ public class CrowdMailAddressResolverImpl extends MailAddressResolver {
 
 		if (realm instanceof CrowdSecurityRealm) {
 			try {
+				// Workaround:
+				// The user object given as parameter contains the user's
+				// display name. Looking up a user in Crowd by the full display
+				// name doesn't work; we have to use the user's Id instead which
+				// is actually appended at the end of the display name in
+				// brackets
+				String userId = u.getId();
+				int pos = userId.lastIndexOf('(');
+				if (pos > 0) {
+					int pos2 = userId.indexOf(')', pos + 1);
+					if (pos2 > pos) {
+						userId = userId.substring(pos + 1, pos2);
+					}
+				}
+
+				if (LOG.isLoggable(Level.FINE)) {
+					LOG.fine("Looking up mail address for user: " + userId);
+				}
 				CrowdUser details = (CrowdUser) realm.getSecurityComponents().userDetails
-						.loadUserByUsername(u.getId());
+						.loadUserByUsername(userId);
 				mail = details.getEmailAddress();
 			} catch (UsernameNotFoundException ex) {
 				LOG.info("Failed to look up email address in Crowd");

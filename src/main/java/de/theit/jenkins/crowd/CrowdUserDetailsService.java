@@ -103,6 +103,9 @@ public class CrowdUserDetailsService implements UserDetailsService {
 		User user;
 		try {
 			// load the user object from the remote Crowd server
+			if (LOG.isLoggable(Level.FINE)) {
+				LOG.fine("Loading user object from the remote Crowd server...");
+			}
 			user = this.configuration.crowdClient.getUser(username);
 		} catch (UserNotFoundException ex) {
 			LOG.info(userNotFound(username));

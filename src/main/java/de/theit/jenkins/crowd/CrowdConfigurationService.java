@@ -130,13 +130,23 @@ public class CrowdConfigurationService {
 		boolean retval = false;
 
 		try {
+			if (LOG.isLoggable(Level.FINE)) {
+				LOG.fine("Checking group membership for user '" + username
+						+ "' and group '" + this.groupName + "'...");
+			}
 			if (this.crowdClient.isUserDirectGroupMember(username,
 					this.groupName)) {
 				retval = true;
+				if (LOG.isLoggable(Level.FINER)) {
+					LOG.finer("=> user is a direct group member");
+				}
 			} else if (this.nestedGroups
 					&& this.crowdClient.isUserNestedGroupMember(username,
 							this.groupName)) {
 				retval = true;
+				if (LOG.isLoggable(Level.FINER)) {
+					LOG.finer("=> user is a nested group member");
+				}
 			}
 		} catch (ApplicationPermissionException ex) {
 			LOG.warning(applicationPermission());
@@ -163,6 +173,9 @@ public class CrowdConfigurationService {
 	public boolean isGroupActive() {
 		boolean retval = false;
 		try {
+			if (LOG.isLoggable(Level.FINE)) {
+				LOG.fine("Checking whether group is active: " + this.groupName);
+			}
 			Group group = this.crowdClient.getGroup(this.groupName);
 			if (null != group) {
 				retval = group.isActive();
@@ -177,6 +190,9 @@ public class CrowdConfigurationService {
 			LOG.log(Level.SEVERE, operationFailed(), ex);
 		}
 
+		if (LOG.isLoggable(Level.FINER)) {
+			LOG.finer("=> group is active: " + retval);
+		}
 		return retval;
 	}
 
@@ -204,11 +220,15 @@ public class CrowdConfigurationService {
 		// retrieve the names of all groups the user is a direct member of
 		try {
 			int index = 0;
-			LOG.fine("Retrieve list of groups with direct membership for user '"
-					+ username + "'...");
+			if (LOG.isLoggable(Level.FINE)) {
+				LOG.fine("Retrieve list of groups with direct membership for user '"
+						+ username + "'...");
+			}
 			while (true) {
-				LOG.finest("Fetching groups [" + index + "..."
-						+ (index + MAX_GROUPS - 1) + "]...");
+				if (LOG.isLoggable(Level.FINEST)) {
+					LOG.finest("Fetching groups [" + index + "..."
+							+ (index + MAX_GROUPS - 1) + "]...");
+				}
 				List<Group> groups = this.crowdClient.getGroupsForUser(
 						username, index, MAX_GROUPS);
 				if (null == groups || groups.isEmpty()) {
@@ -236,11 +256,15 @@ public class CrowdConfigurationService {
 		if (this.nestedGroups) {
 			try {
 				int index = 0;
-				LOG.fine("Retrieve list of groups with direct membership for user '"
-						+ username + "'...");
+				if (LOG.isLoggable(Level.FINE)) {
+					LOG.fine("Retrieve list of groups with direct membership for user '"
+							+ username + "'...");
+				}
 				while (true) {
-					LOG.finest("Fetching groups [" + index + "..."
-							+ (index + MAX_GROUPS - 1) + "]...");
+					if (LOG.isLoggable(Level.FINEST)) {
+						LOG.finest("Fetching groups [" + index + "..."
+								+ (index + MAX_GROUPS - 1) + "]...");
+					}
 					List<Group> groups = this.crowdClient
 							.getGroupsForNestedUser(username, index, MAX_GROUPS);
 					if (null == groups || groups.isEmpty()) {
