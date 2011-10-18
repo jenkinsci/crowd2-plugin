@@ -141,47 +141,47 @@ public class CrowdServletFilter implements Filter {
 				SecurityContext sc = SecurityContextHolder.getContext();
 				boolean isValidated = this.configuration.crowdHttpAuthenticator
 						.isAuthenticated(req, res);
-				if (!isValidated
-						&& sc.getAuthentication() instanceof CrowdAuthenticationToken) {
-					// close the SSO session
-					if (null != this.rememberMe) {
-						this.rememberMe.logout(req, res);
-					}
+				if (!isValidated) {
+					if (sc.getAuthentication() instanceof CrowdAuthenticationToken) {
+						LOG.fine("User is logged in via Crowd, but SSO session is not valid (anymore)...");
+						// close the SSO session
+						if (null != this.rememberMe) {
+							LOG.fine("=> logout user");
+							this.rememberMe.logout(req, res);
+						}
 
-					// invalidate the current session
-					// (see SecurityRealm#doLogout())
-					HttpSession session = req.getSession(false);
-					if (session != null) {
-						session.invalidate();
-					}
-					SecurityContextHolder.clearContext();
+						// invalidate the current session
+						// (see SecurityRealm#doLogout())
+						HttpSession session = req.getSession(false);
+						if (session != null) {
+							session.invalidate();
+						}
+						SecurityContextHolder.clearContext();
 
-					// reset remember-me cookie
-					Cookie cookie = new Cookie(
-							ACEGI_SECURITY_HASHED_REMEMBER_ME_COOKIE_KEY, "");
-					cookie.setPath(req.getContextPath().length() > 0 ? req
-							.getContextPath() : "/");
-					res.addCookie(cookie);
+						// reset remember-me cookie
+						Cookie cookie = new Cookie(
+								ACEGI_SECURITY_HASHED_REMEMBER_ME_COOKIE_KEY,
+								"");
+						cookie.setPath(req.getContextPath().length() > 0 ? req
+								.getContextPath() : "/");
+						res.addCookie(cookie);
+					}
 				} else if (!(sc.getAuthentication() instanceof CrowdAuthenticationToken)) {
 					// user not logged in via Crowd
 					// => try to auto-login the user
 					if (null != this.rememberMe) {
+						LOG.fine("User is logged in via Crowd, but not in Jenkins; trying auto-login...");
 						Authentication auth = this.rememberMe.autoLogin(req,
 								res);
 						if (null != auth) {
+							LOG.fine("User sucessfully logged in");
 							sc.setAuthentication(auth);
-							// invalidate the current session
-							HttpSession session = req.getSession(false);
-							if (session != null) {
-								session.invalidate();
-							}
 						}
 					}
 				}
 			} catch (OperationFailedException ex) {
 				LOG.log(Level.SEVERE, operationFailed(), ex);
 			}
-
 		}
 
 		this.defaultFilter.doFilter(request, response, chain);
