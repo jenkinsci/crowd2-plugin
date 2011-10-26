@@ -110,7 +110,7 @@ public class CrowdRememberMeServices implements RememberMeServices {
 			try {
 				// SSO token available => check whether it is still valid
 				if (LOG.isLoggable(Level.FINER)) {
-					LOG.finer("SSO token available => check wehther it is still valid...");
+					LOG.finer("SSO token available => check whether it is still valid...");
 				}
 				this.configuration.crowdClient.validateSSOAuthentication(
 						ssoToken, validationFactors);
