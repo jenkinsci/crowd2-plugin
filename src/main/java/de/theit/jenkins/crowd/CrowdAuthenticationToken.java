@@ -61,24 +61,6 @@ public class CrowdAuthenticationToken extends AbstractAuthenticationToken {
 	 *            The name of the authenticated Crowd user. May not be
 	 *            <code>null</code>.
 	 * @param pCredentials
-	 *            The credentials. Normally the users password. May not be
-	 *            <code>null</code>.
-	 * @param authorities
-	 *            The list of granted authorities for the user. May not be
-	 *            <code>null</code>.
-	 */
-	public CrowdAuthenticationToken(String pPrincipal, String pCredentials,
-			List<GrantedAuthority> authorities) {
-		this(pPrincipal, pCredentials, authorities, null, null);
-	}
-
-	/**
-	 * Creates a new authorization token.
-	 * 
-	 * @param pPrincipal
-	 *            The name of the authenticated Crowd user. May not be
-	 *            <code>null</code>.
-	 * @param pCredentials
 	 *            The credentials. Normally the users password. May only be
 	 *            <code>null</code> when the SSO token is given.
 	 * @param authorities

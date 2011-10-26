@@ -56,6 +56,7 @@ import com.atlassian.crowd.exception.InactiveAccountException;
 import com.atlassian.crowd.exception.InvalidAuthenticationException;
 import com.atlassian.crowd.exception.OperationFailedException;
 import com.atlassian.crowd.exception.UserNotFoundException;
+import com.atlassian.crowd.model.user.User;
 
 /**
  * This class implements the authentication manager for Jenkins.
@@ -122,12 +123,15 @@ public class CrowdAuthenticationManager implements AuthenticationManager {
 					username, this.configuration.groupName));
 		}
 
+		String displayName = null;
 		try {
 			// authenticate user
 			if (LOG.isLoggable(Level.FINE)) {
 				LOG.fine("Authenticating user: " + username);
 			}
-			this.configuration.crowdClient.authenticateUser(username, password);
+			User user = this.configuration.crowdClient.authenticateUser(
+					username, password);
+			displayName = user.getDisplayName();
 		} catch (UserNotFoundException ex) {
 			LOG.info(userNotFound(username));
 			throw new BadCredentialsException(userNotFound(username), ex);
@@ -165,6 +169,8 @@ public class CrowdAuthenticationManager implements AuthenticationManager {
 		if (LOG.isLoggable(Level.FINE)) {
 			LOG.fine("User successfully authenticated; creating authentication token");
 		}
-		return new CrowdAuthenticationToken(username, password, authorities);
+
+		return new CrowdAuthenticationToken(username, password, authorities,
+				null, displayName);
 	}
 }
