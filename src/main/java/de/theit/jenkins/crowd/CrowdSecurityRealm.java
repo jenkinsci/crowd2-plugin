@@ -176,7 +176,7 @@ public class CrowdSecurityRealm extends AbstractPasswordBasedSecurityRealm {
 			props.setProperty("crowd.base.url", crowdUrl);
 			props.setProperty("application.login.url", crowdUrl + "console/");
 			props.setProperty("crowd.server.url", this.url + "services/");
-			props.setProperty("session.validationinterval", "5");
+			props.setProperty("session.validationinterval", "0");
 		} else {
 			LOG.warning("Client properties are incomplete");
 		}

@@ -128,59 +128,67 @@ public class CrowdServletFilter implements Filter {
 	@Override
 	public void doFilter(ServletRequest request, ServletResponse response,
 			FilterChain chain) throws IOException, ServletException {
-		// check whether the SSO session is valid
-
 		if (request instanceof HttpServletRequest
 				&& response instanceof HttpServletResponse) {
 			HttpServletRequest req = (HttpServletRequest) request;
 			HttpServletResponse res = (HttpServletResponse) response;
 
-			// if the user is logged in, check whether the session is still
-			// valid
+			// check if we have a token
+			// if it is not present, we are not / no longer authenticated
+			boolean isValidated = false;
 			try {
-				SecurityContext sc = SecurityContextHolder.getContext();
-				boolean isValidated = this.configuration.crowdHttpAuthenticator
+				isValidated = this.configuration.crowdHttpAuthenticator
 						.isAuthenticated(req, res);
-				if (!isValidated) {
-					if (sc.getAuthentication() instanceof CrowdAuthenticationToken) {
-						LOG.fine("User is logged in via Crowd, but SSO session is not valid (anymore)...");
-						// close the SSO session
-						if (null != this.rememberMe) {
-							LOG.fine("=> logout user");
-							this.rememberMe.logout(req, res);
-						}
+			} catch (OperationFailedException ex) {
+				LOG.log(Level.SEVERE, operationFailed(), ex);
+			}
 
-						// invalidate the current session
-						// (see SecurityRealm#doLogout())
-						HttpSession session = req.getSession(false);
-						if (session != null) {
-							session.invalidate();
-						}
-						SecurityContextHolder.clearContext();
+			if (!isValidated) {
+				if (LOG.isLoggable(Level.FINE)) {
+					LOG.fine("User is not logged in (anymore) via Crowd => logout user");
+				}
+				SecurityContext sc = SecurityContextHolder.getContext();
+				sc.setAuthentication(null);
+				// close the SSO session
+				if (null != this.rememberMe) {
+					this.rememberMe.logout(req, res);
+				}
 
-						// reset remember-me cookie
-						Cookie cookie = new Cookie(
-								ACEGI_SECURITY_HASHED_REMEMBER_ME_COOKIE_KEY,
-								"");
-						cookie.setPath(req.getContextPath().length() > 0 ? req
-								.getContextPath() : "/");
-						res.addCookie(cookie);
-					}
-				} else if (!(sc.getAuthentication() instanceof CrowdAuthenticationToken)) {
-					// user not logged in via Crowd
+				// invalidate the current session
+				// (see SecurityRealm#doLogout())
+				HttpSession session = req.getSession(false);
+				if (session != null) {
+					session.invalidate();
+				}
+				SecurityContextHolder.clearContext();
+
+				// reset remember-me cookie
+				Cookie cookie = new Cookie(
+						ACEGI_SECURITY_HASHED_REMEMBER_ME_COOKIE_KEY, "");
+				cookie.setPath(req.getContextPath().length() > 0 ? req
+						.getContextPath() : "/");
+				res.addCookie(cookie);
+			} else {
+				SecurityContext sc = SecurityContextHolder.getContext();
+
+				if (!(sc.getAuthentication() instanceof CrowdAuthenticationToken)) {
+					// user logged in via Crowd, but no Crowd-specific
+					// authentication token available
 					// => try to auto-login the user
 					if (null != this.rememberMe) {
-						LOG.fine("User is logged in via Crowd, but not in Jenkins; trying auto-login...");
+						if (LOG.isLoggable(Level.FINE)) {
+							LOG.fine("User is logged in via Crowd, but no authentication token available; trying auto-login...");
+						}
 						Authentication auth = this.rememberMe.autoLogin(req,
 								res);
 						if (null != auth) {
-							LOG.fine("User sucessfully logged in");
+							if (LOG.isLoggable(Level.FINE)) {
+								LOG.fine("User sucessfully logged in");
+							}
 							sc.setAuthentication(auth);
 						}
 					}
 				}
-			} catch (OperationFailedException ex) {
-				LOG.log(Level.SEVERE, operationFailed(), ex);
 			}
 		}
 
