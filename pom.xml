@@ -30,6 +30,16 @@
 			<id>atlassian</id>
 			<url>https://m2proxy.atlassian.com/repository/public</url>
 		</repository>
+    <repository>
+      <id>m.g.o-public</id>
+      <url>http://maven.glassfish.org/content/groups/public/</url>
+      <releases>
+        <enabled>true</enabled>
+      </releases>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+    </repository>
 	</repositories>
 
 	<dependencies>
