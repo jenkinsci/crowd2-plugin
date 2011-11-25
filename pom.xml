@@ -1,35 +1,36 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-	<modelVersion>4.0.0</modelVersion>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
 
-	<parent>
-		<groupId>org.jenkins-ci.plugins</groupId>
-		<artifactId>plugin</artifactId>
-		<version>1.398</version>
-	</parent>
+  <parent>
+    <groupId>org.jenkins-ci.plugins</groupId>
+    <artifactId>plugin</artifactId>
+    <version>1.398</version>
+  </parent>
 
-	<artifactId>crowd2</artifactId>
-	<version>1.4-SNAPSHOT</version>
+  <artifactId>crowd2</artifactId>
+  <version>1.4-SNAPSHOT</version>
 
-	<packaging>hpi</packaging>
+  <packaging>hpi</packaging>
 
-	<name>Crowd 2 Integration</name>
-	<description>SecurityRealm that enables the use of Atlassian's Crowd identity management server.</description>
+  <name>Crowd 2 Integration</name>
+  <description>SecurityRealm that enables the use of Atlassian's Crowd identity management server.</description>
 
-	<url>http://wiki.jenkins-ci.org/display/JENKINS/Crowd+2+Plugin</url>
+  <url>http://wiki.jenkins-ci.org/display/JENKINS/Crowd+2+Plugin</url>
 
-	<developers>
-		<developer>
-			<id>theit</id>
-			<name>Thorsten Heit</name>
-			<email>theit@gmx.de</email>
-		</developer>
-	</developers>
+  <developers>
+    <developer>
+      <id>theit</id>
+      <name>Thorsten Heit</name>
+      <email>theit@gmx.de</email>
+    </developer>
+  </developers>
 
-	<repositories>
-		<repository>
-			<id>atlassian</id>
-			<url>https://m2proxy.atlassian.com/repository/public</url>
-		</repository>
+  <repositories>
+    <repository>
+      <id>atlassian</id>
+      <url>https://m2proxy.atlassian.com/repository/public</url>
+    </repository>
     <repository>
       <id>m.g.o-public</id>
       <url>http://maven.glassfish.org/content/groups/public/</url>
@@ -40,34 +41,35 @@
         <enabled>false</enabled>
       </snapshots>
     </repository>
-	</repositories>
+  </repositories>
 
-	<dependencies>
-		<dependency>
-			<groupId>com.atlassian.crowd</groupId>
-			<artifactId>crowd-integration-client-rest</artifactId>
-			<version>2.3.2</version>
-		</dependency>
-	</dependencies>
+  <dependencies>
+    <dependency>
+      <groupId>com.atlassian.crowd</groupId>
+      <artifactId>crowd-integration-client-rest</artifactId>
+      <version>2.3.2</version>
+    </dependency>
+  </dependencies>
 
-	<scm>
-		<connection>scm:git:git://github.com/jenkinsci/crowd2-plugin.git</connection>
-		<developerConnection>scm:git:https://github.com/jenkinsci/crowd2-plugin.git</developerConnection>
-		<url>https://github.com/jenkinsci/crowd2-plugin</url>
-	</scm>
+  <scm>
+    <connection>scm:git:git://github.com/jenkinsci/crowd2-plugin.git</connection>
+    <developerConnection>scm:git:https://github.com/jenkinsci/crowd2-plugin.git</developerConnection>
+    <url>https://github.com/jenkinsci/crowd2-plugin</url>
+  </scm>
 
 
-	<build>
-		<plugins>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-compiler-plugin</artifactId>
-				<version>2.3.2</version><!--$NO-MVN-MAN-VER$ -->
-				<configuration>
-					<source>1.6</source>
-					<target>1.6</target>
-				</configuration>
-			</plugin>
-		</plugins>
-	</build>
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>2.3.2</version>
+        <!--$NO-MVN-MAN-VER$ -->
+        <configuration>
+          <source>1.6</source>
+          <target>1.6</target>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
 </project>
