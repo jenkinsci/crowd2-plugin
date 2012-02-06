@@ -120,6 +120,12 @@ public class CrowdSecurityRealm extends AbstractPasswordBasedSecurityRealm {
 	public final boolean nestedGroups;
 
 	/**
+	 * The number of minutes to cache authentication validation in the session.
+	 * If this value is set to 0, each HTTP request will be authenticated with the Crowd server.
+	 */
+	private final int sessionValidationInterval;
+
+	/**
 	 * The configuration data necessary for accessing the services on the remote
 	 * Crowd server.
 	 */
@@ -141,16 +147,20 @@ public class CrowdSecurityRealm extends AbstractPasswordBasedSecurityRealm {
 	 * @param nestedGroups
 	 *            <code>true</code> when nested groups may be used.
 	 *            <code>false</code> else.
+	 * @param sessionValidationInterval
+	 *            The number of minutes to cache authentication validation in the session.
+	 *            If this value is set to <code>0</code>, each HTTP request will be authenticated with the Crowd server.
 	 */
 	@SuppressWarnings("hiding")
 	@DataBoundConstructor
 	public CrowdSecurityRealm(String url, String applicationName,
-			String password, String group, boolean nestedGroups) {
+			String password, String group, boolean nestedGroups, int sessionValidationInterval) {
 		this.url = url.trim();
 		this.applicationName = applicationName.trim();
 		this.password = password.trim();
 		this.group = group.trim();
 		this.nestedGroups = nestedGroups;
+		this.sessionValidationInterval = sessionValidationInterval;
 	}
 
 	/**
@@ -185,7 +195,7 @@ public class CrowdSecurityRealm extends AbstractPasswordBasedSecurityRealm {
 			props.setProperty("crowd.base.url", crowdUrl);
 			props.setProperty("application.login.url", crowdUrl + "console/");
 			props.setProperty("crowd.server.url", this.url + "services/");
-			props.setProperty("session.validationinterval", "0");
+			props.setProperty("session.validationinterval", String.valueOf(this.sessionValidationInterval));
 		} else {
 			LOG.warning("Client properties are incomplete");
 		}
