@@ -55,6 +55,8 @@ import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.servlet.Filter;
+import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
 
 import org.acegisecurity.AccountExpiredException;
@@ -258,6 +260,22 @@ public class CrowdSecurityRealm extends AbstractPasswordBasedSecurityRealm {
 		}
 
 		super.doLogout(req, rsp);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 *
+	 * @see hudson.security.SecurityRealm#createFilter(javax.servlet.FilterConfig)
+	 */
+	@Override
+	public Filter createFilter(FilterConfig filterConfig) {
+		if (null == this.configuration) {
+			initializeConfiguration();
+		}
+
+		Filter defaultFilter = super.createFilter(filterConfig);
+
+		return new CrowdServletFilter(this, this.configuration, defaultFilter);
 	}
 
 	/**
