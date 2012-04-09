@@ -55,8 +55,6 @@ import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.servlet.Filter;
-import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
 
 import org.acegisecurity.AccountExpiredException;
@@ -103,6 +101,8 @@ public class CrowdSecurityRealm extends AbstractPasswordBasedSecurityRealm {
 	/** Used for logging purposes. */
 	private static final Logger LOG = Logger.getLogger(CrowdSecurityRealm.class
 			.getName());
+
+	private static final int DEFAULT_SESSION_VALIDATION_INTERVAL = 5;
 
 	/** Contains the Crowd server URL. */
 	public final String url;
@@ -151,6 +151,15 @@ public class CrowdSecurityRealm extends AbstractPasswordBasedSecurityRealm {
 		this.password = password.trim();
 		this.group = group.trim();
 		this.nestedGroups = nestedGroups;
+	}
+
+	/**
+	 * Backwards compatibility constructor.
+	 */
+	@SuppressWarnings("hiding")
+	public CrowdSecurityRealm(String url, String applicationName,
+			String password, String group, boolean nestedGroups) {
+		this(url, applicationName, password, group, nestedGroups, DEFAULT_SESSION_VALIDATION_INTERVAL);
 	}
 
 	/**
@@ -239,22 +248,6 @@ public class CrowdSecurityRealm extends AbstractPasswordBasedSecurityRealm {
 		}
 
 		super.doLogout(req, rsp);
-	}
-
-	/**
-	 * {@inheritDoc}
-	 * 
-	 * @see hudson.security.SecurityRealm#createFilter(javax.servlet.FilterConfig)
-	 */
-	@Override
-	public Filter createFilter(FilterConfig filterConfig) {
-		if (null == this.configuration) {
-			initializeConfiguration();
-		}
-
-		Filter defaultFilter = super.createFilter(filterConfig);
-
-		return new CrowdServletFilter(this, this.configuration, defaultFilter);
 	}
 
 	/**
