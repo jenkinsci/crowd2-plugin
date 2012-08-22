@@ -34,7 +34,7 @@ THE SOFTWARE.
 	<f:entry title="${%Application Password}" field="password">
 		<f:password autocomplete="off" />
 	</f:entry>
-	<f:entry title="${%Group names for users}" field="groups">
+	<f:entry title="${%Group name/s for users}" field="group">
 		<f:textbox default="jenkins-users" />
 	</f:entry>
 	<f:advanced>
@@ -42,9 +42,9 @@ THE SOFTWARE.
 			<f:checkbox />
 		</f:entry>
 		<f:entry title="${%Session validation interval}" field="sessionValidationInterval">
-			<f:textbox default="5" />
+			<f:textbox default="2" />
 		</f:entry>
 	</f:advanced>
 	<f:validateButton method="testConnection" title="${%Check Connection}"
-		with="url,applicationName,password,groups" />
+		with="url,applicationName,password,group" />
 </j:jelly>

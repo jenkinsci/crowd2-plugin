@@ -57,8 +57,8 @@ import com.atlassian.crowd.service.client.CrowdClient;
 
 /**
  * This class contains all objects that are necessary to access the REST
- * services on the remote Crowd server. In addition to this it contains some
- * helper methods
+ * services on the remote Crowd server. Additionally it contains some helper
+ * methods to check for group membership and availability.
  * 
  * @author <a href="mailto:theit@gmx.de">Thorsten Heit (theit@gmx.de)</a>
  * @since 08.09.2011
@@ -100,20 +100,29 @@ public class CrowdConfigurationService {
 	 * Creates a new Crowd configuration object.
 	 * 
 	 * @param pGroupNames
-	 *            The group name to use when authenticating Crowd users. May not
-	 *            be <code>null</code>.
+	 *            The group names to use when authenticating Crowd users. May
+	 *            not be <code>null</code>.
 	 * @param pNestedGroups
 	 *            Specifies whether nested groups should be used when validating
-	 *            users against the group name.
+	 *            users against a group name.
 	 */
 	public CrowdConfigurationService(String pGroupNames, boolean pNestedGroups) {
 		if (0 == pGroupNames.length()) {
 			throw new IllegalArgumentException(specifyGroup());
 		}
 
+		if (LOG.isLoggable(Level.INFO)) {
+			LOG.info("Groups given for Crowd configuration service: "
+					+ pGroupNames);
+		}
 		this.allowedGroupNames = new ArrayList<String>();
-		for (String group : pGroupNames.split(" ")) {
-			this.allowedGroupNames.add(group);
+		for (String group : pGroupNames.split("[,\\s]")) {
+			if (null != group && group.trim().length() > 0) {
+				if (LOG.isLoggable(Level.FINE)) {
+					LOG.fine("-> adding allowed group name: " + group);
+				}
+				this.allowedGroupNames.add(group);
+			}
 		}
 
 		if (this.allowedGroupNames.isEmpty()) {
@@ -124,7 +133,7 @@ public class CrowdConfigurationService {
 	}
 
 	/**
-	 * Checks whether the user is a member of a certain Crowd group whose
+	 * Checks whether the user is a member of one of the Crowd groups whose
 	 * members are allowed to login into Jenkins.
 	 * 
 	 * @param username
@@ -182,73 +191,39 @@ public class CrowdConfigurationService {
 			throws ApplicationPermissionException,
 			InvalidAuthenticationException, OperationFailedException {
 		boolean retval = false;
-		if (LOG.isLoggable(Level.FINE)) {
-			LOG.fine("Checking group membership for user '" + username
-					+ "' and group '" + group + "'...");
-		}
-		if (this.crowdClient.isUserDirectGroupMember(username, group)) {
-			retval = true;
-			if (LOG.isLoggable(Level.FINER)) {
-				LOG.finer("=> user is a direct group member");
-			}
-		} else if (this.nestedGroups
-				&& this.crowdClient.isUserNestedGroupMember(username, group)) {
-			retval = true;
-			if (LOG.isLoggable(Level.FINER)) {
-				LOG.finer("=> user is a nested group member");
-			}
-		}
 
-		return retval;
-	}
-
-	/**
-	 * Checks if the group exists on the remote Crowd server and is active.
-	 * 
-	 * @return <code>true</code> if and only if:
-	 *         <ul>
-	 *         <li>The group name is empty or</li>
-	 *         <li>The group name is not empty, does exist on the remote Crowd
-	 *         server and is active.</li>
-	 *         </ul>
-	 *         <code>false</code> else.
-	 */
-	public boolean isGroupActive() {
-		boolean retval = false;
-		try {
-			for (String group : this.allowedGroupNames) {
-				retval = isGroupActive(group);
-				if (retval) {
-					break;
+		if (isGroupActive(group)) {
+			if (LOG.isLoggable(Level.FINE)) {
+				LOG.fine("Checking group membership for user '" + username
+						+ "' and group '" + group + "'...");
+			}
+			if (this.crowdClient.isUserDirectGroupMember(username, group)) {
+				retval = true;
+				if (LOG.isLoggable(Level.FINER)) {
+					LOG.finer("=> user is a direct group member");
+				}
+			} else if (this.nestedGroups
+					&& this.crowdClient
+							.isUserNestedGroupMember(username, group)) {
+				retval = true;
+				if (LOG.isLoggable(Level.FINER)) {
+					LOG.finer("=> user is a nested group member");
 				}
 			}
-		} catch (InvalidAuthenticationException ex) {
-			LOG.warning(invalidAuthentication());
-		} catch (ApplicationPermissionException ex) {
-			LOG.warning(applicationPermission());
-		} catch (OperationFailedException ex) {
-			LOG.log(Level.SEVERE, operationFailed(), ex);
 		}
 
-		if (LOG.isLoggable(Level.FINER)) {
-			LOG.finer("=> group is active: " + retval);
-		}
 		return retval;
 	}
 
 	/**
-	 * Checks if the given group exists on the remote Crowd server and is
-	 * active.
+	 * Checks if the specified group name exists on the remote Crowd server and
+	 * is active.
 	 * 
 	 * @param groupName
 	 *            The name of the group to check. May not be <code>null</code>
 	 *            or empty.
-	 * @return <code>true</code> if and only if:
-	 *         <ul>
-	 *         <li>The group name is empty or</li>
-	 *         <li>The group name is not empty, does exist on the remote Crowd
-	 *         server and is active.</li>
-	 *         </ul>
+	 * @return <code>true</code> if and only if the group name is not empty,
+	 *         does exist on the remote Crowd server and is active.
 	 *         <code>false</code> else.
 	 * @throws InvalidAuthenticationException
 	 *             If the application and password are not valid.
@@ -260,10 +235,10 @@ public class CrowdConfigurationService {
 	 *             invalid arguments and the operation not being supported on
 	 *             the server.
 	 */
-	private boolean isGroupActive(String groupName)
+	public boolean isGroupActive(String groupName)
 			throws InvalidAuthenticationException,
 			ApplicationPermissionException, OperationFailedException {
-		boolean retval = true;
+		boolean retval = false;
 
 		try {
 			if (LOG.isLoggable(Level.FINE)) {
@@ -274,7 +249,9 @@ public class CrowdConfigurationService {
 				retval = group.isActive();
 			}
 		} catch (GroupNotFoundException ex) {
-			LOG.info(groupNotFound(groupName));
+			if (LOG.isLoggable(Level.FINE)) {
+				LOG.fine(groupNotFound(groupName));
+			}
 		}
 
 		return retval;
@@ -326,7 +303,9 @@ public class CrowdConfigurationService {
 				index += MAX_GROUPS;
 			}
 		} catch (UserNotFoundException ex) {
-			LOG.info(userNotFound(username));
+			if (LOG.isLoggable(Level.INFO)) {
+				LOG.info(userNotFound(username));
+			}
 		} catch (InvalidAuthenticationException ex) {
 			LOG.warning(invalidAuthentication());
 		} catch (ApplicationPermissionException ex) {
@@ -362,7 +341,9 @@ public class CrowdConfigurationService {
 					index += MAX_GROUPS;
 				}
 			} catch (UserNotFoundException ex) {
-				LOG.info(userNotFound(username));
+				if (LOG.isLoggable(Level.INFO)) {
+					LOG.info(userNotFound(username));
+				}
 			} catch (InvalidAuthenticationException ex) {
 				LOG.warning(invalidAuthentication());
 			} catch (ApplicationPermissionException ex) {

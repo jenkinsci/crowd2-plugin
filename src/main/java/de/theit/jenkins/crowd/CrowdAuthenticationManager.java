@@ -30,7 +30,6 @@ import static de.theit.jenkins.crowd.ErrorMessages.applicationPermission;
 import static de.theit.jenkins.crowd.ErrorMessages.expiredCredentials;
 import static de.theit.jenkins.crowd.ErrorMessages.invalidAuthentication;
 import static de.theit.jenkins.crowd.ErrorMessages.operationFailed;
-import static de.theit.jenkins.crowd.ErrorMessages.userGroupsNotFound;
 import static de.theit.jenkins.crowd.ErrorMessages.userNotFound;
 import static de.theit.jenkins.crowd.ErrorMessages.userNotValid;
 import hudson.security.SecurityRealm;
@@ -113,11 +112,6 @@ public class CrowdAuthenticationManager implements AuthenticationManager {
 
 		// ensure that the group is available, active and that the user
 		// is a member of it
-		if (!this.configuration.isGroupActive()) {
-			throw new InsufficientAuthenticationException(
-					userGroupsNotFound(this.configuration.allowedGroupNames));
-		}
-
 		if (!this.configuration.isGroupMember(username)) {
 			throw new InsufficientAuthenticationException(userNotValid(
 					username, this.configuration.allowedGroupNames));
@@ -133,7 +127,9 @@ public class CrowdAuthenticationManager implements AuthenticationManager {
 					username, password);
 			displayName = user.getDisplayName();
 		} catch (UserNotFoundException ex) {
-			LOG.info(userNotFound(username));
+			if (LOG.isLoggable(Level.INFO)) {
+				LOG.info(userNotFound(username));
+			}
 			throw new BadCredentialsException(userNotFound(username), ex);
 		} catch (ExpiredCredentialException ex) {
 			LOG.warning(expiredCredentials(username));

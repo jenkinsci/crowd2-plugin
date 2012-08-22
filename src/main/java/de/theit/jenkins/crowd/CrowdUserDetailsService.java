@@ -26,7 +26,6 @@
 package de.theit.jenkins.crowd;
 
 import static de.theit.jenkins.crowd.ErrorMessages.applicationPermission;
-import static de.theit.jenkins.crowd.ErrorMessages.cannotValidateGroups;
 import static de.theit.jenkins.crowd.ErrorMessages.invalidAuthentication;
 import static de.theit.jenkins.crowd.ErrorMessages.operationFailed;
 import static de.theit.jenkins.crowd.ErrorMessages.userNotFound;
@@ -89,12 +88,8 @@ public class CrowdUserDetailsService implements UserDetailsService {
 	@Override
 	public UserDetails loadUserByUsername(String username)
 			throws UsernameNotFoundException, DataAccessException {
-		// check whether the Jenkins user group in Crowd exists and is active
-		if (!this.configuration.isGroupActive()) {
-			throw new DataRetrievalFailureException(
-					cannotValidateGroups(this.configuration.allowedGroupNames));
-		}
-
+		// check whether there's at least one active group the user is a member
+		// of
 		if (!this.configuration.isGroupMember(username)) {
 			throw new DataRetrievalFailureException(userNotValid(username,
 					this.configuration.allowedGroupNames));
@@ -108,7 +103,9 @@ public class CrowdUserDetailsService implements UserDetailsService {
 			}
 			user = this.configuration.crowdClient.getUser(username);
 		} catch (UserNotFoundException ex) {
-			LOG.info(userNotFound(username));
+			if (LOG.isLoggable(Level.INFO)) {
+				LOG.info(userNotFound(username));
+			}
 			throw new UsernameNotFoundException(userNotFound(username), ex);
 		} catch (ApplicationPermissionException ex) {
 			LOG.warning(applicationPermission());

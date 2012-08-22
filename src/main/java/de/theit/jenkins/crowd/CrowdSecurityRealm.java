@@ -28,7 +28,6 @@ package de.theit.jenkins.crowd;
 import static de.theit.jenkins.crowd.ErrorMessages.accountExpired;
 import static de.theit.jenkins.crowd.ErrorMessages.applicationPermission;
 import static de.theit.jenkins.crowd.ErrorMessages.cannotLoadCrowdProperties;
-import static de.theit.jenkins.crowd.ErrorMessages.cannotValidateGroups;
 import static de.theit.jenkins.crowd.ErrorMessages.expiredCredentials;
 import static de.theit.jenkins.crowd.ErrorMessages.groupNotFound;
 import static de.theit.jenkins.crowd.ErrorMessages.invalidAuthentication;
@@ -38,7 +37,6 @@ import static de.theit.jenkins.crowd.ErrorMessages.specifyApplicationPassword;
 import static de.theit.jenkins.crowd.ErrorMessages.specifyCrowdUrl;
 import static de.theit.jenkins.crowd.ErrorMessages.specifyGroup;
 import static de.theit.jenkins.crowd.ErrorMessages.specifySessionValidationInterval;
-import static de.theit.jenkins.crowd.ErrorMessages.userGroupsNotFound;
 import static de.theit.jenkins.crowd.ErrorMessages.userNotFound;
 import static de.theit.jenkins.crowd.ErrorMessages.userNotValid;
 import hudson.Extension;
@@ -307,7 +305,9 @@ public class CrowdSecurityRealm extends AbstractPasswordBasedSecurityRealm {
 				}
 			};
 		} catch (GroupNotFoundException ex) {
-			LOG.info(groupNotFound(groupname));
+			if (LOG.isLoggable(Level.INFO)) {
+				LOG.info(groupNotFound(groupname));
+			}
 			throw new DataRetrievalFailureException(groupNotFound(groupname),
 					ex);
 		} catch (ApplicationPermissionException ex) {
@@ -333,11 +333,6 @@ public class CrowdSecurityRealm extends AbstractPasswordBasedSecurityRealm {
 			throws AuthenticationException {
 		// ensure that the group is available, active and that the user
 		// is a member of it
-		if (!this.configuration.isGroupActive()) {
-			throw new InsufficientAuthenticationException(
-					userGroupsNotFound(this.configuration.allowedGroupNames));
-		}
-
 		if (!this.configuration.isGroupMember(pUsername)) {
 			throw new InsufficientAuthenticationException(userNotValid(
 					pUsername, this.configuration.allowedGroupNames));
@@ -356,7 +351,9 @@ public class CrowdSecurityRealm extends AbstractPasswordBasedSecurityRealm {
 			user = this.configuration.crowdClient.authenticateUser(pUsername,
 					pPassword);
 		} catch (UserNotFoundException ex) {
-			LOG.info(userNotFound(pUsername));
+			if (LOG.isLoggable(Level.INFO)) {
+				LOG.info(userNotFound(pUsername));
+			}
 			throw new BadCredentialsException(userNotFound(pUsername), ex);
 		} catch (ExpiredCredentialException ex) {
 			LOG.warning(expiredCredentials(pUsername));
@@ -530,7 +527,7 @@ public class CrowdSecurityRealm extends AbstractPasswordBasedSecurityRealm {
 		 *            The application name.
 		 * @param password
 		 *            The application's password.
-		 * @param groups
+		 * @param group
 		 *            The Crowd groups users have to belong to if specified.
 		 * 
 		 * @return Indicates the outcome of the validation. This is sent to the
@@ -538,7 +535,7 @@ public class CrowdSecurityRealm extends AbstractPasswordBasedSecurityRealm {
 		 */
 		public FormValidation doTestConnection(@QueryParameter String url,
 				@QueryParameter String applicationName,
-				@QueryParameter String password, @QueryParameter String groups) {
+				@QueryParameter String password, @QueryParameter String group) {
 			Logger log = Logger.getLogger(getClass().getName());
 
 			Properties props = new Properties();
@@ -548,7 +545,7 @@ public class CrowdSecurityRealm extends AbstractPasswordBasedSecurityRealm {
 			props.setProperty("session.validationinterval", "5");
 
 			CrowdConfigurationService configuration = new CrowdConfigurationService(
-					groups, false);
+					group, false);
 			configuration.clientProperties = ClientPropertiesImpl
 					.newInstanceFromProperties(props);
 			configuration.crowdClient = new RestCrowdClientFactory()
@@ -557,11 +554,14 @@ public class CrowdSecurityRealm extends AbstractPasswordBasedSecurityRealm {
 			try {
 				configuration.crowdClient.testConnection();
 
-				if (configuration.isGroupActive()) {
-					return FormValidation.ok();
+				// ensure that the given group names are available and active
+				for (String groupName : configuration.allowedGroupNames) {
+					if (!configuration.isGroupActive(groupName)) {
+						return FormValidation.error(groupNotFound(groupName));
+					}
 				}
-				return FormValidation
-						.error(cannotValidateGroups(configuration.allowedGroupNames));
+
+				return FormValidation.ok();
 			} catch (InvalidAuthenticationException ex) {
 				log.log(Level.WARNING, invalidAuthentication(), ex);
 				return FormValidation.error(invalidAuthentication());

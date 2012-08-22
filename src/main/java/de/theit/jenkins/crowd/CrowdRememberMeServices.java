@@ -127,8 +127,7 @@ public class CrowdRememberMeServices implements RememberMeServices {
 				if (LOG.isLoggable(Level.FINER)) {
 					LOG.finer("Validating group membership of user...");
 				}
-				if (this.configuration.isGroupActive()
-						&& this.configuration.isGroupMember(user.getName())) {
+				if (this.configuration.isGroupMember(user.getName())) {
 					// user is authenticated and validated
 					// => create the user object and finalize the auto-login
 					// process

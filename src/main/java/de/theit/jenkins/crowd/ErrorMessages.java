@@ -160,22 +160,6 @@ public class ErrorMessages {
 	}
 
 	/**
-	 * Returns the localized error message when the specified groups do not
-	 * exist on the remote Crowd server or are not active.
-	 * 
-	 * @param groupNames
-	 *            The names of the groups allowed to login. May not be
-	 *            <code>null</code>.
-	 * 
-	 * @return The localized error message when the specified groups cannot be
-	 *         validated against the remote Crowd server.
-	 */
-	public static String cannotValidateGroups(Collection<String> groupNames) {
-		return holder.format("cannotValidateGroups",
-				groupNamesToString(groupNames));
-	}
-
-	/**
 	 * Returns the localized error message when the user password has expired
 	 * and must be changed.
 	 * 
@@ -201,15 +185,6 @@ public class ErrorMessages {
 	}
 
 	/**
-	 * Returns the localized error message when an invalid SSO token was found.
-	 * 
-	 * @return The localized error message for an invalid SSO token.
-	 */
-	public static String invalidToken() {
-		return holder.format("invalidToken");
-	}
-
-	/**
 	 * Returns the localized error message when a user does not have access to
 	 * authenticate against an application.
 	 * 
@@ -220,21 +195,6 @@ public class ErrorMessages {
 	 */
 	public static String applicationAccessDenied(String username) {
 		return holder.format("applicationAccessDenied", username);
-	}
-
-	/**
-	 * Returns the localized error message when the group of users that are
-	 * allowed to login into Jenkins does not exist or is not active.
-	 * 
-	 * @param groupNames
-	 *            The group names. May not be <code>null</code>.
-	 * 
-	 * @return The localized error message for a non-existing or non-active
-	 *         group.
-	 */
-	public static String userGroupsNotFound(Collection<String> groupNames) {
-		return holder.format("userGroupNotFound",
-				groupNamesToString(groupNames));
 	}
 
 	/**

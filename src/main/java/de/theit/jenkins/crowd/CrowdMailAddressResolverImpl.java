@@ -84,7 +84,9 @@ public class CrowdMailAddressResolverImpl extends MailAddressResolver {
 						.loadUserByUsername(userId);
 				mail = details.getEmailAddress();
 			} catch (UsernameNotFoundException ex) {
-				LOG.info("Failed to look up email address in Crowd");
+				if (LOG.isLoggable(Level.INFO)) {
+					LOG.info("Failed to look up email address in Crowd");
+				}
 			} catch (DataAccessException ex) {
 				LOG.log(Level.SEVERE,
 						"Access exception trying to look up email address in Crowd",
