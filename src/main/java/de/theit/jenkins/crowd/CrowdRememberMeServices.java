@@ -123,7 +123,7 @@ public class CrowdRememberMeServices implements RememberMeServices {
 						.findUserFromSSOToken(ssoToken);
 
 				// check whether the user is a member of the user group in Crowd
-				// that specifies who is allowed to login into Jenkins
+				// that specifies who is allowed to login
 				if (LOG.isLoggable(Level.FINER)) {
 					LOG.finer("Validating group membership of user...");
 				}

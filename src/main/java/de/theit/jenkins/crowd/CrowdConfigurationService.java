@@ -90,7 +90,7 @@ public class CrowdConfigurationService {
 	 */
 	CrowdHttpAuthenticator crowdHttpAuthenticator;
 
-	/** The names of all user groups that are allowed to login into Jenkins. */
+	/** The names of all user groups that are allowed to login. */
 	Collection<String> allowedGroupNames;
 
 	/** Specifies whether nested groups may be used. */
@@ -134,7 +134,7 @@ public class CrowdConfigurationService {
 
 	/**
 	 * Checks whether the user is a member of one of the Crowd groups whose
-	 * members are allowed to login into Jenkins.
+	 * members are allowed to login.
 	 * 
 	 * @param username
 	 *            The name of the user to check. May not be <code>null</code> or

@@ -199,7 +199,7 @@ public class ErrorMessages {
 
 	/**
 	 * Returns the localized error message when a user does not have the
-	 * permission to login into Jenkins.
+	 * permission to login.
 	 * 
 	 * @param username
 	 *            The user name. May not be <code>null</code>.
@@ -208,7 +208,7 @@ public class ErrorMessages {
 	 *            <code>null</code>.
 	 * 
 	 * @return The localized error message when a user does not have the
-	 *         permission to login into Jenkins.
+	 *         permission to login.
 	 */
 	public static String userNotValid(String username,
 			Collection<String> groupNames) {
