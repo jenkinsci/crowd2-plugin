@@ -26,9 +26,9 @@
 package de.theit.jenkins.crowd;
 
 import static de.theit.jenkins.crowd.ErrorMessages.applicationPermission;
+import static de.theit.jenkins.crowd.ErrorMessages.cannotValidateGroups;
 import static de.theit.jenkins.crowd.ErrorMessages.invalidAuthentication;
 import static de.theit.jenkins.crowd.ErrorMessages.operationFailed;
-import static de.theit.jenkins.crowd.ErrorMessages.userGroupNotFound;
 import static de.theit.jenkins.crowd.ErrorMessages.userNotFound;
 import static de.theit.jenkins.crowd.ErrorMessages.userNotValid;
 import hudson.security.SecurityRealm;
@@ -92,12 +92,12 @@ public class CrowdUserDetailsService implements UserDetailsService {
 		// check whether the Jenkins user group in Crowd exists and is active
 		if (!this.configuration.isGroupActive()) {
 			throw new DataRetrievalFailureException(
-					userGroupNotFound(this.configuration.groupName));
+					cannotValidateGroups(this.configuration.allowedGroupNames));
 		}
 
 		if (!this.configuration.isGroupMember(username)) {
 			throw new DataRetrievalFailureException(userNotValid(username,
-					this.configuration.groupName));
+					this.configuration.allowedGroupNames));
 		}
 
 		User user;

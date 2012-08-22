@@ -30,7 +30,7 @@ import static de.theit.jenkins.crowd.ErrorMessages.applicationPermission;
 import static de.theit.jenkins.crowd.ErrorMessages.expiredCredentials;
 import static de.theit.jenkins.crowd.ErrorMessages.invalidAuthentication;
 import static de.theit.jenkins.crowd.ErrorMessages.operationFailed;
-import static de.theit.jenkins.crowd.ErrorMessages.userGroupNotFound;
+import static de.theit.jenkins.crowd.ErrorMessages.userGroupsNotFound;
 import static de.theit.jenkins.crowd.ErrorMessages.userNotFound;
 import static de.theit.jenkins.crowd.ErrorMessages.userNotValid;
 import hudson.security.SecurityRealm;
@@ -115,12 +115,12 @@ public class CrowdAuthenticationManager implements AuthenticationManager {
 		// is a member of it
 		if (!this.configuration.isGroupActive()) {
 			throw new InsufficientAuthenticationException(
-					userGroupNotFound(username));
+					userGroupsNotFound(this.configuration.allowedGroupNames));
 		}
 
 		if (!this.configuration.isGroupMember(username)) {
 			throw new InsufficientAuthenticationException(userNotValid(
-					username, this.configuration.groupName));
+					username, this.configuration.allowedGroupNames));
 		}
 
 		String displayName = null;

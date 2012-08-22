@@ -1,100 +1,67 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-  <modelVersion>4.0.0</modelVersion>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
 
-  <parent>
-    <groupId>org.jenkins-ci.plugins</groupId>
-    <artifactId>plugin</artifactId>
-    <version>1.398</version>
-  </parent>
+    <parent>
+        <groupId>org.jenkins-ci.plugins</groupId>
+        <artifactId>plugin</artifactId>
+        <version>1.398</version>
+    </parent>
 
-  <artifactId>crowd2</artifactId>
-  <version>1.5-SNAPSHOT</version>
+    <artifactId>crowd2</artifactId>
+    <version>1.5-SNAPSHOT</version>
 
-  <packaging>hpi</packaging>
+    <packaging>hpi</packaging>
 
-  <name>Crowd 2 Integration</name>
-  <description>SecurityRealm that enables the use of Atlassian's Crowd identity management server.</description>
+    <name>Crowd 2 Integration</name>
+    <description>SecurityRealm that enables the use of Atlassian's Crowd identity management server.</description>
 
-  <url>http://wiki.jenkins-ci.org/display/JENKINS/Crowd+2+Plugin</url>
+    <url>http://wiki.jenkins-ci.org/display/JENKINS/Crowd+2+Plugin</url>
+    <issueManagement>
+        <system>JIRA</system>
+        <url>https://issues.jenkins-ci.org/</url>
+    </issueManagement>
 
-  <developers>
-    <developer>
-      <id>theit</id>
-      <name>Thorsten Heit</name>
-      <email>theit@gmx.de</email>
-    </developer>
-  </developers>
+    <developers>
+        <developer>
+            <id>theit</id>
+            <name>Thorsten Heit</name>
+            <email>theit@gmx.de</email>
+        </developer>
+    </developers>
 
-  <repositories>
-    <repository>
-      <id>atlassian</id>
-      <url>https://m2proxy.atlassian.com/repository/public</url>
-    </repository>
-    <repository>
-      <id>repo.jenkins-ci.org</id>
-      <url>http://repo.jenkins-ci.org/public/</url>
-      <releases>
-        <enabled>true</enabled>
-      </releases>
-      <snapshots>
-        <enabled>false</enabled>
-      </snapshots>
-    </repository>
-  </repositories>
-
-  <dependencies>
-    <dependency>
-      <groupId>com.atlassian.crowd</groupId>
-      <artifactId>crowd-integration-client-rest</artifactId>
-      <version>2.3.2</version>
-    </dependency>
-    <dependency>
-      <groupId>commons-httpclient</groupId>
-      <artifactId>commons-httpclient</artifactId>
-      <version>3.1</version>
-    </dependency>
-    <dependency>
-      <groupId>commons-codec</groupId>
-      <artifactId>commons-codec</artifactId>
-      <version>1.5</version>
-    </dependency>
-  </dependencies>
-
-  <scm>
-    <connection>scm:git:git://github.com/jenkinsci/crowd2-plugin.git</connection>
-    <developerConnection>scm:git:git@github.com:jenkinsci/crowd2-plugin.git</developerConnection>
-    <url>https://github.com/jenkinsci/crowd2-plugin</url>
-  </scm>
+    <contributors>
+        <contributor>
+            <name>Johno Crawford</name>
+            <email>johno@hellface.com</email>
+            <url>http://www.hellface.com</url>
+        </contributor>
+    </contributors>
 
 
-  <build>
-    <pluginManagement>
-      <plugins>
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-release-plugin</artifactId>
-          <version>2.1</version>
-        </plugin>
-      </plugins>
-    </pluginManagement>
-    <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-release-plugin</artifactId>
-        <version>2.1</version>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-compiler-plugin</artifactId>
-        <version>2.3.2</version>
-        <!--$NO-MVN-MAN-VER$ -->
-        <configuration>
-          <source>1.6</source>
-          <target>1.6</target>
-        </configuration>
-      </plugin>
-    </plugins>
-  </build>
+    <scm>
+        <connection>scm:git:git://github.com/jenkinsci/crowd2-plugin.git</connection>
+        <developerConnection>scm:git:git@github.com:jenkinsci/crowd2-plugin.git</developerConnection>
+        <url>https://github.com/jenkinsci/crowd2-plugin</url>
+    </scm>
+
+
+    <repositories>
+        <repository>
+            <id>atlassian</id>
+            <url>https://m2proxy.atlassian.com/repository/public</url>
+        </repository>
+        <repository>
+            <id>repo.jenkins-ci.org</id>
+            <url>http://repo.jenkins-ci.org/public/</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+    </repositories>
 
     <pluginRepositories>
         <pluginRepository>
@@ -102,5 +69,43 @@
             <url>http://repo.jenkins-ci.org/public/</url>
         </pluginRepository>
     </pluginRepositories>
-</project>  
 
+
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-release-plugin</artifactId>
+                <version>2.3.2</version><!--$NO-MVN-MAN-VER$ -->
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>2.5.1</version><!--$NO-MVN-MAN-VER$ -->
+                <configuration>
+                    <source>1.6</source>
+                    <target>1.6</target>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.atlassian.crowd</groupId>
+            <artifactId>crowd-integration-client-rest</artifactId>
+            <version>2.3.2</version>
+        </dependency>
+        <dependency>
+            <groupId>commons-httpclient</groupId>
+            <artifactId>commons-httpclient</artifactId>
+            <version>3.1</version>
+        </dependency>
+        <dependency>
+            <groupId>commons-codec</groupId>
+            <artifactId>commons-codec</artifactId>
+            <version>1.5</version>
+        </dependency>
+    </dependencies>
+</project>  

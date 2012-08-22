@@ -34,7 +34,7 @@ THE SOFTWARE.
 	<f:entry title="${%Application Password}" field="password">
 		<f:password autocomplete="off" />
 	</f:entry>
-	<f:entry title="${%Group name for users}" field="group">
+	<f:entry title="${%Group names for users}" field="groups">
 		<f:textbox default="jenkins-users" />
 	</f:entry>
 	<f:advanced>
@@ -46,5 +46,5 @@ THE SOFTWARE.
 		</f:entry>
 	</f:advanced>
 	<f:validateButton method="testConnection" title="${%Check Connection}"
-		with="url,applicationName,password,group" />
+		with="url,applicationName,password,groups" />
 </j:jelly>

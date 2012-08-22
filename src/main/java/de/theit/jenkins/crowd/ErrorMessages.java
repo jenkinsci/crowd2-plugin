@@ -25,6 +25,8 @@
  */
 package de.theit.jenkins.crowd;
 
+import java.util.Collection;
+
 import org.jvnet.localizer.ResourceBundleHolder;
 
 /**
@@ -74,6 +76,17 @@ public class ErrorMessages {
 	 */
 	public static String specifyGroup() {
 		return holder.format("specifyGroup");
+	}
+
+	/**
+	 * Returns the localized error message when no session validation interval
+	 * time is given.
+	 * 
+	 * @return The localized error message for a missing session validation
+	 *         interval time.
+	 */
+	public static String specifySessionValidationInterval() {
+		return holder.format("specifySessionValidationInterval");
 	}
 
 	/**
@@ -147,17 +160,19 @@ public class ErrorMessages {
 	}
 
 	/**
-	 * Returns the localized error message when the specified group does not
-	 * exist on the remote Crowd server or is not active.
+	 * Returns the localized error message when the specified groups do not
+	 * exist on the remote Crowd server or are not active.
 	 * 
-	 * @param groupname
-	 *            The name of the group. May not be <code>null</code>.
+	 * @param groupNames
+	 *            The names of the groups allowed to login. May not be
+	 *            <code>null</code>.
 	 * 
-	 * @return The localized error message when the specified group cannot be
+	 * @return The localized error message when the specified groups cannot be
 	 *         validated against the remote Crowd server.
 	 */
-	public static String cannotValidateGroup(String groupname) {
-		return holder.format("cannotValidateGroup", groupname);
+	public static String cannotValidateGroups(Collection<String> groupNames) {
+		return holder.format("cannotValidateGroups",
+				groupNamesToString(groupNames));
 	}
 
 	/**
@@ -211,14 +226,15 @@ public class ErrorMessages {
 	 * Returns the localized error message when the group of users that are
 	 * allowed to login into Jenkins does not exist or is not active.
 	 * 
-	 * @param username
-	 *            The user name. May not be <code>null</code>.
+	 * @param groupNames
+	 *            The group names. May not be <code>null</code>.
 	 * 
 	 * @return The localized error message for a non-existing or non-active
 	 *         group.
 	 */
-	public static String userGroupNotFound(String username) {
-		return holder.format("userGroupNotFound", username);
+	public static String userGroupsNotFound(Collection<String> groupNames) {
+		return holder.format("userGroupNotFound",
+				groupNamesToString(groupNames));
 	}
 
 	/**
@@ -227,13 +243,37 @@ public class ErrorMessages {
 	 * 
 	 * @param username
 	 *            The user name. May not be <code>null</code>.
-	 * @param groupname
-	 *            The name of the group. May not be <code>null</code>.
+	 * @param groupNames
+	 *            The names of the groups allowed to login. May not be
+	 *            <code>null</code>.
 	 * 
 	 * @return The localized error message when a user does not have the
 	 *         permission to login into Jenkins.
 	 */
-	public static String userNotValid(String username, String groupname) {
-		return holder.format("userNotValid", username, groupname);
+	public static String userNotValid(String username,
+			Collection<String> groupNames) {
+		return holder.format("userNotValid", username,
+				groupNamesToString(groupNames));
+	}
+
+	/**
+	 * Creates a readable string representation of the given list of group
+	 * names.
+	 * 
+	 * @param groupNames
+	 *            The names of the groups. May not be <code>null</code>.
+	 * @return A readable string representation with the given group names.
+	 */
+	private static String groupNamesToString(Collection<String> groupNames) {
+		StringBuilder sb = new StringBuilder();
+		boolean hasEntry = false;
+		for (String group : groupNames) {
+			if (hasEntry) {
+				sb.append(", ");
+			}
+			sb.append(group);
+		}
+
+		return sb.toString();
 	}
 }
