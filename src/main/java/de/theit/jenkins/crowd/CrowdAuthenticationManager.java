@@ -111,11 +111,13 @@ public class CrowdAuthenticationManager implements AuthenticationManager {
 
 		String password = authentication.getCredentials().toString();
 
-		// ensure that the group is available, active and that the user
-		// is a member of it
-		if (!this.configuration.isGroupMember(username)) {
-			throw new InsufficientAuthenticationException(userNotValid(
+		if (! this.configuration.allowedGroupNames.isEmpty()) {
+			// ensure that the group is available, active and that the user
+			// is a member of it
+			if (!this.configuration.isGroupMember(username)) {
+				throw new InsufficientAuthenticationException(userNotValid(
 					username, this.configuration.allowedGroupNames));
+			}
 		}
 
 		//String displayName = null;

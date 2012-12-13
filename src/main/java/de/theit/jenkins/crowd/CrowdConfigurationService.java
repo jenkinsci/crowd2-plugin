@@ -107,9 +107,9 @@ public class CrowdConfigurationService {
 	 *            users against a group name.
 	 */
 	public CrowdConfigurationService(String pGroupNames, boolean pNestedGroups) {
-		if (0 == pGroupNames.length()) {
-			throw new IllegalArgumentException(specifyGroup());
-		}
+		//if (0 == pGroupNames.length()) {
+		//	throw new IllegalArgumentException(specifyGroup());
+		//}
 
 		if (LOG.isLoggable(Level.INFO)) {
 			LOG.info("Groups given for Crowd configuration service: "
@@ -125,9 +125,9 @@ public class CrowdConfigurationService {
 			}
 		}
 
-		if (this.allowedGroupNames.isEmpty()) {
-			throw new IllegalArgumentException(specifyGroup());
-		}
+		//if (this.allowedGroupNames.isEmpty()) {
+		//	throw new IllegalArgumentException(specifyGroup());
+		//}
 
 		this.nestedGroups = pNestedGroups;
 	}

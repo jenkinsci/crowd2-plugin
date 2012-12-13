@@ -341,11 +341,13 @@ public class CrowdSecurityRealm extends AbstractPasswordBasedSecurityRealm {
 	@Override
 	protected UserDetails authenticate(String pUsername, String pPassword)
 			throws AuthenticationException {
-		// ensure that the group is available, active and that the user
-		// is a member of it
-		if (!this.configuration.isGroupMember(pUsername)) {
-			throw new InsufficientAuthenticationException(userNotValid(
-					pUsername, this.configuration.allowedGroupNames));
+		if (! this.configuration.allowedGroupNames.isEmpty()) {
+			// ensure that the group is available, active and that the user
+			// is a member of it
+			if (!this.configuration.isGroupMember(pUsername)) {
+				throw new InsufficientAuthenticationException(userNotValid(
+						pUsername, this.configuration.allowedGroupNames));
+			}
 		}
 
 		User user;
@@ -491,9 +493,9 @@ public class CrowdSecurityRealm extends AbstractPasswordBasedSecurityRealm {
 				return FormValidation.ok();
 			}
 
-			if (0 == group.length()) {
-				return FormValidation.error(specifyGroup());
-			}
+			//if (0 == group.length()) {
+			//	return FormValidation.error(specifyGroup());
+			//}
 
 			return FormValidation.ok();
 		}
