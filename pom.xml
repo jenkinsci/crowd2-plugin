@@ -4,7 +4,7 @@
     <parent>
         <groupId>org.jenkins-ci.plugins</groupId>
         <artifactId>plugin</artifactId>
-        <version>1.398</version>
+        <version>1.488</version>
     </parent>
 
     <artifactId>crowd2</artifactId>
@@ -34,6 +34,11 @@
             <name>Johno Crawford</name>
             <email>johno@hellface.com</email>
             <url>http://www.hellface.com</url>
+        </contributor>
+        <contributor>
+            <name>Jason Stiefel</name>
+            <email>jason@stiefel.io</email>
+            <url>http://stiefel.io</url>
         </contributor>
     </contributors>
 
