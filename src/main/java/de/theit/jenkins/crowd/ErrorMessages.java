@@ -131,6 +131,17 @@ public class ErrorMessages {
 		return holder.format("applicationPermission");
 	}
 
+    /**
+     * Returns the localized error message when the user could not be looked up by their email on the
+     * remote Crowd server.
+     *
+     * @param email The email we attempted to resolve. May not be {@code null}
+     * @return The localized error message when the email was not found
+     */
+    public static String emailNotFound(String email) {
+        return holder.format("emailNotFound", email);
+    }
+
 	/**
 	 * Returns the localized error message when the user was not found on the
 	 * remote Crowd server.
