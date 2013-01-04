@@ -39,6 +39,11 @@ import static de.theit.jenkins.crowd.ErrorMessages.specifyGroup;
 import static de.theit.jenkins.crowd.ErrorMessages.specifySessionValidationInterval;
 import static de.theit.jenkins.crowd.ErrorMessages.userNotFound;
 import static de.theit.jenkins.crowd.ErrorMessages.userNotValid;
+import static de.theit.jenkins.crowd.ErrorMessages.emailNotFound;
+
+import com.atlassian.crowd.search.query.entity.restriction.MatchMode;
+import com.atlassian.crowd.search.query.entity.restriction.TermRestriction;
+import com.atlassian.crowd.search.query.entity.restriction.constants.UserTermKeys;
 import hudson.Extension;
 import hudson.model.Descriptor;
 import hudson.model.Hudson;
@@ -49,6 +54,7 @@ import hudson.util.FormValidation;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
 import java.util.logging.Level;
@@ -280,6 +286,42 @@ public class CrowdSecurityRealm extends AbstractPasswordBasedSecurityRealm {
 			throws UsernameNotFoundException, DataAccessException {
 		return getSecurityComponents().userDetails.loadUserByUsername(username);
 	}
+
+    /**
+     * Attempts to resolve an email address into the Crowd user (as is common when using the Git plugin)
+     *
+     * @param email An email address that will be used to search the Crowd server for the first matching user
+     * @return Delegates to {@link #loadUserByUsername(String)}
+     */
+    public UserDetails loadUserByEmail(String email)
+            throws UsernameNotFoundException, DataAccessException {
+
+        List<String> usernames = Collections.EMPTY_LIST;
+        try {
+
+            usernames = this.configuration.crowdClient.searchUserNames(
+                    new TermRestriction(UserTermKeys.EMAIL, MatchMode.EXACTLY_MATCHES, email.toLowerCase()), 0, 1);
+
+        } catch (InvalidAuthenticationException e) {
+            LOG.warning(invalidAuthentication());
+        } catch (ApplicationPermissionException e) {
+            LOG.warning(applicationPermission());
+        } catch (OperationFailedException e) {
+            LOG.log(Level.SEVERE, operationFailed(), e);
+        }
+
+        if (usernames.isEmpty()) {
+            if (LOG.isLoggable(Level.WARNING))
+                LOG.warning("Could not resolve address '" + email + "' into a Crowd user");
+            throw new UsernameNotFoundException(emailNotFound(email));
+        }
+
+        if (LOG.isLoggable(Level.FINE))
+            LOG.fine("Resolved email '" + email + "' into username '" + usernames.get(0) + "'...");
+
+        return loadUserByUsername(usernames.get(0));
+
+    }
 
 	/**
 	 * {@inheritDoc}
