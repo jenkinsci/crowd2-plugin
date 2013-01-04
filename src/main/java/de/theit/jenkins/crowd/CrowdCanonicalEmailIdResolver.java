@@ -44,7 +44,7 @@ public class CrowdCanonicalEmailIdResolver extends User.CanonicalIdResolver {
 
         for (User user : User.getAll()) {
             Mailer.UserProperty property = user.getProperty(Mailer.UserProperty.class);
-            if (property != null && idOrFullName.equalsIgnoreCase(property.getAddress())) {
+            if (property != null && (property.hasExplicitlyConfiguredAddress() && idOrFullName.equalsIgnoreCase(property.getAddress()))) {
                 if (LOG.isLoggable(Level.FINE))
                     LOG.fine("Resolved '" + idOrFullName + "' into local user " + user.getId());
                 return user.getId();
