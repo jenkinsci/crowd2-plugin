@@ -29,6 +29,7 @@ import java.util.List;
 
 import org.acegisecurity.GrantedAuthority;
 import org.acegisecurity.providers.AbstractAuthenticationToken;
+import org.apache.commons.lang.StringUtils;
 
 /**
  * This class represents an authentication token that is created after a user
@@ -51,9 +52,6 @@ public class CrowdAuthenticationToken extends AbstractAuthenticationToken {
 	/** The Crowd SSO token after a successful login. */
 	private String ssoToken;
 
-	/** The display name of the user. */
-	private String displayName;
-
 	/**
 	 * Creates a new authorization token.
 	 * 
@@ -73,13 +71,11 @@ public class CrowdAuthenticationToken extends AbstractAuthenticationToken {
 	 *            The display name of the user. May be <code>null</code>.
 	 */
 	public CrowdAuthenticationToken(String pPrincipal, String pCredentials,
-			List<GrantedAuthority> authorities, String pSsoToken,
-			String pDisplayName) {
+			List<GrantedAuthority> authorities, String pSsoToken) {
 		super(authorities.toArray(new GrantedAuthority[authorities.size()]));
 		this.principal = pPrincipal;
 		this.credentials = pCredentials;
 		this.ssoToken = pSsoToken;
-		this.displayName = pDisplayName;
 	}
 
 	/**
@@ -119,10 +115,28 @@ public class CrowdAuthenticationToken extends AbstractAuthenticationToken {
 	 */
 	@Override
 	public String getName() {
+	return super.getName();
+	/*
 		if (null == this.displayName) {
 			return super.getName();
 		}
 		// append the user Id stored in getName() at the end of the display name
 		return this.displayName + " (" + super.getName() + ')';
+		*/
 	}
+	
+	
+	 public  static void updateUserInfo(com.atlassian.crowd.model.user.User user) {
+	    final String displayName = user == null ? null :  user.getDisplayName();
+        if(StringUtils.isNotBlank(displayName)){
+            final String username = user.getName();
+            getJenkinsUser(username).setFullName(displayName + " (" + username+ ')');
+        }	
+	 }
+    /**
+     * Gets the corresponding {@link hudson.model.User} object.
+     */
+    private static hudson.model.User getJenkinsUser(String username) {
+        return hudson.model.User.get(username);
+    }
 }

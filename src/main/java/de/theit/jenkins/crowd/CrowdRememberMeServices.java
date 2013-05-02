@@ -121,7 +121,7 @@ public class CrowdRememberMeServices implements RememberMeServices {
 				}
 				User user = this.configuration.crowdClient
 						.findUserFromSSOToken(ssoToken);
-
+			    CrowdAuthenticationToken.updateUserInfo(user);
 				// check whether the user is a member of the user group in Crowd
 				// that specifies who is allowed to login
 				if (LOG.isLoggable(Level.FINER)) {
@@ -137,7 +137,7 @@ public class CrowdRememberMeServices implements RememberMeServices {
 							.getAuthoritiesForUser(user.getName()));
 
 					result = new CrowdAuthenticationToken(user.getName(), null,
-							authorities, ssoToken, user.getDisplayName());
+							authorities, ssoToken);
 				}
 			} catch (InvalidTokenException ex) {
 				// LOG.log(Level.INFO, invalidToken(), ex);
