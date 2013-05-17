@@ -48,6 +48,7 @@ import org.acegisecurity.BadCredentialsException;
 import org.acegisecurity.CredentialsExpiredException;
 import org.acegisecurity.GrantedAuthority;
 import org.acegisecurity.InsufficientAuthenticationException;
+import org.apache.commons.lang.StringUtils;
 
 import com.atlassian.crowd.exception.ApplicationPermissionException;
 import com.atlassian.crowd.exception.ExpiredCredentialException;
@@ -117,7 +118,7 @@ public class CrowdAuthenticationManager implements AuthenticationManager {
 					username, this.configuration.allowedGroupNames));
 		}
 
-		String displayName = null;
+		//String displayName = null;
 		try {
 			// authenticate user
 			if (LOG.isLoggable(Level.FINE)) {
@@ -125,7 +126,8 @@ public class CrowdAuthenticationManager implements AuthenticationManager {
 			}
 			User user = this.configuration.crowdClient.authenticateUser(
 					username, password);
-			displayName = user.getDisplayName();
+			CrowdAuthenticationToken.updateUserInfo(user);
+			//displayName = user.getDisplayName();
 		} catch (UserNotFoundException ex) {
 			if (LOG.isLoggable(Level.INFO)) {
 				LOG.info(userNotFound(username));
@@ -165,8 +167,10 @@ public class CrowdAuthenticationManager implements AuthenticationManager {
 		if (LOG.isLoggable(Level.FINE)) {
 			LOG.fine("User successfully authenticated; creating authentication token");
 		}
-
-		return new CrowdAuthenticationToken(username, password, authorities,
-				null, displayName);
+	
+		return new CrowdAuthenticationToken(username, password, authorities,null);
 	}
+	
+	
+
 }
