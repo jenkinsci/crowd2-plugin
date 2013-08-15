@@ -44,6 +44,9 @@ THE SOFTWARE.
 		<f:entry title="${%Session validation interval}" field="sessionValidationInterval">
 			<f:textbox default="2" />
 		</f:entry>
+		<f:entry title="${%Use SSO}" field="useSSO">
+			<f:checkbox default="true" />
+		</f:entry>
 	</f:advanced>
 	<f:validateButton method="testConnection" title="${%Check Connection}"
 		with="url,applicationName,password,group" />
