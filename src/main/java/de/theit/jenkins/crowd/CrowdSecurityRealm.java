@@ -118,6 +118,11 @@ public class CrowdSecurityRealm extends AbstractPasswordBasedSecurityRealm {
 	/** Specifies whether nested groups can be used. */
 	public final boolean nestedGroups;
 
+	/** Don't use SSO, only REST API authentication. */
+	// TODO: Currently this just disables CrowdServletFilter,
+	// (auto-logout), maybe worth disabling other SSO handling too.
+	public final boolean useSSO;
+
 	/**
 	 * The number of minutes to cache authentication validation in the session.
 	 * If this value is set to 0, each HTTP request will be authenticated with
@@ -156,13 +161,14 @@ public class CrowdSecurityRealm extends AbstractPasswordBasedSecurityRealm {
 	@DataBoundConstructor
 	public CrowdSecurityRealm(String url, String applicationName,
 			String password, String group, boolean nestedGroups,
-			int sessionValidationInterval) {
+			int sessionValidationInterval, boolean useSSO) {
 		this.url = url.trim();
 		this.applicationName = applicationName.trim();
 		this.password = password.trim();
 		this.group = group.trim();
 		this.nestedGroups = nestedGroups;
 		this.sessionValidationInterval = sessionValidationInterval;
+		this.useSSO = useSSO;
 	}
 
 	/**
@@ -266,6 +272,10 @@ public class CrowdSecurityRealm extends AbstractPasswordBasedSecurityRealm {
 		}
 
 		Filter defaultFilter = super.createFilter(filterConfig);
+
+		if (!useSSO) {
+			return defaultFilter;
+		}
 
 		return new CrowdServletFilter(this, this.configuration, defaultFilter);
 	}
