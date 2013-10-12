@@ -67,8 +67,6 @@ public class CrowdAuthenticationToken extends AbstractAuthenticationToken {
 	 * @param pSsoToken
 	 *            The Crowd SSO token. May be <code>null</code> if the token is
 	 *            not (yet) available.
-	 * @param pDisplayName
-	 *            The display name of the user. May be <code>null</code>.
 	 */
 	public CrowdAuthenticationToken(String pPrincipal, String pCredentials,
 			List<GrantedAuthority> authorities, String pSsoToken) {
