@@ -34,7 +34,7 @@ THE SOFTWARE.
 	<f:entry title="${%Application Password}" field="password">
 		<f:password autocomplete="off" />
 	</f:entry>
-	<f:entry title="${%Group name/s for users}" field="group">
+	<f:entry title="${%Restrict groups}" field="group">
 		<f:textbox default="jenkins-users" />
 	</f:entry>
 	<f:advanced>

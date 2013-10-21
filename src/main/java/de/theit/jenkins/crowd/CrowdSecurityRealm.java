@@ -480,27 +480,6 @@ public class CrowdSecurityRealm extends AbstractPasswordBasedSecurityRealm {
 		}
 
 		/**
-		 * Performs on-the-fly validation of the form field 'group name'.
-		 * 
-		 * @param group
-		 *            The group name.
-		 * 
-		 * @return Indicates the outcome of the validation. This is sent to the
-		 *         browser.
-		 */
-		public FormValidation doCheckGroup(@QueryParameter final String group) {
-			if (!Hudson.getInstance().hasPermission(Hudson.ADMINISTER)) {
-				return FormValidation.ok();
-			}
-
-			//if (0 == group.length()) {
-			//	return FormValidation.error(specifyGroup());
-			//}
-
-			return FormValidation.ok();
-		}
-
-		/**
 		 * Performs on-the-fly validation of the form field 'session validation
 		 * interval'.
 		 * 

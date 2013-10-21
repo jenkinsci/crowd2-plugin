@@ -29,7 +29,6 @@ import static de.theit.jenkins.crowd.ErrorMessages.applicationPermission;
 import static de.theit.jenkins.crowd.ErrorMessages.groupNotFound;
 import static de.theit.jenkins.crowd.ErrorMessages.invalidAuthentication;
 import static de.theit.jenkins.crowd.ErrorMessages.operationFailed;
-import static de.theit.jenkins.crowd.ErrorMessages.specifyGroup;
 import static de.theit.jenkins.crowd.ErrorMessages.userNotFound;
 
 import java.util.ArrayList;
@@ -107,10 +106,6 @@ public class CrowdConfigurationService {
 	 *            users against a group name.
 	 */
 	public CrowdConfigurationService(String pGroupNames, boolean pNestedGroups) {
-		//if (0 == pGroupNames.length()) {
-		//	throw new IllegalArgumentException(specifyGroup());
-		//}
-
 		if (LOG.isLoggable(Level.INFO)) {
 			LOG.info("Groups given for Crowd configuration service: "
 					+ pGroupNames);
@@ -124,10 +119,6 @@ public class CrowdConfigurationService {
 				this.allowedGroupNames.add(group);
 			}
 		}
-
-		//if (this.allowedGroupNames.isEmpty()) {
-		//	throw new IllegalArgumentException(specifyGroup());
-		//}
 
 		this.nestedGroups = pNestedGroups;
 	}
