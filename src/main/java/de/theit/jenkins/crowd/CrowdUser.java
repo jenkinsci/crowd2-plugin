@@ -54,7 +54,7 @@ public class CrowdUser implements UserDetails {
 	 * Creates a new instance.
 	 * 
 	 * @param pUser
-	 *            The user object. May not be <code>null</code>.
+	 *            Crowd user object. May not be <code>null</code>.
 	 * @param authorities
 	 *            The granted authorities of the user. May not be
 	 *            <code>null</code>.
