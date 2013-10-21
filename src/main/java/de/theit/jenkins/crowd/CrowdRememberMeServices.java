@@ -95,61 +95,62 @@ public class CrowdRememberMeServices implements RememberMeServices {
 			HttpServletResponse response) {
 		Authentication result = null;
 
-		List<ValidationFactor> validationFactors = this.configuration.tokenHelper
-				.getValidationFactorExtractor().getValidationFactors(request);
+        if (configuration.useSSO){
+            List<ValidationFactor> validationFactors = this.configuration.tokenHelper
+                    .getValidationFactorExtractor().getValidationFactors(request);
 
-		// check whether a SSO token is available
-		if (LOG.isLoggable(Level.FINER)) {
-			LOG.finer("Checking whether a SSO token is available...");
-		}
-		String ssoToken = this.configuration.tokenHelper.getCrowdToken(request,
-				this.configuration.clientProperties.getCookieTokenKey());
+            // check whether a SSO token is available
+            if (LOG.isLoggable(Level.FINER)) {
+                LOG.finer("Checking whether a SSO token is available...");
+            }
+            String ssoToken = this.configuration.tokenHelper.getCrowdToken(request,
+                    this.configuration.clientProperties.getCookieTokenKey());
 
-		// auto-login is only possible when the SSO token was found
-		if (null != ssoToken) {
-			try {
-				// SSO token available => check whether it is still valid
-				if (LOG.isLoggable(Level.FINER)) {
-					LOG.finer("SSO token available => check whether it is still valid...");
-				}
-				this.configuration.crowdClient.validateSSOAuthentication(
-						ssoToken, validationFactors);
+            // auto-login is only possible when the SSO token was found
+            if (null != ssoToken) {
+                try {
+                    // SSO token available => check whether it is still valid
+                    if (LOG.isLoggable(Level.FINER)) {
+                        LOG.finer("SSO token available => check whether it is still valid...");
+                    }
+                    this.configuration.crowdClient.validateSSOAuthentication(
+                            ssoToken, validationFactors);
 
-				// retrieve the user that is logged in via SSO
-				if (LOG.isLoggable(Level.FINER)) {
-					LOG.finer("Retrieving SSO user...");
-				}
-				User user = this.configuration.crowdClient
-						.findUserFromSSOToken(ssoToken);
-			    CrowdAuthenticationToken.updateUserInfo(user);
-				// check whether the user is a member of the user group in Crowd
-				// that specifies who is allowed to login
-				if (LOG.isLoggable(Level.FINER)) {
-					LOG.finer("Validating group membership of user...");
-				}
-				if (this.configuration.isGroupMember(user.getName())) {
-					// user is authenticated and validated
-					// => create the user object and finalize the auto-login
-					// process
-					List<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>();
-					authorities.add(SecurityRealm.AUTHENTICATED_AUTHORITY);
-					authorities.addAll(this.configuration
-							.getAuthoritiesForUser(user.getName()));
+                    // retrieve the user that is logged in via SSO
+                    if (LOG.isLoggable(Level.FINER)) {
+                        LOG.finer("Retrieving SSO user...");
+                    }
+                    User user = this.configuration.crowdClient
+                            .findUserFromSSOToken(ssoToken);
+                    CrowdAuthenticationToken.updateUserInfo(user);
+                    // check whether the user is a member of the user group in Crowd
+                    // that specifies who is allowed to login
+                    if (LOG.isLoggable(Level.FINER)) {
+                        LOG.finer("Validating group membership of user...");
+                    }
+                    if (this.configuration.isGroupMember(user.getName())) {
+                        // user is authenticated and validated
+                        // => create the user object and finalize the auto-login
+                        // process
+                        List<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>();
+                        authorities.add(SecurityRealm.AUTHENTICATED_AUTHORITY);
+                        authorities.addAll(this.configuration
+                                .getAuthoritiesForUser(user.getName()));
 
-					result = new CrowdAuthenticationToken(user.getName(), null,
-							authorities, ssoToken);
-				}
-			} catch (InvalidTokenException ex) {
-				// LOG.log(Level.INFO, invalidToken(), ex);
-			} catch (ApplicationPermissionException ex) {
-				LOG.warning(applicationPermission());
-			} catch (InvalidAuthenticationException ex) {
-				LOG.warning(invalidAuthentication());
-			} catch (OperationFailedException ex) {
-				LOG.log(Level.SEVERE, operationFailed(), ex);
-			}
-		}
-
+                        result = new CrowdAuthenticationToken(user.getName(), null,
+                                authorities, ssoToken);
+                    }
+                } catch (InvalidTokenException ex) {
+                    // LOG.log(Level.INFO, invalidToken(), ex);
+                } catch (ApplicationPermissionException ex) {
+                    LOG.warning(applicationPermission());
+                } catch (InvalidAuthenticationException ex) {
+                    LOG.warning(invalidAuthentication());
+                } catch (OperationFailedException ex) {
+                    LOG.log(Level.SEVERE, operationFailed(), ex);
+                }
+            }
+        }
 		return result;
 	}
 

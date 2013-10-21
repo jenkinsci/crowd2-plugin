@@ -213,6 +213,7 @@ public class CrowdSecurityRealm extends AbstractPasswordBasedSecurityRealm {
 				this.configuration.crowdClient,
 				this.configuration.clientProperties,
 				this.configuration.tokenHelper);
+        this.configuration.useSSO = useSSO;
 	}
 
 	/**

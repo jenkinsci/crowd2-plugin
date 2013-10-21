@@ -95,6 +95,8 @@ public class CrowdConfigurationService {
 	/** Specifies whether nested groups may be used. */
 	private boolean nestedGroups;
 
+    boolean useSSO;
+
 	/**
 	 * Creates a new Crowd configuration object.
 	 * 
