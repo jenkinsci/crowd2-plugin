@@ -88,13 +88,15 @@ public class CrowdUserDetailsService implements UserDetailsService {
 	@Override
 	public UserDetails loadUserByUsername(String username)
 			throws UsernameNotFoundException, DataAccessException {
-		// check whether there's at least one active group the user is a member
-		// of
-		if (!this.configuration.isGroupMember(username)) {
-			throw new DataRetrievalFailureException(userNotValid(username,
-					this.configuration.allowedGroupNames));
-		}
 
+        if (!configuration.allowedGroupNames.isEmpty()) {
+            // check whether there's at least one active group the user is a member
+            // of
+            if (!this.configuration.isGroupMember(username)) {
+                throw new DataRetrievalFailureException(userNotValid(username,
+                        this.configuration.allowedGroupNames));
+            }
+        }
 		User user;
 		try {
 			// load the user object from the remote Crowd server
