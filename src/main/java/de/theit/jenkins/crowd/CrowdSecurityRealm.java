@@ -157,7 +157,6 @@ public class CrowdSecurityRealm extends AbstractPasswordBasedSecurityRealm {
 	 *            the session. If this value is set to <code>0</code>, each HTTP
 	 *            request will be authenticated with the Crowd server.
 	 */
-	@SuppressWarnings("hiding")
 	@DataBoundConstructor
 	public CrowdSecurityRealm(String url, String applicationName,
 			String password, String group, boolean nestedGroups,
