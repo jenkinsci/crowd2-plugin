@@ -35,7 +35,6 @@ import static de.theit.jenkins.crowd.ErrorMessages.operationFailed;
 import static de.theit.jenkins.crowd.ErrorMessages.specifyApplicationName;
 import static de.theit.jenkins.crowd.ErrorMessages.specifyApplicationPassword;
 import static de.theit.jenkins.crowd.ErrorMessages.specifyCrowdUrl;
-import static de.theit.jenkins.crowd.ErrorMessages.specifyGroup;
 import static de.theit.jenkins.crowd.ErrorMessages.specifySessionValidationInterval;
 import static de.theit.jenkins.crowd.ErrorMessages.userNotFound;
 import static de.theit.jenkins.crowd.ErrorMessages.userNotValid;

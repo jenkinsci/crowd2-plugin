@@ -48,7 +48,6 @@ import org.acegisecurity.BadCredentialsException;
 import org.acegisecurity.CredentialsExpiredException;
 import org.acegisecurity.GrantedAuthority;
 import org.acegisecurity.InsufficientAuthenticationException;
-import org.apache.commons.lang.StringUtils;
 
 import com.atlassian.crowd.exception.ApplicationPermissionException;
 import com.atlassian.crowd.exception.ExpiredCredentialException;

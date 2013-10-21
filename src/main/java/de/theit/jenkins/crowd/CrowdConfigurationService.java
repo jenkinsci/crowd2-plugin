@@ -90,7 +90,7 @@ public class CrowdConfigurationService {
 	CrowdHttpAuthenticator crowdHttpAuthenticator;
 
 	/** The names of all user groups that are allowed to login. */
-	Collection<String> allowedGroupNames;
+	ArrayList<String> allowedGroupNames;
 
 	/** Specifies whether nested groups may be used. */
 	private boolean nestedGroups;

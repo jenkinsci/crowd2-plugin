@@ -25,6 +25,7 @@
  */
 package de.theit.jenkins.crowd;
 
+import java.util.ArrayList;
 import java.util.Collection;
 
 import org.jvnet.localizer.ResourceBundleHolder;
@@ -210,30 +211,7 @@ public class ErrorMessages {
 	 * @return The localized error message when a user does not have the
 	 *         permission to login.
 	 */
-	public static String userNotValid(String username,
-			Collection<String> groupNames) {
-		return holder.format("userNotValid", username,
-				groupNamesToString(groupNames));
-	}
-
-	/**
-	 * Creates a readable string representation of the given list of group
-	 * names.
-	 * 
-	 * @param groupNames
-	 *            The names of the groups. May not be <code>null</code>.
-	 * @return A readable string representation with the given group names.
-	 */
-	private static String groupNamesToString(Collection<String> groupNames) {
-		StringBuilder sb = new StringBuilder();
-		boolean hasEntry = false;
-		for (String group : groupNames) {
-			if (hasEntry) {
-				sb.append(", ");
-			}
-			sb.append(group);
-		}
-
-		return sb.toString();
+	public static String userNotValid(String username, ArrayList<String> groupNames) {
+		return holder.format("userNotValid", username, groupNames.toString());
 	}
 }
