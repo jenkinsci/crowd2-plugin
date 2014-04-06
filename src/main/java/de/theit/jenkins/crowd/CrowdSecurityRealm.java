@@ -227,16 +227,20 @@ public class CrowdSecurityRealm extends AbstractPasswordBasedSecurityRealm {
 			initializeConfiguration();
 		}
 
-		CrowdRememberMeServices ssoService = new CrowdRememberMeServices(
-				this.configuration);
-
 		AuthenticationManager crowdAuthenticationManager = new CrowdAuthenticationManager(
 				this.configuration);
 		UserDetailsService crowdUserDetails = new CrowdUserDetailsService(
 				this.configuration);
 
-		return new SecurityComponents(crowdAuthenticationManager,
-				crowdUserDetails, ssoService);
+        if (useSSO) {
+            CrowdRememberMeServices ssoService = new CrowdRememberMeServices(
+          				this.configuration);
+            return new SecurityComponents(crowdAuthenticationManager,
+          				crowdUserDetails, ssoService);
+        } else {
+            return new SecurityComponents(crowdAuthenticationManager,
+          				crowdUserDetails);
+        }
 	}
 
 	/**
@@ -250,11 +254,13 @@ public class CrowdSecurityRealm extends AbstractPasswordBasedSecurityRealm {
 			throws IOException, ServletException {
 		SecurityRealm realm = Hudson.getInstance().getSecurityRealm();
 
-		if (realm instanceof CrowdSecurityRealm
-				&& realm.getSecurityComponents().rememberMe instanceof CrowdRememberMeServices) {
-			((CrowdRememberMeServices) realm.getSecurityComponents().rememberMe)
-					.logout(req, rsp);
-		}
+        if (useSSO) {
+            if (realm instanceof CrowdSecurityRealm
+                    && realm.getSecurityComponents().rememberMe instanceof CrowdRememberMeServices) {
+                ((CrowdRememberMeServices) realm.getSecurityComponents().rememberMe)
+                        .logout(req, rsp);
+            }
+        }
 
 		super.doLogout(req, rsp);
 	}
