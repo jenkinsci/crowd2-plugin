@@ -64,8 +64,7 @@ import com.atlassian.crowd.model.user.User;
  */
 public class CrowdRememberMeServices implements RememberMeServices {
 	/** Used for logging purposes. */
-	private static final Logger LOG = Logger
-			.getLogger(CrowdRememberMeServices.class.getName());
+	private static final Logger LOG = Logger.getLogger(CrowdRememberMeServices.class.getName());
 
 	/**
 	 * The configuration data necessary for accessing the services on the remote
@@ -134,11 +133,8 @@ public class CrowdRememberMeServices implements RememberMeServices {
                         // process
                         List<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>();
                         authorities.add(SecurityRealm.AUTHENTICATED_AUTHORITY);
-                        authorities.addAll(this.configuration
-                                .getAuthoritiesForUser(user.getName()));
-
-                        result = new CrowdAuthenticationToken(user.getName(), null,
-                                authorities, ssoToken);
+                        authorities.addAll(this.configuration.getAuthoritiesForUser(user.getName()));
+                        result = new CrowdAuthenticationToken(user.getName(), null, authorities, ssoToken);
                     }
                 } catch (InvalidTokenException ex) {
                     // LOG.log(Level.INFO, invalidToken(), ex);
@@ -186,16 +182,15 @@ public class CrowdRememberMeServices implements RememberMeServices {
 	 */
 	@Override
 	public void loginSuccess(HttpServletRequest request,
-			HttpServletResponse response,
-			Authentication successfulAuthentication) {
+                             HttpServletResponse response,
+                             Authentication successfulAuthentication) {
 		if (!(successfulAuthentication instanceof CrowdAuthenticationToken)) {
 			// authentication token doesn't belong to us...
 			return;
 		}
 		CrowdAuthenticationToken crowdAuthenticationToken = (CrowdAuthenticationToken) successfulAuthentication;
 
-		List<ValidationFactor> validationFactors = this.configuration.tokenHelper
-				.getValidationFactorExtractor().getValidationFactors(request);
+		List<ValidationFactor> validationFactors = this.configuration.tokenHelper.getValidationFactorExtractor().getValidationFactors(request);
 
 		// check if there's already a SSO token in the authentication object
 		String ssoToken = crowdAuthenticationToken.getSSOToken();
@@ -216,10 +211,8 @@ public class CrowdRememberMeServices implements RememberMeServices {
 				if (LOG.isLoggable(Level.FINER)) {
 					LOG.finer("Retrieve SSO token...");
 				}
-				ssoToken = this.configuration.tokenHelper
-						.getCrowdToken(request,
-								this.configuration.clientProperties
-										.getCookieTokenKey());
+				ssoToken = this.configuration.tokenHelper.getCrowdToken(request,
+                        this.configuration.clientProperties.getCookieTokenKey());
 			}
 
 			if (null == ssoToken) {
@@ -233,8 +226,7 @@ public class CrowdRememberMeServices implements RememberMeServices {
 			if (LOG.isLoggable(Level.FINE)) {
 				LOG.fine("Validate the SSO authentication...");
 			}
-			this.configuration.crowdClient.validateSSOAuthentication(ssoToken,
-					validationFactors);
+			this.configuration.crowdClient.validateSSOAuthentication(ssoToken, validationFactors);
 
 			// alright, we're successfully authenticated via SSO
 			if (LOG.isLoggable(Level.FINE)) {
@@ -247,13 +239,11 @@ public class CrowdRememberMeServices implements RememberMeServices {
 		} catch (InvalidAuthenticationException ex) {
 			LOG.warning(invalidAuthentication());
 		} catch (ExpiredCredentialException ex) {
-			LOG.warning(expiredCredentials(crowdAuthenticationToken
-					.getPrincipal()));
+			LOG.warning(expiredCredentials(crowdAuthenticationToken.getPrincipal()));
 		} catch (InactiveAccountException ex) {
 			LOG.warning(accountExpired(crowdAuthenticationToken.getPrincipal()));
 		} catch (ApplicationAccessDeniedException ex) {
-			LOG.warning(applicationAccessDenied(crowdAuthenticationToken
-					.getPrincipal()));
+			LOG.warning(applicationAccessDenied(crowdAuthenticationToken.getPrincipal()));
 		} catch (OperationFailedException ex) {
 			LOG.log(Level.SEVERE, operationFailed(), ex);
 		}

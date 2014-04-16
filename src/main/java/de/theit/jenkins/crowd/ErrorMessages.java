@@ -39,8 +39,7 @@ import org.jvnet.localizer.ResourceBundleHolder;
  */
 public class ErrorMessages {
 	/** Contains the localized messages. */
-	private final static ResourceBundleHolder holder = ResourceBundleHolder
-			.get(ErrorMessages.class);
+	private final static ResourceBundleHolder holder = ResourceBundleHolder.get(ErrorMessages.class);
 
 	/**
 	 * Returns the localized error message when no URL is specified.

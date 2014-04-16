@@ -1,0 +1,8 @@
+<div>
+A domain to use when setting cookies, overriding the SSO Domain set in Crowd (since Crowd 2.5.2).
+When an SSO Domain is set in Crowd, all client applications must be in the same domain so cookies can be shared.
+A Crowd deployment may have hosts with no common domain suffix, for example 'domain.example.com' and 'domain.internal'. Even though a user has already logged in to 'domain.example.com' and has a cookie set, applications running under 'domain.internal' will not receive this cookie since the domains differ, and users will be unable to log in.
+Set this property in the crowd client application to override the domain. Applications within the same domain will then be able to share SSO sessions.
+<p/>
+<a href="https://confluence.atlassian.com/display/CROWD/The+crowd.properties+file">Crowd configuration documentation</a>
+</div>

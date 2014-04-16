@@ -31,15 +31,11 @@ import static de.theit.jenkins.crowd.ErrorMessages.invalidAuthentication;
 import static de.theit.jenkins.crowd.ErrorMessages.operationFailed;
 import static de.theit.jenkins.crowd.ErrorMessages.userNotFound;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.HashSet;
-import java.util.List;
-import java.util.TreeSet;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import jenkins.model.Jenkins;
 import org.acegisecurity.GrantedAuthority;
 import org.acegisecurity.GrantedAuthorityImpl;
 
@@ -65,8 +61,7 @@ import com.atlassian.crowd.service.client.CrowdClient;
  */
 public class CrowdConfigurationService {
 	/** Used for logging purposes. */
-	private static final Logger LOG = Logger
-			.getLogger(CrowdConfigurationService.class.getName());
+	private static final Logger LOG = Logger.getLogger(CrowdConfigurationService.class.getName());
 
 	/**
 	 * The maximum number of groups that can be fetched from the Crowd server
@@ -95,22 +90,21 @@ public class CrowdConfigurationService {
 	/** Specifies whether nested groups may be used. */
 	private boolean nestedGroups;
 
-    boolean useSSO;
+    public boolean useSSO;
 
-	/**
-	 * Creates a new Crowd configuration object.
-	 * 
-	 * @param pGroupNames
-	 *            The group names to use when authenticating Crowd users. May
-	 *            not be <code>null</code>.
-	 * @param pNestedGroups
-	 *            Specifies whether nested groups should be used when validating
-	 *            users against a group name.
-	 */
+    /**
+     * Creates a new Crowd configuration object.
+     *
+     * @param pGroupNames
+     *            The group names to use when authenticating Crowd users. May
+     *            not be <code>null</code>.
+     * @param pNestedGroups
+     *            Specifies whether nested groups should be used when validating
+     *            users against a group name.
+     */
 	public CrowdConfigurationService(String pGroupNames, boolean pNestedGroups) {
 		if (LOG.isLoggable(Level.INFO)) {
-			LOG.info("Groups given for Crowd configuration service: "
-					+ pGroupNames);
+			LOG.info("Groups given for Crowd configuration service: " + pGroupNames);
 		}
 		this.allowedGroupNames = new ArrayList<String>();
 		for (String group : pGroupNames.split(",")) {
@@ -353,4 +347,56 @@ public class CrowdConfigurationService {
 
 		return authorities;
 	}
+
+    static public Properties getProperties(String url, String applicationName, String password,
+                                           int sessionValidationInterval, boolean useSSO,
+                                           String cookieDomain, String cookieTokenkey, Boolean useProxy,
+                                           String httpProxyHost, String httpProxyPort, String httpProxyUsername,
+                                           String httpProxyPassword, String socketTimeout,
+                                           String httpTimeout, String httpMaxConnections){
+        // for https://docs.atlassian.com/crowd/2.7.1/com/atlassian/crowd/service/client/ClientPropertiesImpl.html
+        Properties props = new Properties();
+
+        String crowdUrl = url;
+        if (!crowdUrl.endsWith("/")) {
+            crowdUrl += "/";
+        }
+        props.setProperty("application.name", applicationName);
+        props.setProperty("application.password", password);
+        props.setProperty("crowd.base.url", crowdUrl);
+        props.setProperty("application.login.url", crowdUrl + "console/");
+        props.setProperty("crowd.server.url", crowdUrl + "services/");
+        props.setProperty("session.validationinterval",	String.valueOf(sessionValidationInterval));
+        //TODO move other values to jenkins web configuration
+        props.setProperty("session.isauthenticated", "session.isauthenticated");
+        props.setProperty("session.tokenkey", "session.tokenkey");
+        props.setProperty("session.lastvalidation","session.lastvalidation");
+
+        if (useSSO) {
+            if (cookieDomain != null && !cookieDomain.equals(""))
+                props.setProperty("cookie.domain", cookieDomain);
+            if (cookieTokenkey != null && !cookieTokenkey.equals(""))
+                props.setProperty("cookie.tokenkey", cookieTokenkey);
+        }
+
+        if (useProxy != null && useProxy){
+            if (httpProxyHost != null && !httpProxyHost.equals(""))
+                props.setProperty("http.proxy.host", httpProxyHost);
+            if (httpProxyPort != null && !httpProxyPort.equals(""))
+                props.setProperty("http.proxy.port", httpProxyPort);
+            if (httpProxyUsername != null && !httpProxyUsername.equals(""))
+                props.setProperty("http.proxy.username", httpProxyUsername);
+            if (httpProxyPassword != null && !httpProxyPassword.equals(""))
+                props.setProperty("http.proxy.password", httpProxyPassword);
+        }
+
+        if (socketTimeout != null && !socketTimeout.equals(""))
+            props.setProperty("socket.timeout", socketTimeout);
+        if (httpMaxConnections != null && !httpMaxConnections.equals(""))
+            props.setProperty("http.max.connections", httpMaxConnections);
+        if (httpTimeout != null && !httpTimeout.equals(""))
+            props.setProperty("http.timeout", httpTimeout);
+
+        return props;
+    }
 }

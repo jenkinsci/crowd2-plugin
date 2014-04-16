@@ -62,8 +62,7 @@ import com.atlassian.crowd.exception.OperationFailedException;
  */
 public class CrowdServletFilter implements Filter {
 	/** Used for logging purposes. */
-	private static final Logger LOG = Logger.getLogger(CrowdServletFilter.class
-			.getName());
+	private static final Logger LOG = Logger.getLogger(CrowdServletFilter.class.getName());
 
 	/**
 	 * The configuration data necessary for accessing the services on the remote
@@ -98,14 +97,14 @@ public class CrowdServletFilter implements Filter {
 	 *            not used during runtime. May not be <code>null</code>.
 	 */
 	public CrowdServletFilter(CrowdSecurityRealm pSecurityRealm,
-			CrowdConfigurationService pConfiguration, Filter pDefaultFilter) {
+                              CrowdConfigurationService pConfiguration,
+                              Filter pDefaultFilter) {
 		this.securityRealm = pSecurityRealm;
 		this.configuration = pConfiguration;
 		this.defaultFilter = pDefaultFilter;
 
 		if (this.securityRealm.getSecurityComponents().rememberMe instanceof CrowdRememberMeServices) {
-			this.rememberMe = (CrowdRememberMeServices) this.securityRealm
-					.getSecurityComponents().rememberMe;
+			this.rememberMe = (CrowdRememberMeServices) this.securityRealm.getSecurityComponents().rememberMe;
 		}
 	}
 
