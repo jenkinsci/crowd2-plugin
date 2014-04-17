@@ -27,6 +27,10 @@
             <name>Thorsten Heit</name>
             <email>theit@gmx.de</email>
         </developer>
+	<developer>
+		<id>integer</id>
+		<name>Kanstantsin Shautsou</name>
+	</developer>
     </developers>
 
     <contributors>
