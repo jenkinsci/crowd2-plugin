@@ -25,10 +25,9 @@
  */
 package de.theit.jenkins.crowd;
 
-import java.util.ArrayList;
-import java.util.Collection;
-
 import org.jvnet.localizer.ResourceBundleHolder;
+
+import java.util.ArrayList;
 
 /**
  * This class delivers localized error messages.

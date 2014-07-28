@@ -25,13 +25,12 @@
  */
 package de.theit.jenkins.crowd;
 
-import java.util.List;
-
 import jenkins.model.Jenkins;
 import org.acegisecurity.GrantedAuthority;
 import org.acegisecurity.providers.AbstractAuthenticationToken;
 import org.acegisecurity.userdetails.UserDetails;
-import org.apache.commons.lang.StringUtils;
+
+import java.util.List;
 
 /**
  * This class represents an authentication token that is created after a user
@@ -108,32 +107,7 @@ public class CrowdAuthenticationToken extends AbstractAuthenticationToken {
 	public String getSSOToken() {
 		return this.ssoToken;
 	}
-
-	/**
-	 * {@inheritDoc}
-	 * 
-	 * @see org.acegisecurity.providers.AbstractAuthenticationToken#getName()
-	 */
-	@Override
-	public String getName() {
-	return super.getName();
-	/*
-		if (null == this.displayName) {
-			return super.getName();
-		}
-		// append the user Id stored in getName() at the end of the display name
-		return this.displayName + " (" + super.getName() + ')';
-		*/
-	}
-	
-	
-	 public  static void updateUserInfo(com.atlassian.crowd.model.user.User user) {
-	    final String displayName = user == null ? null :  user.getDisplayName();
-        if(StringUtils.isNotBlank(displayName)){
-            final String username = user.getName();
-            getJenkinsUser(username).setFullName(displayName + " (" + username+ ')');
-        }	
-	 }
+	 	
     /**
      * Gets the corresponding {@link hudson.model.User} object.
      */

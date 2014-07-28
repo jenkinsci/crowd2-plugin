@@ -25,30 +25,21 @@
  */
 package de.theit.jenkins.crowd;
 
-import static de.theit.jenkins.crowd.ErrorMessages.applicationPermission;
-import static de.theit.jenkins.crowd.ErrorMessages.groupNotFound;
-import static de.theit.jenkins.crowd.ErrorMessages.invalidAuthentication;
-import static de.theit.jenkins.crowd.ErrorMessages.operationFailed;
-import static de.theit.jenkins.crowd.ErrorMessages.userNotFound;
-
-import java.util.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-import jenkins.model.Jenkins;
-import org.acegisecurity.GrantedAuthority;
-import org.acegisecurity.GrantedAuthorityImpl;
-
-import com.atlassian.crowd.exception.ApplicationPermissionException;
-import com.atlassian.crowd.exception.GroupNotFoundException;
-import com.atlassian.crowd.exception.InvalidAuthenticationException;
-import com.atlassian.crowd.exception.OperationFailedException;
-import com.atlassian.crowd.exception.UserNotFoundException;
+import com.atlassian.crowd.exception.*;
 import com.atlassian.crowd.integration.http.CrowdHttpAuthenticator;
 import com.atlassian.crowd.integration.http.util.CrowdHttpTokenHelper;
 import com.atlassian.crowd.model.group.Group;
 import com.atlassian.crowd.service.client.ClientProperties;
 import com.atlassian.crowd.service.client.CrowdClient;
+import org.acegisecurity.GrantedAuthority;
+import org.acegisecurity.GrantedAuthorityImpl;
+import org.springframework.beans.factory.InitializingBean;
+
+import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import static de.theit.jenkins.crowd.ErrorMessages.*;
 
 /**
  * This class contains all objects that are necessary to access the REST
@@ -59,7 +50,7 @@ import com.atlassian.crowd.service.client.CrowdClient;
  * @since 08.09.2011
  * @version $Id$
  */
-public class CrowdConfigurationService {
+public class CrowdConfigurationService implements InitializingBean {
 	/** Used for logging purposes. */
 	private static final Logger LOG = Logger.getLogger(CrowdConfigurationService.class.getName());
 
@@ -175,23 +166,19 @@ public class CrowdConfigurationService {
 	 *             the server.
 	 */
 	private boolean isGroupMember(String username, String group)
-			throws ApplicationPermissionException,
-			InvalidAuthenticationException, OperationFailedException {
+			throws ApplicationPermissionException, InvalidAuthenticationException, OperationFailedException {
 		boolean retval = false;
 
 		if (isGroupActive(group)) {
 			if (LOG.isLoggable(Level.FINE)) {
-				LOG.fine("Checking group membership for user '" + username
-						+ "' and group '" + group + "'...");
+				LOG.fine("Checking group membership for user '" + username + "' and group '" + group + "'...");
 			}
 			if (this.crowdClient.isUserDirectGroupMember(username, group)) {
 				retval = true;
 				if (LOG.isLoggable(Level.FINER)) {
 					LOG.finer("=> user is a direct group member");
 				}
-			} else if (this.nestedGroups
-					&& this.crowdClient
-							.isUserNestedGroupMember(username, group)) {
+			} else if (this.nestedGroups && this.crowdClient.isUserNestedGroupMember(username, group)) {
 				retval = true;
 				if (LOG.isLoggable(Level.FINER)) {
 					LOG.finer("=> user is a nested group member");
@@ -223,8 +210,7 @@ public class CrowdConfigurationService {
 	 *             the server.
 	 */
 	public boolean isGroupActive(String groupName)
-			throws InvalidAuthenticationException,
-			ApplicationPermissionException, OperationFailedException {
+			throws InvalidAuthenticationException, ApplicationPermissionException, OperationFailedException {
 		boolean retval = false;
 
 		try {
@@ -277,8 +263,7 @@ public class CrowdConfigurationService {
 					LOG.finest("Fetching groups [" + index + "..."
 							+ (index + MAX_GROUPS - 1) + "]...");
 				}
-				List<Group> groups = this.crowdClient.getGroupsForUser(
-						username, index, MAX_GROUPS);
+				List<Group> groups = this.crowdClient.getGroupsForUser(username, index, MAX_GROUPS);
 				if (null == groups || groups.isEmpty()) {
 					break;
 				}
@@ -307,16 +292,13 @@ public class CrowdConfigurationService {
 			try {
 				int index = 0;
 				if (LOG.isLoggable(Level.FINE)) {
-					LOG.fine("Retrieve list of groups with direct membership for user '"
-							+ username + "'...");
+					LOG.fine("Retrieve list of groups with direct membership for user '" + username + "'...");
 				}
 				while (true) {
 					if (LOG.isLoggable(Level.FINEST)) {
-						LOG.finest("Fetching groups [" + index + "..."
-								+ (index + MAX_GROUPS - 1) + "]...");
+						LOG.finest("Fetching groups [" + index + "..." + (index + MAX_GROUPS - 1) + "]...");
 					}
-					List<Group> groups = this.crowdClient
-							.getGroupsForNestedUser(username, index, MAX_GROUPS);
+					List<Group> groups = this.crowdClient.getGroupsForNestedUser(username, index, MAX_GROUPS);
 					if (null == groups || groups.isEmpty()) {
 						break;
 					}
@@ -342,61 +324,16 @@ public class CrowdConfigurationService {
 
 		// now create the list of authorities
 		for (String str : groupNames) {
-			authorities.add(new GrantedAuthorityImpl(str));
+			LOG.info("adding authority: "+str);
+            authorities.add(new GrantedAuthorityImpl(str));
 		}
 
 		return authorities;
 	}
 
-    static public Properties getProperties(String url, String applicationName, String password,
-                                           int sessionValidationInterval, boolean useSSO,
-                                           String cookieDomain, String cookieTokenkey, Boolean useProxy,
-                                           String httpProxyHost, String httpProxyPort, String httpProxyUsername,
-                                           String httpProxyPassword, String socketTimeout,
-                                           String httpTimeout, String httpMaxConnections){
-        // for https://docs.atlassian.com/crowd/2.7.1/com/atlassian/crowd/service/client/ClientPropertiesImpl.html
-        Properties props = new Properties();
 
-        String crowdUrl = url;
-        if (!crowdUrl.endsWith("/")) {
-            crowdUrl += "/";
-        }
-        props.setProperty("application.name", applicationName);
-        props.setProperty("application.password", password);
-        props.setProperty("crowd.base.url", crowdUrl);
-        props.setProperty("application.login.url", crowdUrl + "console/");
-        props.setProperty("crowd.server.url", crowdUrl + "services/");
-        props.setProperty("session.validationinterval",	String.valueOf(sessionValidationInterval));
-        //TODO move other values to jenkins web configuration
-        props.setProperty("session.isauthenticated", "session.isauthenticated");
-        props.setProperty("session.tokenkey", "session.tokenkey");
-        props.setProperty("session.lastvalidation","session.lastvalidation");
-
-        if (useSSO) {
-            if (cookieDomain != null && !cookieDomain.equals(""))
-                props.setProperty("cookie.domain", cookieDomain);
-            if (cookieTokenkey != null && !cookieTokenkey.equals(""))
-                props.setProperty("cookie.tokenkey", cookieTokenkey);
-        }
-
-        if (useProxy != null && useProxy){
-            if (httpProxyHost != null && !httpProxyHost.equals(""))
-                props.setProperty("http.proxy.host", httpProxyHost);
-            if (httpProxyPort != null && !httpProxyPort.equals(""))
-                props.setProperty("http.proxy.port", httpProxyPort);
-            if (httpProxyUsername != null && !httpProxyUsername.equals(""))
-                props.setProperty("http.proxy.username", httpProxyUsername);
-            if (httpProxyPassword != null && !httpProxyPassword.equals(""))
-                props.setProperty("http.proxy.password", httpProxyPassword);
-        }
-
-        if (socketTimeout != null && !socketTimeout.equals(""))
-            props.setProperty("socket.timeout", socketTimeout);
-        if (httpMaxConnections != null && !httpMaxConnections.equals(""))
-            props.setProperty("http.max.connections", httpMaxConnections);
-        if (httpTimeout != null && !httpTimeout.equals(""))
-            props.setProperty("http.timeout", httpTimeout);
-
-        return props;
+    @Override
+    public void afterPropertiesSet() throws Exception {
+        LOG.info("afterPropertiesSet()");
     }
 }

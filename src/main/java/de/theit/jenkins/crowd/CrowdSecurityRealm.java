@@ -25,61 +25,7 @@
  */
 package de.theit.jenkins.crowd;
 
-import static de.theit.jenkins.crowd.ErrorMessages.accountExpired;
-import static de.theit.jenkins.crowd.ErrorMessages.applicationPermission;
-import static de.theit.jenkins.crowd.ErrorMessages.expiredCredentials;
-import static de.theit.jenkins.crowd.ErrorMessages.groupNotFound;
-import static de.theit.jenkins.crowd.ErrorMessages.invalidAuthentication;
-import static de.theit.jenkins.crowd.ErrorMessages.operationFailed;
-import static de.theit.jenkins.crowd.ErrorMessages.specifyApplicationName;
-import static de.theit.jenkins.crowd.ErrorMessages.specifyApplicationPassword;
-import static de.theit.jenkins.crowd.ErrorMessages.specifyCrowdUrl;
-import static de.theit.jenkins.crowd.ErrorMessages.specifySessionValidationInterval;
-import static de.theit.jenkins.crowd.ErrorMessages.userNotFound;
-import static de.theit.jenkins.crowd.ErrorMessages.userNotValid;
-import hudson.Extension;
-import hudson.model.Descriptor;
-import hudson.model.Hudson;
-import hudson.security.AbstractPasswordBasedSecurityRealm;
-import hudson.security.GroupDetails;
-import hudson.security.SecurityRealm;
-import hudson.util.FormValidation;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Properties;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-import javax.servlet.Filter;
-import javax.servlet.FilterConfig;
-import javax.servlet.ServletException;
-
-import org.acegisecurity.AccountExpiredException;
-import org.acegisecurity.AuthenticationException;
-import org.acegisecurity.AuthenticationManager;
-import org.acegisecurity.AuthenticationServiceException;
-import org.acegisecurity.BadCredentialsException;
-import org.acegisecurity.GrantedAuthority;
-import org.acegisecurity.InsufficientAuthenticationException;
-import org.acegisecurity.userdetails.UserDetails;
-import org.acegisecurity.userdetails.UserDetailsService;
-import org.acegisecurity.userdetails.UsernameNotFoundException;
-import org.kohsuke.stapler.DataBoundConstructor;
-import org.kohsuke.stapler.QueryParameter;
-import org.kohsuke.stapler.StaplerRequest;
-import org.kohsuke.stapler.StaplerResponse;
-import org.springframework.dao.DataAccessException;
-import org.springframework.dao.DataRetrievalFailureException;
-
-import com.atlassian.crowd.exception.ApplicationPermissionException;
-import com.atlassian.crowd.exception.ExpiredCredentialException;
-import com.atlassian.crowd.exception.GroupNotFoundException;
-import com.atlassian.crowd.exception.InactiveAccountException;
-import com.atlassian.crowd.exception.InvalidAuthenticationException;
-import com.atlassian.crowd.exception.OperationFailedException;
-import com.atlassian.crowd.exception.UserNotFoundException;
+import com.atlassian.crowd.exception.*;
 import com.atlassian.crowd.integration.http.CrowdHttpAuthenticatorImpl;
 import com.atlassian.crowd.integration.http.util.CrowdHttpTokenHelperImpl;
 import com.atlassian.crowd.integration.http.util.CrowdHttpValidationFactorExtractorImpl;
@@ -87,6 +33,42 @@ import com.atlassian.crowd.integration.rest.service.factory.RestCrowdClientFacto
 import com.atlassian.crowd.model.group.Group;
 import com.atlassian.crowd.model.user.User;
 import com.atlassian.crowd.service.client.ClientPropertiesImpl;
+import groovy.lang.Binding;
+import hudson.Extension;
+import hudson.Functions;
+import hudson.model.Descriptor;
+import hudson.security.AbstractPasswordBasedSecurityRealm;
+import hudson.security.GroupDetails;
+import hudson.security.SecurityRealm;
+import hudson.security.TokenBasedRememberMeServices2;
+import hudson.util.FormValidation;
+import hudson.util.spring.BeanBuilder;
+import jenkins.model.Jenkins;
+import org.acegisecurity.*;
+import org.acegisecurity.userdetails.UserDetails;
+import org.acegisecurity.userdetails.UserDetailsService;
+import org.acegisecurity.userdetails.UsernameNotFoundException;
+import org.apache.commons.io.input.AutoCloseInputStream;
+import org.kohsuke.stapler.DataBoundConstructor;
+import org.kohsuke.stapler.QueryParameter;
+import org.springframework.dao.DataAccessException;
+import org.springframework.dao.DataRetrievalFailureException;
+import org.springframework.web.context.WebApplicationContext;
+
+import javax.servlet.Filter;
+import javax.servlet.FilterConfig;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Properties;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import static de.theit.jenkins.crowd.ErrorMessages.*;
 
 /**
  * This class provides the security realm for authenticating users against a
@@ -160,23 +142,23 @@ public class CrowdSecurityRealm extends AbstractPasswordBasedSecurityRealm {
 	 * Default constructor. Fields in config.jelly must match the parameter
 	 * names in the "DataBoundConstructor".
      * @param url
-*            The URL for Crowd.
-* @param applicationName
-*            The application name.
+     *            The URL for Crowd.
+     * @param applicationName
+     *            The application name.
      * @param password
-*            The application password.
+     *            The application password.
      * @param group
-*            The group to which users must belong to. If this parameter is
-*            not specified, a users group membership will not be checked.
+     *            The group to which users must belong to. If this parameter is
+     *            not specified, a users group membership will not be checked.
      * @param nestedGroups
-*            <code>true</code> when nested groups may be used.
-*            <code>false</code> else.
+     *            <code>true</code> when nested groups may be used.
+     *            <code>false</code> else.
      * @param sessionValidationInterval
-*            The number of minutes to cache authentication validation in
-*            the session. If this value is set to <code>0</code>, each HTTP
-*            request will be authenticated with the Crowd server.
+     *            The number of minutes to cache authentication validation in
+     *            the session. If this value is set to <code>0</code>, each HTTP
+     *            request will be authenticated with the Crowd server.
      * @param useSSO
-*            Enable SSO authentication.
+     *            Enable SSO authentication.
      * @param cookieDomain
      * @param cookieTokenkey
      * @param useProxy
@@ -213,23 +195,57 @@ public class CrowdSecurityRealm extends AbstractPasswordBasedSecurityRealm {
         this.cookieDomain = cookieDomain;
 	}
 
-    /**
-	 * Initializes all objects necessary to talk to / with Crowd.
-	 */
-	private void initializeConfiguration() {
-        configuration = new CrowdConfigurationService(group, nestedGroups);
-        configuration.useSSO = useSSO;
-        Properties props = CrowdConfigurationService.getProperties(url, applicationName, password, sessionValidationInterval,
-                useSSO, cookieDomain, cookieTokenkey, useProxy, httpProxyHost, httpProxyPort, httpProxyUsername,
-                httpProxyPassword, socketTimeout, httpTimeout, httpMaxConnections);
-        configuration.clientProperties = ClientPropertiesImpl.newInstanceFromProperties(props);
-        configuration.crowdClient = new RestCrowdClientFactory().newInstance(configuration.clientProperties);
-        configuration.tokenHelper = CrowdHttpTokenHelperImpl.getInstance(CrowdHttpValidationFactorExtractorImpl.getInstance());
-        configuration.crowdHttpAuthenticator = new CrowdHttpAuthenticatorImpl(
-                configuration.crowdClient,
-                configuration.clientProperties,
-                configuration.tokenHelper);
-	}
+    static public Properties getProperties(String url, String applicationName, String password,
+                                           int sessionValidationInterval, boolean useSSO,
+                                           String cookieDomain, String cookieTokenkey, Boolean useProxy,
+                                           String httpProxyHost, String httpProxyPort, String httpProxyUsername,
+                                           String httpProxyPassword, String socketTimeout,
+                                           String httpTimeout, String httpMaxConnections){
+        // for https://docs.atlassian.com/crowd/2.7.1/com/atlassian/crowd/service/client/ClientPropertiesImpl.html
+        Properties props = new Properties();
+
+        String crowdUrl = url;
+        if (!crowdUrl.endsWith("/")) {
+            crowdUrl += "/";
+        }
+        props.setProperty("application.name", applicationName);
+        props.setProperty("application.password", password);
+        props.setProperty("crowd.base.url", crowdUrl);
+        props.setProperty("application.login.url", crowdUrl + "console/");
+        props.setProperty("crowd.server.url", crowdUrl + "services/");
+        props.setProperty("session.validationinterval",	String.valueOf(sessionValidationInterval));
+        //TODO move other values to jenkins web configuration
+        props.setProperty("session.isauthenticated", "session.isauthenticated");
+        props.setProperty("session.tokenkey", "session.tokenkey");
+        props.setProperty("session.lastvalidation","session.lastvalidation");
+
+        if (useSSO) {
+            if (cookieDomain != null && !cookieDomain.equals(""))
+                props.setProperty("cookie.domain", cookieDomain);
+            if (cookieTokenkey != null && !cookieTokenkey.equals(""))
+                props.setProperty("cookie.tokenkey", cookieTokenkey);
+        }
+
+        if (useProxy != null && useProxy){
+            if (httpProxyHost != null && !httpProxyHost.equals(""))
+                props.setProperty("http.proxy.host", httpProxyHost);
+            if (httpProxyPort != null && !httpProxyPort.equals(""))
+                props.setProperty("http.proxy.port", httpProxyPort);
+            if (httpProxyUsername != null && !httpProxyUsername.equals(""))
+                props.setProperty("http.proxy.username", httpProxyUsername);
+            if (httpProxyPassword != null && !httpProxyPassword.equals(""))
+                props.setProperty("http.proxy.password", httpProxyPassword);
+        }
+
+        if (socketTimeout != null && !socketTimeout.equals(""))
+            props.setProperty("socket.timeout", socketTimeout);
+        if (httpMaxConnections != null && !httpMaxConnections.equals(""))
+            props.setProperty("http.max.connections", httpMaxConnections);
+        if (httpTimeout != null && !httpTimeout.equals(""))
+            props.setProperty("http.timeout", httpTimeout);
+
+        return props;
+    }
 
 	/**
 	 * {@inheritDoc}
@@ -238,60 +254,80 @@ public class CrowdSecurityRealm extends AbstractPasswordBasedSecurityRealm {
 	 */
 	@Override
 	public SecurityComponents createSecurityComponents() {
-		if (null == configuration) {
-			initializeConfiguration();
-		}
-
-		AuthenticationManager crowdAuthenticationManager = new CrowdAuthenticationManager(configuration);
-		UserDetailsService crowdUserDetails = new CrowdUserDetailsService(configuration);
-
-        if (useSSO) {
-            CrowdRememberMeServices ssoService = new CrowdRememberMeServices(configuration);
-            return new SecurityComponents(crowdAuthenticationManager, crowdUserDetails, ssoService);
-        } else {
-            return new SecurityComponents(crowdAuthenticationManager, crowdUserDetails);
+        System.out.println("creating security components");
+        Binding binding = new Binding();
+        binding.setVariable("instance", this);
+		ClassLoader uberClassLoader = Jenkins.getInstance().pluginManager.uberClassLoader;
+		BeanBuilder builder = new BeanBuilder(uberClassLoader);
+        String fileName = "CrowdSecurityRealmBean.groovy";
+        try {
+            File override = new File(Jenkins.getInstance().getRootDir(), fileName);
+			builder.parse(
+                    override.exists() ? new AutoCloseInputStream(new FileInputStream(override)) :
+							getClass().getResourceAsStream(fileName), binding);
+        } catch (FileNotFoundException e) {
+            System.out.println("failed to load "+ fileName);
+            throw new Error("Failed to load "+fileName,e);
         }
-	}
 
-	/**
-	 * {@inheritDoc}
-	 * 
-	 * @see hudson.security.SecurityRealm#doLogout(org.kohsuke.stapler.StaplerRequest,
-	 *      org.kohsuke.stapler.StaplerResponse)
-	 */
-	@Override
-	public void doLogout(StaplerRequest req, StaplerResponse rsp)
-			throws IOException, ServletException {
-		SecurityRealm realm = Hudson.getInstance().getSecurityRealm();
 
-        if (useSSO) {
-            if (realm instanceof CrowdSecurityRealm
-                    && realm.getSecurityComponents().rememberMe instanceof CrowdRememberMeServices) {
-                ((CrowdRememberMeServices) realm.getSecurityComponents().rememberMe).logout(req, rsp);
+        WebApplicationContext appContext = builder.createApplicationContext();
+
+        //if (null == configuration) {
+        //    configuration = new CrowdConfigurationService(group, nestedGroups);
+        configuration = findBean(CrowdConfigurationService.class, appContext);
+            configuration.useSSO = useSSO;
+            Properties props = getProperties(url, applicationName, password, sessionValidationInterval,
+                    useSSO, cookieDomain, cookieTokenkey, useProxy, httpProxyHost, httpProxyPort, httpProxyUsername,
+                    httpProxyPassword, socketTimeout, httpTimeout, httpMaxConnections);
+            configuration.clientProperties = ClientPropertiesImpl.newInstanceFromProperties(props);
+            configuration.crowdClient = new RestCrowdClientFactory().newInstance(configuration.clientProperties);
+            configuration.tokenHelper = CrowdHttpTokenHelperImpl.getInstance(CrowdHttpValidationFactorExtractorImpl.getInstance());
+            configuration.crowdHttpAuthenticator = new CrowdHttpAuthenticatorImpl(
+                    configuration.crowdClient,
+                    configuration.clientProperties,
+                    configuration.tokenHelper);
+		//}
+
+		final UserDetailsService crowdUserDetails = findBean(CrowdUserDetailsService.class, appContext);
+
+        TokenBasedRememberMeServices2 rms = new TokenBasedRememberMeServices2() {
+            public Authentication autoLogin(HttpServletRequest request, HttpServletResponse response) {
+                try {
+                    return super.autoLogin(request, response);
+                } catch (Exception e) {// TODO: this check is made redundant with 1.556, but needed with earlier versions
+                    cancelCookie(request, response, "Failed to handle remember-me cookie: "+ Functions.printThrowable(e));
+                    return null;
+                }
             }
-        }
+        };
+        rms.setUserDetailsService(crowdUserDetails);
+        rms.setKey(Jenkins.getInstance().getSecretKey());
+        rms.setParameter("remember_me"); // this is the form field name in login.jelly
 
-		super.doLogout(req, rsp);
+		AuthenticationManager bean = findBean(AuthenticationManager.class, appContext);
+		LOG.info("bean: "+bean.toString()+"class: "+bean.getClass().getName());
+		return new SecurityComponents(
+                bean,
+                crowdUserDetails,
+                rms
+        );
 	}
 
 	/**
 	 * {@inheritDoc}
-	 * 
+	 *
 	 * @see hudson.security.SecurityRealm#createFilter(javax.servlet.FilterConfig)
 	 */
 	@Override
 	public Filter createFilter(FilterConfig filterConfig) {
-		if (null == this.configuration) {
-			initializeConfiguration();
+		if (configuration.useSSO) {
+			Filter defaultFilter = super.createFilter(filterConfig);
+			//adding our filter
+			return new CrowdServletFilter(this, configuration, defaultFilter);
+		} else {
+			return super.createFilter(filterConfig);
 		}
-
-		Filter defaultFilter = super.createFilter(filterConfig);
-
-		if (!useSSO) {
-			return defaultFilter;
-		}
-
-		return new CrowdServletFilter(this, this.configuration, defaultFilter);
 	}
 
 	/**
@@ -319,8 +355,7 @@ public class CrowdSecurityRealm extends AbstractPasswordBasedSecurityRealm {
 			if (LOG.isLoggable(Level.FINER)) {
 				LOG.finer("Trying to load group: " + groupname);
 			}
-			final Group crowdGroup = this.configuration.crowdClient
-					.getGroup(groupname);
+			final Group crowdGroup = configuration.crowdClient.getGroup(groupname);
 
 			return new GroupDetails() {
 				@Override
@@ -352,61 +387,65 @@ public class CrowdSecurityRealm extends AbstractPasswordBasedSecurityRealm {
 	 *      java.lang.String)
 	 */
 	@Override
-	protected UserDetails authenticate(String pUsername, String pPassword)
+	protected UserDetails authenticate(String username, String password)
 			throws AuthenticationException {
-		if (! this.configuration.allowedGroupNames.isEmpty()) {
-			// ensure that the group is available, active and that the user
-			// is a member of it
-			if (!this.configuration.isGroupMember(pUsername)) {
-				throw new InsufficientAuthenticationException(userNotValid(
-						pUsername, this.configuration.allowedGroupNames));
-			}
-		}
 
-		User user;
+		User crowdUser;
 		try {
 			// authenticate user
 			if (LOG.isLoggable(Level.FINE)) {
-				LOG.fine("Authenticate user '"
-						+ pUsername
-						+ "' using password '"
-						+ (null != pPassword ? "<available>'"
-								: "<not specified>'"));
+				LOG.fine("Authenticate user '" + username + "' using password '"
+						+ (null != password ? "<available>'": "<not specified>'"));
 			}
-			user = this.configuration.crowdClient.authenticateUser(pUsername, pPassword);
+			crowdUser = this.configuration.crowdClient.authenticateUser(username, password);
 		} catch (UserNotFoundException ex) {
 			if (LOG.isLoggable(Level.INFO)) {
-				LOG.info(userNotFound(pUsername));
+				LOG.info(userNotFound(username));
 			}
-			throw new BadCredentialsException(userNotFound(pUsername), ex);
+			throw new BadCredentialsException(userNotFound(username), ex);
 		} catch (ExpiredCredentialException ex) {
-			LOG.warning(expiredCredentials(pUsername));
-			throw new BadCredentialsException(expiredCredentials(pUsername), ex);
+			LOG.warning(expiredCredentials(username));
+			throw new BadCredentialsException(expiredCredentials(username), ex);
 		} catch (InactiveAccountException ex) {
-			LOG.warning(accountExpired(pUsername));
-			throw new AccountExpiredException(accountExpired(pUsername), ex);
+			LOG.warning(accountExpired(username));
+			throw new AccountExpiredException(accountExpired(username), ex);
 		} catch (ApplicationPermissionException ex) {
 			LOG.warning(applicationPermission());
-			throw new AuthenticationServiceException(applicationPermission(),
-					ex);
+			throw new AuthenticationServiceException(applicationPermission(), ex);
 		} catch (InvalidAuthenticationException ex) {
 			LOG.warning(invalidAuthentication());
-			throw new AuthenticationServiceException(invalidAuthentication(),
-					ex);
+			throw new AuthenticationServiceException(invalidAuthentication(), ex);
 		} catch (OperationFailedException ex) {
 			LOG.log(Level.SEVERE, operationFailed(), ex);
 			throw new AuthenticationServiceException(operationFailed(), ex);
 		}
 
+        if (! this.configuration.allowedGroupNames.isEmpty()) {
+            // ensure that the group is available, active and that the user
+            // is a member of it
+            if (!this.configuration.isGroupMember(username)) {
+                throw new InsufficientAuthenticationException(userNotValid(username, this.configuration.allowedGroupNames));
+            }
+        }
+
 		// create the list of granted authorities
 		List<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>();
-		// add the "authenticated" authority to the list of granted
-		// authorities...
+		// add the "authenticated" authority to the list of granted authorities...
 		authorities.add(SecurityRealm.AUTHENTICATED_AUTHORITY);
 		// ..and all authorities retrieved from the Crowd server
-		authorities.addAll(this.configuration.getAuthoritiesForUser(pUsername));
+		authorities.addAll(this.configuration.getAuthoritiesForUser(username));
 
-		return new CrowdUser(user, authorities);
+		return new CrowdUserDetails(username,
+                password,
+                crowdUser.isActive(),
+                crowdUser.getExternalId(),
+                crowdUser.getFirstName(),
+                crowdUser.getLastName(),
+                crowdUser.getDirectoryId(),
+                authorities.toArray(new GrantedAuthority[authorities.size()]),
+                crowdUser.getEmailAddress(),
+                crowdUser
+        );
 	}
 
 	/**
@@ -436,7 +475,7 @@ public class CrowdSecurityRealm extends AbstractPasswordBasedSecurityRealm {
 		 *         browser.
 		 */
 		public FormValidation doCheckUrl(@QueryParameter final String url) {
-			if (!Hudson.getInstance().hasPermission(Hudson.ADMINISTER)) {
+			if (!Jenkins.getInstance().hasPermission(Jenkins.ADMINISTER)) {
 				return FormValidation.ok();
 			}
 
@@ -458,7 +497,7 @@ public class CrowdSecurityRealm extends AbstractPasswordBasedSecurityRealm {
 		 */
 		public FormValidation doCheckApplicationName(
 				@QueryParameter final String applicationName) {
-			if (!Hudson.getInstance().hasPermission(Hudson.ADMINISTER)) {
+			if (!Jenkins.getInstance().hasPermission(Jenkins.ADMINISTER)) {
 				return FormValidation.ok();
 			}
 
@@ -480,7 +519,7 @@ public class CrowdSecurityRealm extends AbstractPasswordBasedSecurityRealm {
 		 */
 		public FormValidation doCheckPassword(
 				@QueryParameter final String password) {
-			if (!Hudson.getInstance().hasPermission(Hudson.ADMINISTER)) {
+			if (!Jenkins.getInstance().hasPermission(Jenkins.ADMINISTER)) {
 				return FormValidation.ok();
 			}
 
@@ -502,7 +541,7 @@ public class CrowdSecurityRealm extends AbstractPasswordBasedSecurityRealm {
 		 */
 		public FormValidation doCheckSessionValidationInterval(
 				@QueryParameter final String sessionValidationInterval) {
-			if (!Hudson.getInstance().hasPermission(Hudson.ADMINISTER)) {
+			if (!Jenkins.getInstance().hasPermission(Jenkins.ADMINISTER)) {
 				return FormValidation.ok();
 			}
 
@@ -543,10 +582,8 @@ public class CrowdSecurityRealm extends AbstractPasswordBasedSecurityRealm {
                 @QueryParameter String httpTimeout, @QueryParameter String httpMaxConnections)
         {
 
-//			Logger log = Logger.getLogger(getClass().getName());
-
 			CrowdConfigurationService tConfiguration = new CrowdConfigurationService(group, false);
-            Properties props = CrowdConfigurationService.getProperties(url, applicationName, password, sessionValidationInterval,
+            Properties props = getProperties(url, applicationName, password, sessionValidationInterval,
                     useSSO, cookieDomain, cookieTokenkey, useProxy, httpProxyHost, httpProxyPort, httpProxyUsername,
                     httpProxyPassword, socketTimeout, httpTimeout, httpMaxConnections);
             tConfiguration.clientProperties = ClientPropertiesImpl.newInstanceFromProperties(props);
@@ -587,4 +624,23 @@ public class CrowdSecurityRealm extends AbstractPasswordBasedSecurityRealm {
 			return "Crowd 2";
 		}
 	}
+
+
+	public CrowdUserDetails updateUserDetails(CrowdUserDetails d){
+         hudson.model.User u = hudson.model.User.get(d.getUsername());
+         return d;
+     }
+
+    public UserDetails updateUserDetails(UserDetails userDetails){
+        if (userDetails instanceof CrowdUserDetails) {
+            updateUserDetails((CrowdUserDetails)userDetails);
+        }
+        return userDetails;
+    }
+
+    public Authentication updateUserDetails(Authentication authentication) {
+        updateUserDetails((UserDetails) authentication.getPrincipal());
+        return authentication;
+    }
+
 }

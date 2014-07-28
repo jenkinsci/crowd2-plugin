@@ -30,12 +30,11 @@ import hudson.model.Hudson;
 import hudson.model.User;
 import hudson.security.SecurityRealm;
 import hudson.tasks.MailAddressResolver;
+import org.acegisecurity.userdetails.UsernameNotFoundException;
+import org.springframework.dao.DataAccessException;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import org.acegisecurity.userdetails.UsernameNotFoundException;
-import org.springframework.dao.DataAccessException;
 
 /**
  * This class resolves email addresses via lookup in Crowd.
@@ -47,8 +46,7 @@ import org.springframework.dao.DataAccessException;
 @Extension
 public class CrowdMailAddressResolverImpl extends MailAddressResolver {
 	/** For logging purposes. */
-	private static final Logger LOG = Logger
-			.getLogger(CrowdMailAddressResolverImpl.class.getName());
+	private static final Logger LOG = Logger.getLogger(CrowdMailAddressResolverImpl.class.getName());
 
 	/**
 	 * {@inheritDoc}
@@ -80,16 +78,14 @@ public class CrowdMailAddressResolverImpl extends MailAddressResolver {
 				if (LOG.isLoggable(Level.FINE)) {
 					LOG.fine("Looking up mail address for user: " + userId);
 				}
-				CrowdUser details = (CrowdUser) realm.loadUserByUsername(userId);
+				CrowdUserDetails details = (CrowdUserDetails) realm.getSecurityComponents().userDetails.loadUserByUsername(userId);
 				mail = details.getEmailAddress();
 			} catch (UsernameNotFoundException ex) {
 				if (LOG.isLoggable(Level.INFO)) {
 					LOG.info("Failed to look up email address in Crowd");
 				}
 			} catch (DataAccessException ex) {
-				LOG.log(Level.SEVERE,
-						"Access exception trying to look up email address in Crowd",
-						ex);
+				LOG.log(Level.SEVERE, "Access exception trying to look up email address in Crowd", ex);
 			}
 		}
 
