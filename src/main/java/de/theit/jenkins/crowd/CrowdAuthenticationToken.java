@@ -76,6 +76,7 @@ public class CrowdAuthenticationToken extends AbstractAuthenticationToken {
 		this.principal =  Jenkins.getInstance().getSecurityRealm().loadUserByUsername(pPrincipal);
 		this.credentials = pCredentials;
 		this.ssoToken = pSsoToken;
+		super.setAuthenticated(true);
 	}
 
 	/**
