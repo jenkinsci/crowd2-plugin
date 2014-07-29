@@ -80,8 +80,7 @@ public class CrowdMailAddressResolverImpl extends MailAddressResolver {
 				if (LOG.isLoggable(Level.FINE)) {
 					LOG.fine("Looking up mail address for user: " + userId);
 				}
-				CrowdUser details = (CrowdUser) realm.getSecurityComponents().userDetails
-						.loadUserByUsername(userId);
+				CrowdUser details = (CrowdUser) realm.loadUserByUsername(userId);
 				mail = details.getEmailAddress();
 			} catch (UsernameNotFoundException ex) {
 				if (LOG.isLoggable(Level.INFO)) {
