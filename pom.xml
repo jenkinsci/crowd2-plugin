@@ -8,7 +8,7 @@
     </parent>
 
     <artifactId>crowd2</artifactId>
-    <version>1.8</version>
+    <version>1.9-SNAPSHOT</version>
 
     <packaging>hpi</packaging>
 
@@ -46,7 +46,7 @@
         <connection>scm:git:git://github.com/jenkinsci/crowd2-plugin.git</connection>
         <developerConnection>scm:git:ssh://git@github.com/jenkinsci/crowd2-plugin.git</developerConnection>
         <url>https://github.com/jenkinsci/crowd2-plugin</url>
-      <tag>crowd2-1.8</tag>
+      <tag>HEAD</tag>
   </scm>
 
 
