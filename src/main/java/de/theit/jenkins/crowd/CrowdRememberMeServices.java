@@ -31,6 +31,8 @@ import static de.theit.jenkins.crowd.ErrorMessages.applicationPermission;
 import static de.theit.jenkins.crowd.ErrorMessages.expiredCredentials;
 import static de.theit.jenkins.crowd.ErrorMessages.invalidAuthentication;
 import static de.theit.jenkins.crowd.ErrorMessages.operationFailed;
+
+import hudson.model.Hudson;
 import hudson.security.SecurityRealm;
 
 import java.util.ArrayList;
@@ -41,6 +43,7 @@ import java.util.logging.Logger;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import jenkins.model.Jenkins;
 import org.acegisecurity.Authentication;
 import org.acegisecurity.GrantedAuthority;
 import org.acegisecurity.ui.rememberme.RememberMeServices;
@@ -54,6 +57,7 @@ import com.atlassian.crowd.exception.InvalidTokenException;
 import com.atlassian.crowd.exception.OperationFailedException;
 import com.atlassian.crowd.model.authentication.ValidationFactor;
 import com.atlassian.crowd.model.user.User;
+import org.acegisecurity.userdetails.UserDetails;
 
 /**
  * An implementation of the {@link RememberMeServices} to use SSO with Crowd.
@@ -203,7 +207,7 @@ public class CrowdRememberMeServices implements RememberMeServices {
 					LOG.fine("SSO token not yet available => authenticate user...");
 				}
 				this.configuration.crowdHttpAuthenticator.authenticate(request,
-						response, crowdAuthenticationToken.getPrincipal(),
+						response, crowdAuthenticationToken.getName(),
 						crowdAuthenticationToken.getCredentials());
 
 				// user is successfully authenticated
@@ -239,11 +243,11 @@ public class CrowdRememberMeServices implements RememberMeServices {
 		} catch (InvalidAuthenticationException ex) {
 			LOG.warning(invalidAuthentication());
 		} catch (ExpiredCredentialException ex) {
-			LOG.warning(expiredCredentials(crowdAuthenticationToken.getPrincipal()));
+			LOG.warning(expiredCredentials(crowdAuthenticationToken.getName()));
 		} catch (InactiveAccountException ex) {
-			LOG.warning(accountExpired(crowdAuthenticationToken.getPrincipal()));
+			LOG.warning(accountExpired(crowdAuthenticationToken.getName()));
 		} catch (ApplicationAccessDeniedException ex) {
-			LOG.warning(applicationAccessDenied(crowdAuthenticationToken.getPrincipal()));
+			LOG.warning(applicationAccessDenied(crowdAuthenticationToken.getName()));
 		} catch (OperationFailedException ex) {
 			LOG.log(Level.SEVERE, operationFailed(), ex);
 		}

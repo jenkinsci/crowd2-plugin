@@ -27,8 +27,10 @@ package de.theit.jenkins.crowd;
 
 import java.util.List;
 
+import jenkins.model.Jenkins;
 import org.acegisecurity.GrantedAuthority;
 import org.acegisecurity.providers.AbstractAuthenticationToken;
+import org.acegisecurity.userdetails.UserDetails;
 import org.apache.commons.lang.StringUtils;
 
 /**
@@ -47,7 +49,7 @@ public class CrowdAuthenticationToken extends AbstractAuthenticationToken {
 	private String credentials;
 
 	/** The authenticated Crowd user. */
-	private String principal;
+	private UserDetails principal;
 
 	/** The Crowd SSO token after a successful login. */
 	private String ssoToken;
@@ -71,9 +73,10 @@ public class CrowdAuthenticationToken extends AbstractAuthenticationToken {
 	public CrowdAuthenticationToken(String pPrincipal, String pCredentials,
 			List<GrantedAuthority> authorities, String pSsoToken) {
 		super(authorities.toArray(new GrantedAuthority[authorities.size()]));
-		this.principal = pPrincipal;
+		this.principal =  Jenkins.getInstance().getSecurityRealm().loadUserByUsername(pPrincipal);
 		this.credentials = pCredentials;
 		this.ssoToken = pSsoToken;
+		super.setAuthenticated(true);
 	}
 
 	/**
@@ -92,7 +95,7 @@ public class CrowdAuthenticationToken extends AbstractAuthenticationToken {
 	 * @see org.acegisecurity.Authentication#getPrincipal()
 	 */
 	@Override
-	public String getPrincipal() {
+	public UserDetails getPrincipal() {
 		return this.principal;
 	}
 
