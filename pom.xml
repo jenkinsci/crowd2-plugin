@@ -4,7 +4,8 @@
     <parent>
         <groupId>org.jenkins-ci.plugins</groupId>
         <artifactId>plugin</artifactId>
-        <version>1.509.3</version>
+        <!--<version>1.509.3</version>-->
+        <version>1.582-SNAPSHOT</version>
     </parent>
 
     <artifactId>crowd2</artifactId>

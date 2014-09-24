@@ -29,6 +29,7 @@ import com.atlassian.crowd.model.user.User;
 import hudson.security.SecurityRealm;
 import org.acegisecurity.*;
 import org.acegisecurity.context.SecurityContextHolder;
+import org.acegisecurity.providers.AbstractAuthenticationToken;
 import org.acegisecurity.providers.AuthenticationProvider;
 import org.acegisecurity.providers.UsernamePasswordAuthenticationToken;
 import org.apache.commons.lang.StringUtils;
@@ -64,9 +65,15 @@ public class CrowdAuthenticationProvider implements AuthenticationProvider, Init
             return null;
         }
 
+		if (!supports((AbstractAuthenticationToken)authentication))
+		{
+			return null;
+		}
+
+
 		if (authentication instanceof UsernamePasswordAuthenticationToken){
 			LOG.info("instanceof UsernamePasswordAuthenticationToken");
-		} else if (authentication instanceof CrowdAuthenticationToken){
+		} else if (authentication instanceof CrowdSSOAuthenticationToken){
 			LOG.info("instanceof CrowdAuthenticationToken");
 		}
 
@@ -74,8 +81,8 @@ public class CrowdAuthenticationProvider implements AuthenticationProvider, Init
 
 		// checking whether there's already a SSO token
 		if (null == authentication.getCredentials()
-				&& authentication instanceof CrowdAuthenticationToken
-				&& null != ((CrowdAuthenticationToken) authentication).getSSOToken()) {
+				&& authentication instanceof CrowdSSOAuthenticationToken
+				&& null != ((CrowdSSOAuthenticationToken) authentication).getSSOToken()) {
 			// SSO token available => user already authenticated
 			LOG.info("User '" + username + "' already authenticated");
 			return authentication;
@@ -135,20 +142,38 @@ public class CrowdAuthenticationProvider implements AuthenticationProvider, Init
 
 		// user successfully authenticated => create authentication token
 		LOG.info("User successfully authenticated; creating authentication token");
-		CrowdAuthenticationToken token;
-		if (configuration.useSSO){
-			//TODO
-			token = new CrowdAuthenticationToken(username, password, authorities, null);
-		} else {
-			token = new CrowdAuthenticationToken(username, password, authorities, null);
-		}
+//		CrowdAuthenticationToken token;
+//		if (configuration.useSSO){
+//			//TODO
+////			configuration.clientProperties.getApplicationAuthenticationContext()
+//			token = new CrowdAuthenticationToken(username, password, authorities, null);
+//		} else {
+//			token = new CrowdAuthenticationToken(username, password, authorities, null);
+//		}
+		authentication.set
+		token.setAuthenticated(true);
 		SecurityContextHolder.getContext().setAuthentication(token);
 		return token;
     }
 
-    @Override
-    public boolean supports(Class authentication) {
-		return CrowdAuthenticationToken.class.isAssignableFrom(authentication) || UsernamePasswordAuthenticationToken.class.isAssignableFrom(authentication);
-    }
+//    @Override
+//    public boolean supports(Class authentication) {
+//		return CrowdAuthenticationToken.class.isAssignableFrom(authentication) || UsernamePasswordAuthenticationToken.class.isAssignableFrom(authentication);
+//    }
 
+	@Override
+	public boolean supports(AbstractAuthenticationToken authenticationToken)
+	{
+		if ((authenticationToken.getDetails() == null) || (!(authenticationToken.getDetails() instanceof CrowdSSOAuthenticationDetails)))
+		{
+			return true;
+		}
+		if ((authenticationToken.getDetails() instanceof CrowdSSOAuthenticationDetails))
+		{
+			CrowdSSOAuthenticationDetails details = (CrowdSSOAuthenticationDetails)authenticationToken.getDetails();
+			return details.getApplicationName().equals(this.applicationName);
+		}
+
+		return false;
+	}
 }

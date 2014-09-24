@@ -25,9 +25,17 @@
   */
 package de.theit.jenkins.crowd;
 
+import com.atlassian.crowd.exception.ApplicationPermissionException;
+import com.atlassian.crowd.exception.InvalidAuthenticationException;
+import com.atlassian.crowd.exception.InvalidTokenException;
 import com.atlassian.crowd.exception.OperationFailedException;
+import com.atlassian.crowd.model.authentication.ValidationFactor;
+import com.atlassian.crowd.model.user.User;
 import hudson.security.AuthenticationProcessingFilter2;
-import org.acegisecurity.context.SecurityContext;
+import hudson.security.SecurityRealm;
+import org.acegisecurity.Authentication;
+import org.acegisecurity.AuthenticationException;
+import org.acegisecurity.GrantedAuthority;
 import org.acegisecurity.context.SecurityContextHolder;
 
 import javax.servlet.*;
@@ -36,6 +44,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Logger;
 
 import static org.acegisecurity.ui.rememberme.TokenBasedRememberMeServices.ACEGI_SECURITY_HASHED_REMEMBER_ME_COOKIE_KEY;
@@ -50,8 +60,8 @@ public class CrowdServletFilter extends AuthenticationProcessingFilter2 {
 
     private static final Logger LOG = Logger.getLogger(CrowdServletFilter.class.getName());
 
-    final CrowdSecurityRealm realm;
-    CrowdConfigurationService configuration;
+    private final CrowdSecurityRealm realm;
+    private final CrowdConfigurationService configuration;
     private final Filter filter;
 
     public CrowdServletFilter(CrowdSecurityRealm realm, CrowdConfigurationService configuration, Filter filter){
@@ -60,47 +70,51 @@ public class CrowdServletFilter extends AuthenticationProcessingFilter2 {
         this.filter = filter;
     }
 
-//    @Override
-//    public Authentication attemptAuthentication(HttpServletRequest request)
-//            throws AuthenticationException {
-//		LOG.info("attemptAuthentication()");
-//        System.out.println("attemptAuthentication()");
-//        String username = obtainUsername(request);
-//        String password = obtainPassword(request);
-//
-//        if (username == null) {
-//            username = "";
-//        }
-//
-//        if (password == null) {
-//            password = "";
-//        }
-//
-//        // create the list of granted authorities
-//        List<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>();
-//        // add the "authenticated" authority to the list of granted
-//        // authorities...
-//        authorities.add(SecurityRealm.AUTHENTICATED_AUTHORITY);
-//        // ..and all authorities retrieved from the Crowd server
-//        authorities.addAll(configuration.getAuthoritiesForUser(username));
-//
-//        CrowdAuthenticationToken authRequest = new CrowdAuthenticationToken(username,
-//                password,
-//                authorities,
-//                null);
-//
-//        // Place the last username attempted into HttpSession for views
-//        request.getSession().setAttribute(ACEGI_SECURITY_LAST_USERNAME_KEY, username);
-//
-//        // Allow subclasses to set the "details" property
+    @Override
+    public Authentication attemptAuthentication(HttpServletRequest request)
+            throws AuthenticationException {
+		LOG.info("attemptAuthentication()");
+        System.out.println("attemptAuthentication()");
+        String username = obtainUsername(request);
+        String password = obtainPassword(request);
+
+        if (username == null) {
+            username = "";
+        }
+
+        if (password == null) {
+            password = "";
+        }
+
+		username = username.trim();
+
+        // create the list of granted authorities
+        List<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>();
+        // add the "authenticated" authority to the list of granted
+        // authorities...
+        authorities.add(SecurityRealm.AUTHENTICATED_AUTHORITY);
+        // ..and all authorities retrieved from the Crowd server
+        authorities.addAll(configuration.getAuthoritiesForUser(username));
+
+		String token = configuration.crowdHttpAuthenticator.getToken(request);
+		LOG.info("Token?: " + token);
+		CrowdSSOAuthenticationToken authRequest = new CrowdSSOAuthenticationToken(username,
+                password,
+                authorities,
+				token);
+
+        // Place the last username attempted into HttpSession for views
+        request.getSession().setAttribute(ACEGI_SECURITY_LAST_USERNAME_KEY, username);
+
+        // Allow subclasses to set the "details" property
 //        setDetails(request, authRequest);
 //        SecurityContextHolder.getContext().setAuthentication(authRequest);
-//        return this.getAuthenticationManager().authenticate(authRequest);
-//    }
-
-    private void setDetails(HttpServletRequest request, CrowdAuthenticationToken authRequest) {
-        LOG.info("in setDetails() filter");
+        return this.getAuthenticationManager().authenticate(authRequest);
     }
+
+//    protected void setDetails(HttpServletRequest request, CrowdAuthenticationToken authRequest) {
+//        LOG.info("in setDetails() filter");
+//    }
 
     /**
      * {@inheritDoc}
@@ -112,10 +126,27 @@ public class CrowdServletFilter extends AuthenticationProcessingFilter2 {
     public void doFilter(ServletRequest request, ServletResponse response,
                          FilterChain chain) throws IOException, ServletException {
         if (this.configuration.useSSO && request instanceof HttpServletRequest && response instanceof HttpServletResponse) {
+
             HttpServletRequest req = (HttpServletRequest) request;
             HttpServletResponse res = (HttpServletResponse) response;
 
-            // check if we have a token
+			List<ValidationFactor> validationFactors = configuration.tokenHelper.getValidationFactorExtractor().getValidationFactors(req);
+			String ssoToken = configuration.tokenHelper.getCrowdToken(req, this.configuration.clientProperties.getCookieTokenKey());
+			try {
+				configuration.crowdClient.validateSSOAuthentication(ssoToken, validationFactors);
+				User user = this.configuration.crowdClient.findUserFromSSOToken(ssoToken);
+//				CrowdAuthenticationToken.updateUserInfo(user);
+			} catch (OperationFailedException e) {
+				LOG.warning("OperationFailedException" + e.getMessage());
+			} catch (InvalidAuthenticationException e) {
+				LOG.warning("InvalidAuthenticationException" + e.getMessage());
+			} catch (ApplicationPermissionException e) {
+				e.printStackTrace();
+			} catch (InvalidTokenException e) {
+				e.printStackTrace();
+			}
+
+			// check if we have a token
             // if it is not present, we are not / no longer authenticated
             boolean isValidated = false;
             try {
@@ -126,9 +157,18 @@ public class CrowdServletFilter extends AuthenticationProcessingFilter2 {
 
             if (!isValidated) {
 				LOG.info("User is not logged in (anymore) via Crowd => logout user");
-                SecurityContext sc = SecurityContextHolder.getContext();
-                sc.setAuthentication(null);
 
+				try {
+					configuration.crowdHttpAuthenticator.logout(req, res);
+				} catch (ApplicationPermissionException e) {
+					LOG.warning("ApplicationPermissionException" + e.getMessage());
+				} catch (InvalidAuthenticationException e) {
+					LOG.warning("InvalidAuthenticationException" + e.getMessage());
+				} catch (OperationFailedException e) {
+					LOG.warning("OperationFailedException" + e.getMessage());
+				}
+
+				SecurityContextHolder.getContext().setAuthentication(null);
                 // invalidate the current session
                 // (see SecurityRealm#doLogout())
                 HttpSession session = req.getSession(false);

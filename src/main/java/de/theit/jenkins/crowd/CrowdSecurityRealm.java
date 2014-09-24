@@ -302,7 +302,7 @@ public class CrowdSecurityRealm extends AbstractPasswordBasedSecurityRealm {
             }
         };
         rms.setUserDetailsService(crowdUserDetails);
-        rms.setKey(Jenkins.getInstance().getSecretKey());
+        rms.setKey(Jenkins.getInstance().getSecretKey());    // use this deprecate method or cookies will missmatch
         rms.setParameter("remember_me"); // this is the form field name in login.jelly
 
 		AuthenticationManager bean = findBean(AuthenticationManager.class, appContext);
