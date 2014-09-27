@@ -76,7 +76,7 @@ public class CrowdConfigurationService implements InitializingBean {
 	CrowdHttpAuthenticator crowdHttpAuthenticator;
 
 	/** The names of all user groups that are allowed to login. */
-	ArrayList<String> allowedGroupNames;
+	Collection<String> allowedGroupNames;
 
 	/** Specifies whether nested groups may be used. */
 	private boolean nestedGroups;

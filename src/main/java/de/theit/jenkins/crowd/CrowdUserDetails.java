@@ -1,7 +1,11 @@
 package de.theit.jenkins.crowd;
 
+import com.atlassian.crowd.model.user.User;
 import org.acegisecurity.GrantedAuthority;
 import org.acegisecurity.userdetails.UserDetails;
+
+import java.util.Arrays;
+import java.util.Collection;
 
 /**
  * This class provides the information about a user that was authenticated
@@ -14,61 +18,38 @@ import org.acegisecurity.userdetails.UserDetails;
 public class CrowdUserDetails implements UserDetails {
     /** Necessary for serialisation. */
 //    private static final long serialVersionUID = -907996070755427898L;
-
-
     private static final long serialVersionUID = 3L;
-    private final String externalId;
-    private String password;
-    private String username;
-    private boolean active;
-    private GrantedAuthority[] authorities;
-
-    private final String firstName;
-    private final String lastName;
-    private final long directoryId;
-    private final String email;
-    /** Holds the Crowd user object. */
-    private transient com.atlassian.crowd.model.user.User crowdUser;
+	private final User principal;
+	private final Collection<GrantedAuthority> authorities;
 
     /**
      * Creates a new instance.
      *
-     * @param crowdUser
+     * @param principal
      *            Crowd user object. May not be <code>null</code>.
      * @param authorities
      *            The granted authorities of the user. May not be
      *            <code>null</code>.
      */
-    public CrowdUserDetails(String username, String password, boolean active,
-                            String externalId, String firstName,
-                            String lastName, long directoryId,
-                            GrantedAuthority[] authorities,
-                            String email,
-                            com.atlassian.crowd.model.user.User crowdUser)
-            throws IllegalArgumentException {
-        this.active = active;
-        this.externalId = externalId;
-        this.username = username;
-        this.password = password;
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.directoryId = directoryId;
-        this.authorities = authorities;
-        this.email = email;
-        //temp
-        this.crowdUser = crowdUser;
-    }
+	public CrowdUserDetails(User principal, GrantedAuthority[] authorities){
+		this.principal = principal;
+		this.authorities = Arrays.asList(authorities);
+	}
 
-    /**
+	public CrowdUserDetails(User principal, Collection<GrantedAuthority> authorities){
+		this.principal = principal;
+		this.authorities = authorities;
+	}
+
+	/**
      * {@inheritDoc}
      *
      * @see org.acegisecurity.userdetails.UserDetails#getAuthorities()
      */
     @Override
     public GrantedAuthority[] getAuthorities() {
-        return authorities;
+        return (GrantedAuthority[]) authorities.toArray();
     }
-
 
     /**
      * {@inheritDoc}
@@ -82,7 +63,7 @@ public class CrowdUserDetails implements UserDetails {
 
     @Override
     public String getUsername() {
-        return username;
+        return principal.getName();
     }
 
     /**
@@ -122,27 +103,27 @@ public class CrowdUserDetails implements UserDetails {
      */
     @Override
     public boolean isEnabled() {
-        return active;
+        return principal.isActive();
     }
 
     public String getExternalId() {
-        return externalId;
+        return principal.getExternalId();
     }
 
     public String getFirstName() {
-        return firstName;
+        return principal.getFirstName();
     }
 
     public String getLastName() {
-        return lastName;
+        return principal.getLastName();
     }
 
     public long getDirectoryId() {
-        return directoryId;
+        return principal.getDirectoryId();
     }
 
     public String getEmailAddress() {
-        return email;
+        return principal.getEmailAddress();
     }
 
 }

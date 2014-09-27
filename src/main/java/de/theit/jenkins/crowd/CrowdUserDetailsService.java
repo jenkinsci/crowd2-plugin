@@ -14,6 +14,7 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DataRetrievalFailureException;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -42,8 +43,7 @@ public class CrowdUserDetailsService implements UserDetailsService {
      * @see org.acegisecurity.userdetails.UserDetailsService#loadUserByUsername(java.lang.String)
      */
     @Override
-    public UserDetails loadUserByUsername(String username)
-            throws UsernameNotFoundException, DataAccessException {
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException, DataAccessException {
 
         if (!configuration.allowedGroupNames.isEmpty()) {
             // check whether there's at least one active group the user is a member
@@ -52,13 +52,13 @@ public class CrowdUserDetailsService implements UserDetailsService {
                 throw new DataRetrievalFailureException(userNotValid(username, configuration.allowedGroupNames));
             }
         }
-        com.atlassian.crowd.model.user.User crowdUser;
+        com.atlassian.crowd.model.user.User principal;
         try {
             // load the user object from the remote Crowd server
             if (LOG.isLoggable(Level.FINE)) {
                 LOG.fine("Loading user object from the remote Crowd server...");
             }
-            crowdUser = configuration.crowdClient.getUser(username);
+            principal = configuration.crowdClient.getUser(username);
         } catch (UserNotFoundException ex) {
             if (LOG.isLoggable(Level.INFO)) {
                 LOG.info(userNotFound(username));
@@ -75,26 +75,11 @@ public class CrowdUserDetailsService implements UserDetailsService {
             throw new DataRetrievalFailureException(operationFailed(), ex);
         }
 
-        // create the list of granted authorities
-        List<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>();
-        // add the "authenticated" authority to the list of granted
-        // authorities...
         LOG.info("adding authorities in CrowdUserDetailsService.loadUserByUsername");
-        authorities.add(SecurityRealm.AUTHENTICATED_AUTHORITY);
-        // ..and all authorities retrieved from the Crowd server
-        authorities.addAll(configuration.getAuthoritiesForUser(username));
+		Collection<GrantedAuthority> authorities = configuration.getAuthoritiesForUser(username);
+		authorities.add(SecurityRealm.AUTHENTICATED_AUTHORITY);
 
-        return new CrowdUserDetails(username,
-                null,        // no password here
-                crowdUser.isActive(),
-                crowdUser.getExternalId(),
-                crowdUser.getFirstName(),
-                crowdUser.getLastName(),
-                crowdUser.getDirectoryId(),
-                authorities.toArray(new GrantedAuthority[authorities.size()]),
-                crowdUser.getEmailAddress(),
-                crowdUser
-        );
+		return new CrowdUserDetails(principal, authorities);
     }
 
 

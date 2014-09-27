@@ -27,42 +27,35 @@ package de.theit.jenkins.crowd;
 
 import org.acegisecurity.GrantedAuthority;
 import org.acegisecurity.providers.AbstractAuthenticationToken;
-import org.acegisecurity.userdetails.UserDetails;
 
-public class CrowdSSOAuthenticationToken extends AbstractAuthenticationToken
-{
+public class CrowdSSOAuthenticationToken extends AbstractAuthenticationToken {
 	private static final String UNAUTHENTICATED_TOKEN_PRINCIPAL = "CROWD.SSO";
 	private Object credentials;
 	private Object principal;
 
-	public CrowdSSOAuthenticationToken(String ssoToken)
-	{
+	public CrowdSSOAuthenticationToken(String ssoToken) {
+		super(null);
 		this.credentials = ssoToken;
 		this.principal = "CROWD.SSO";
 		setAuthenticated(false);
 	}
 
-	public CrowdSSOAuthenticationToken(CrowdUserDetails principal, String ssoToken, GrantedAuthority[] authorities)
-	{
+	public CrowdSSOAuthenticationToken(CrowdUserDetails principal, String ssoToken, GrantedAuthority[] authorities)	{
 		super(authorities);
 		this.principal = principal;
 		this.credentials = ssoToken;
 		super.setAuthenticated(true);
 	}
 
-	public Object getCredentials()
-	{
+	public Object getCredentials() {
 		return this.credentials;
 	}
 
-	public Object getPrincipal()
-	{
+	public Object getPrincipal() {
 		return this.principal;
 	}
 
-	public void setAuthenticated(boolean isAuthenticated)
-			throws IllegalArgumentException
-	{
+	public void setAuthenticated(boolean isAuthenticated) throws IllegalArgumentException {
 		if (isAuthenticated)
 		{
 			throw new IllegalArgumentException("Cannot set this token to trusted - use constructor containing GrantedAuthority[]s instead");
