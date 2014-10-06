@@ -28,6 +28,7 @@ package de.theit.jenkins.crowd;
 import com.atlassian.crowd.exception.*;
 import com.atlassian.crowd.integration.http.CrowdHttpAuthenticator;
 import com.atlassian.crowd.integration.http.util.CrowdHttpTokenHelper;
+import com.atlassian.crowd.model.authentication.CookieConfiguration;
 import com.atlassian.crowd.model.group.Group;
 import com.atlassian.crowd.service.client.ClientProperties;
 import com.atlassian.crowd.service.client.CrowdClient;
@@ -76,12 +77,14 @@ public class CrowdConfigurationService implements InitializingBean {
 	CrowdHttpAuthenticator crowdHttpAuthenticator;
 
 	/** The names of all user groups that are allowed to login. */
-	Collection<String> allowedGroupNames;
+	List<String> allowedGroupNames;
 
 	/** Specifies whether nested groups may be used. */
 	private boolean nestedGroups;
 
     public boolean useSSO;
+
+	public CookieConfiguration cookieConfiguration;
 
     /**
      * Creates a new Crowd configuration object.

@@ -28,6 +28,7 @@ package de.theit.jenkins.crowd;
 import org.jvnet.localizer.ResourceBundleHolder;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * This class delivers localized error messages.
@@ -209,7 +210,7 @@ public class ErrorMessages {
 	 * @return The localized error message when a user does not have the
 	 *         permission to login.
 	 */
-	public static String userNotValid(String username, ArrayList<String> groupNames) {
+	public static String userNotValid(String username, List<String> groupNames) {
 		return holder.format("userNotValid", username, groupNames.toString());
 	}
 }

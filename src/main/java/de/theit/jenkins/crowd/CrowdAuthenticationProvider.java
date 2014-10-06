@@ -24,14 +24,11 @@
  */
 package de.theit.jenkins.crowd;
 
-import com.atlassian.crowd.embedded.api.PasswordCredential;
 import com.atlassian.crowd.exception.*;
-import com.atlassian.crowd.model.authentication.UserAuthenticationContext;
 import com.atlassian.crowd.model.authentication.ValidationFactor;
 import com.atlassian.crowd.model.user.User;
-import hudson.security.SecurityRealm;
+import jenkins.model.Jenkins;
 import org.acegisecurity.*;
-import org.acegisecurity.context.SecurityContextHolder;
 import org.acegisecurity.providers.AbstractAuthenticationToken;
 import org.acegisecurity.providers.AuthenticationProvider;
 import org.acegisecurity.providers.UsernamePasswordAuthenticationToken;
@@ -39,14 +36,9 @@ import org.acegisecurity.userdetails.UsernameNotFoundException;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.InitializingBean;
 import org.springframework.dao.DataAccessException;
 
 import java.rmi.RemoteException;
-import java.util.ArrayList;
-import java.util.List;
-
-import static de.theit.jenkins.crowd.ErrorMessages.*;
 
 /**
  *
@@ -60,8 +52,11 @@ public class CrowdAuthenticationProvider implements AuthenticationProvider {
 		this.configuration = configuration;
 	}
 
-	public Authentication authenticate(Authentication authentication)
-			throws AuthenticationException
+
+	//extract credentials to get group & authorities
+	// and return authenticated token
+	@Override
+	public Authentication authenticate(Authentication authentication) throws AuthenticationException
 	{
 		if (!supports(authentication.getClass()))
 		{
@@ -104,25 +99,19 @@ public class CrowdAuthenticationProvider implements AuthenticationProvider {
 		}
 
 		Authentication authenticatedToken = null;
-		try
-		{
-			if ((passwordToken.getDetails() != null) && ((passwordToken.getDetails() instanceof CrowdUserDetails)))
-			{
-				CrowdUserDetails details = (CrowdUserDetails)passwordToken.getDetails();
+		try {
+			if ((passwordToken.getDetails() != null) && ((passwordToken.getDetails() instanceof CrowdSSOAuthenticationDetails))) {
+				CrowdSSOAuthenticationDetails details = (CrowdSSOAuthenticationDetails) passwordToken.getDetails();
 
-				String crowdTokenString = authenticate(passwordToken.getPrincipal().toString(), passwordToken.getCredentials().toString(), details.getValidationFactors());
+				String crowdToken = authenticate(passwordToken.getPrincipal().toString(), passwordToken.getCredentials().toString(), details.getValidationFactors());
 				CrowdUserDetails userDetails = loadUserByUsername(passwordToken.getPrincipal().toString());
-				authenticatedToken = new CrowdSSOAuthenticationToken(userDetails, crowdTokenString, userDetails.getAuthorities());
-			}
-			else
-			{
+				authenticatedToken = new CrowdSSOAuthenticationToken(userDetails, crowdToken, userDetails.getAuthorities());
+			} else {
 				authenticate(passwordToken.getPrincipal().toString(), passwordToken.getCredentials().toString(), new ValidationFactor[0]);
 				CrowdUserDetails userDetails = loadUserByUsername(passwordToken.getPrincipal().toString());
-				authenticatedToken = new UsernamePasswordAuthenticationToken(userDetails, passwordToken.getCredentials(), userDetails.getAuthorities());
+				authenticatedToken = new UsernamePasswordAuthenticationToken(passwordToken.getPrincipal(), passwordToken.getCredentials(), userDetails.getAuthorities());
 			}
-		}
-		catch (Exception e)
-		{
+		} catch (Exception e) {
 			throw translateException(e);
 		}
 
@@ -130,50 +119,38 @@ public class CrowdAuthenticationProvider implements AuthenticationProvider {
 	}
 
 	protected String authenticate(String username, String password, ValidationFactor[] validationFactors)
-			throws InvalidAuthorizationTokenException, InvalidAuthenticationException, RemoteException, InactiveAccountException, ApplicationAccessDeniedException, ExpiredCredentialException
-	{
-		return this.httpAuthenticator.verifyAuthentication(username, password, validationFactors);
+			throws InvalidAuthorizationTokenException, InvalidAuthenticationException, RemoteException, InactiveAccountException, ApplicationAccessDeniedException, ExpiredCredentialException {
+//		return this.configuration.verifyAuthentication(username, password, validationFactors);
+		return null;
 	}
 
 	protected CrowdUserDetails loadUserByUsername(String username)
-			throws UsernameNotFoundException, DataAccessException
-	{
-		return this.configuration.loadUserByUsername(username);
+			throws UsernameNotFoundException, DataAccessException {
+		return (CrowdUserDetails) Jenkins.getInstance().getSecurityRealm().loadUserByUsername(username);
 	}
 
 	protected CrowdUserDetails loadUserByToken(String token)
-			throws CrowdSSOTokenInvalidException, DataAccessException
-	{
-		return this.userDetailsService.loadUserByToken(token);
+			throws CrowdSSOTokenInvalidException, DataAccessException, ApplicationPermissionException, InvalidTokenException, OperationFailedException, InvalidAuthenticationException {
+		User userFromSSOToken = this.configuration.crowdClient.findUserFromSSOToken(token);
+		return loadUserByUsername(userFromSSOToken.getName());
 	}
 
-	protected Authentication authenticateCrowdSSO(CrowdSSOAuthenticationToken ssoToken) throws AuthenticationException
-	{
-		if ((ssoToken.getCredentials() == null) || (StringUtils.isEmpty(ssoToken.getCredentials().toString())))
-		{
+	protected Authentication authenticateCrowdSSO(CrowdSSOAuthenticationToken ssoToken) throws AuthenticationException {
+		if ((ssoToken.getCredentials() == null) || (StringUtils.isEmpty(ssoToken.getCredentials().toString())))	{
 			throw new BadCredentialsException("CrowdSSOAuthenticationToken contains empty token credential");
 		}
-//		disable validations
-//		if ((ssoToken.getDetails() == null) || (!(ssoToken.getDetails() instanceof CrowdSSOAuthenticationDetails)))
-//		{
-//			throw new BadCredentialsException("CrowdSSOAuthenticationToken does not contain any validation factors");
-//		}
+		if ((ssoToken.getDetails() == null) || (!(ssoToken.getDetails() instanceof CrowdSSOAuthenticationDetails)))	{
+			throw new BadCredentialsException("CrowdSSOAuthenticationToken does not contain any validation factors");
+		}
 
 		Authentication authenticatedToken = null;
-		String crowdTokenString = ssoToken.getCredentials().toString();
-//		CrowdSSOAuthenticationDetails details = (CrowdSSOAuthenticationDetails)ssoToken.getDetails();
-		try
-		{
-//			if (!isAuthenticated(crowdTokenString, details.getValidationFactors()))
-			if (!isAuthenticated(crowdTokenString))
-			{
-				throw new CrowdSSOTokenInvalidException("Crowd SSO token is invalid");
-			}
-
-			CrowdUserDetails userDetails = loadUserByToken(crowdTokenString);
-			authenticatedToken = new CrowdSSOAuthenticationToken(userDetails, crowdTokenString, userDetails.getAuthorities());
-		}
-		catch (Exception e)
+		String crowdToken = ssoToken.getCredentials().toString();
+		CrowdSSOAuthenticationDetails details = (CrowdSSOAuthenticationDetails)ssoToken.getDetails();
+		try	{
+			configuration.crowdClient.validateSSOAuthentication(crowdToken, details.getValidationFactorsList());
+			CrowdUserDetails userDetails = loadUserByToken(crowdToken);
+			authenticatedToken = new CrowdSSOAuthenticationToken(userDetails, crowdToken, userDetails.getAuthorities());
+		} catch (Exception e)
 		{
 			throw translateException(e);
 		}
@@ -181,43 +158,30 @@ public class CrowdAuthenticationProvider implements AuthenticationProvider {
 		return authenticatedToken;
 	}
 
-	private boolean isAuthenticated(String crowdTokenString) {
-		return this.configuration.crowdClient.validateSSOAuthentication(token, validationFactors);
-	}
-
 	protected AuthenticationException translateException(Exception e)
 	{
-		if ((e instanceof AuthenticationException))
-		{
+		if ((e instanceof AuthenticationException))	{
 			return (AuthenticationException)e;
 		}
-		if ((e instanceof ApplicationAccessDeniedException))
-		{
+		if ((e instanceof ApplicationAccessDeniedException)) {
 			return new CrowdAccessDeniedException("User does not have access to application: ");
 		}
-		if ((e instanceof ExpiredCredentialException))
-		{
+		if ((e instanceof ExpiredCredentialException)) {
 			return new CredentialsExpiredException(e.getMessage());
 		}
-		if (((e instanceof InvalidAuthenticationException)) || ((e instanceof InvalidTokenException)))
-		{
+		if (((e instanceof InvalidAuthenticationException)) || ((e instanceof InvalidTokenException))) {
 			return new BadCredentialsException(e.getMessage(), e);
 		}
-		if ((e instanceof InactiveAccountException))
-		{
+		if ((e instanceof InactiveAccountException)) {
 			return new DisabledException(e.getMessage(), e);
 		}
 
 		return new AuthenticationServiceException(e.getMessage(), e);
 	}
 
-	private UserAuthenticationContext toContext(String name, String password, ValidationFactor[] validationFactors){
-		PasswordCredential credential = new PasswordCredential(password);
 
-		return new UserAuthenticationContext(name , credential, validationFactors, configuration.)
 
-	}
-
+	@Override
 	public boolean supports(Class authentication)
 	{
 		return (UsernamePasswordAuthenticationToken.class.isAssignableFrom(authentication)) || (CrowdSSOAuthenticationToken.class.isAssignableFrom(authentication));
@@ -232,7 +196,7 @@ public class CrowdAuthenticationProvider implements AuthenticationProvider {
 		if ((authenticationToken.getDetails() instanceof CrowdSSOAuthenticationDetails))
 		{
 			CrowdSSOAuthenticationDetails details = (CrowdSSOAuthenticationDetails)authenticationToken.getDetails();
-			return details.getApplicationName().equals(this.applicationName);
+			return details.getApplicationName().equals(configuration.clientProperties.getApplicationName());
 		}
 
 		return false;

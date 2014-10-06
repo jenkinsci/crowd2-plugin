@@ -47,6 +47,9 @@ THE SOFTWARE.
         <f:entry title="cookie.tokenkey" field="cookieTokenkey">
             <f:textbox default="crowd.token_key" />
         </f:entry>
+        <f:entry title="Secure https" field="secure">
+            <f:checkbox default="false"/>
+        </f:entry>
     </f:optionalBlock>
     <f:advanced>
         <f:optionalBlock title="${%Enable Proxy}" field="useProxy" inline="true">

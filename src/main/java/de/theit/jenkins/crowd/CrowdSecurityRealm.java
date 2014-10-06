@@ -30,6 +30,7 @@ import com.atlassian.crowd.integration.http.CrowdHttpAuthenticatorImpl;
 import com.atlassian.crowd.integration.http.util.CrowdHttpTokenHelperImpl;
 import com.atlassian.crowd.integration.http.util.CrowdHttpValidationFactorExtractorImpl;
 import com.atlassian.crowd.integration.rest.service.factory.RestCrowdClientFactory;
+import com.atlassian.crowd.model.authentication.CookieConfiguration;
 import com.atlassian.crowd.model.group.Group;
 import com.atlassian.crowd.model.user.User;
 import com.atlassian.crowd.service.client.ClientPropertiesImpl;
@@ -122,6 +123,8 @@ public class CrowdSecurityRealm extends AbstractPasswordBasedSecurityRealm {
      */
     public final String cookieTokenkey;
 
+	public final Boolean secure;
+
     public final Boolean useProxy;
     public final String httpProxyHost;
     public final String httpProxyPort;
@@ -175,7 +178,7 @@ public class CrowdSecurityRealm extends AbstractPasswordBasedSecurityRealm {
                               int sessionValidationInterval, boolean useSSO, String cookieDomain,
                               String cookieTokenkey, Boolean useProxy, String httpProxyHost, String httpProxyPort,
                               String httpProxyUsername, String httpProxyPassword, String socketTimeout,
-                              String httpTimeout, String httpMaxConnections) {
+                              String httpTimeout, String httpMaxConnections, Boolean secure) {
         this.cookieTokenkey = cookieTokenkey;
         this.useProxy = useProxy;
         this.httpProxyHost = httpProxyHost;
@@ -193,6 +196,7 @@ public class CrowdSecurityRealm extends AbstractPasswordBasedSecurityRealm {
 		this.sessionValidationInterval = sessionValidationInterval;
 		this.useSSO = useSSO;
         this.cookieDomain = cookieDomain;
+		this.secure = secure;
 	}
 
     static public Properties getProperties(String url, String applicationName, String password,
@@ -276,17 +280,18 @@ public class CrowdSecurityRealm extends AbstractPasswordBasedSecurityRealm {
         //if (null == configuration) {
         //    configuration = new CrowdConfigurationService(group, nestedGroups);
         configuration = findBean(CrowdConfigurationService.class, appContext);
-            configuration.useSSO = useSSO;
-            Properties props = getProperties(url, applicationName, password, sessionValidationInterval,
-                    useSSO, cookieDomain, cookieTokenkey, useProxy, httpProxyHost, httpProxyPort, httpProxyUsername,
-                    httpProxyPassword, socketTimeout, httpTimeout, httpMaxConnections);
-            configuration.clientProperties = ClientPropertiesImpl.newInstanceFromProperties(props);
-            configuration.crowdClient = new RestCrowdClientFactory().newInstance(configuration.clientProperties);
-            configuration.tokenHelper = CrowdHttpTokenHelperImpl.getInstance(CrowdHttpValidationFactorExtractorImpl.getInstance());
-            configuration.crowdHttpAuthenticator = new CrowdHttpAuthenticatorImpl(
-                    configuration.crowdClient,
-                    configuration.clientProperties,
-                    configuration.tokenHelper);
+		configuration.useSSO = useSSO;
+		Properties props = getProperties(url, applicationName, password, sessionValidationInterval,
+				useSSO, cookieDomain, cookieTokenkey, useProxy, httpProxyHost, httpProxyPort, httpProxyUsername,
+				httpProxyPassword, socketTimeout, httpTimeout, httpMaxConnections);
+		configuration.clientProperties = ClientPropertiesImpl.newInstanceFromProperties(props);
+		configuration.crowdClient = new RestCrowdClientFactory().newInstance(configuration.clientProperties);
+		configuration.tokenHelper = CrowdHttpTokenHelperImpl.getInstance(CrowdHttpValidationFactorExtractorImpl.getInstance());
+		configuration.crowdHttpAuthenticator = new CrowdHttpAuthenticatorImpl(
+				configuration.crowdClient,
+				configuration.clientProperties,
+				configuration.tokenHelper);
+//		configuration.cookieConfiguration = new CookieConfiguration(cookieDomain, false, cookieTokenkey);
 		//}
 
 		final UserDetailsService crowdUserDetails = findBean(CrowdUserDetailsService.class, appContext);
@@ -387,8 +392,7 @@ public class CrowdSecurityRealm extends AbstractPasswordBasedSecurityRealm {
 	 *      java.lang.String)
 	 */
 	@Override
-	protected UserDetails authenticate(String username, String password)
-			throws AuthenticationException {
+	protected UserDetails authenticate(String username, String password) throws AuthenticationException {
 
 		User crowdUser;
 		try {
@@ -435,17 +439,7 @@ public class CrowdSecurityRealm extends AbstractPasswordBasedSecurityRealm {
 		// ..and all authorities retrieved from the Crowd server
 		authorities.addAll(this.configuration.getAuthoritiesForUser(username));
 
-		return new CrowdUserDetails(username,
-                password,
-                crowdUser.isActive(),
-                crowdUser.getExternalId(),
-                crowdUser.getFirstName(),
-                crowdUser.getLastName(),
-                crowdUser.getDirectoryId(),
-                authorities.toArray(new GrantedAuthority[authorities.size()]),
-                crowdUser.getEmailAddress(),
-                crowdUser
-        );
+		return new CrowdUserDetails(crowdUser, authorities);
 	}
 
 	/**
@@ -579,7 +573,7 @@ public class CrowdSecurityRealm extends AbstractPasswordBasedSecurityRealm {
                 @QueryParameter String cookieTokenkey, @QueryParameter Boolean useProxy, @QueryParameter String httpProxyHost,
                 @QueryParameter String httpProxyPort, @QueryParameter String httpProxyUsername,
                 @QueryParameter String httpProxyPassword, @QueryParameter String socketTimeout,
-                @QueryParameter String httpTimeout, @QueryParameter String httpMaxConnections)
+                @QueryParameter String httpTimeout, @QueryParameter String httpMaxConnections, @QueryParameter Boolean secure)
         {
 
 			CrowdConfigurationService tConfiguration = new CrowdConfigurationService(group, false);
