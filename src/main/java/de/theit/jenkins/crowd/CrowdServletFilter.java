@@ -25,12 +25,11 @@
  */
 package de.theit.jenkins.crowd;
 
-import static de.theit.jenkins.crowd.ErrorMessages.operationFailed;
-import static org.acegisecurity.ui.rememberme.TokenBasedRememberMeServices.ACEGI_SECURITY_HASHED_REMEMBER_ME_COOKIE_KEY;
-
-import java.io.IOException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import com.atlassian.crowd.exception.OperationFailedException;
+import org.acegisecurity.Authentication;
+import org.acegisecurity.context.SecurityContext;
+import org.acegisecurity.context.SecurityContextHolder;
+import org.acegisecurity.ui.rememberme.RememberMeServices;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -42,13 +41,12 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
-import org.acegisecurity.Authentication;
-import org.acegisecurity.context.SecurityContext;
-import org.acegisecurity.context.SecurityContextHolder;
-import org.acegisecurity.ui.rememberme.RememberMeServices;
-
-import com.atlassian.crowd.exception.OperationFailedException;
+import static de.theit.jenkins.crowd.ErrorMessages.operationFailed;
+import static org.acegisecurity.ui.rememberme.TokenBasedRememberMeServices.ACEGI_SECURITY_HASHED_REMEMBER_ME_COOKIE_KEY;
 
 /**
  * This class realizes a servlet filter that checks on each request the status
@@ -136,8 +134,7 @@ public class CrowdServletFilter implements Filter {
 			// if it is not present, we are not / no longer authenticated
 			boolean isValidated = false;
 			try {
-				isValidated = this.configuration.crowdHttpAuthenticator
-						.isAuthenticated(req, res);
+				isValidated = this.configuration.isAuthenticated(req, res);
 			} catch (OperationFailedException ex) {
 				LOG.log(Level.SEVERE, operationFailed(), ex);
 			}
