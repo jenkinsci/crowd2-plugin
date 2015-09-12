@@ -34,11 +34,11 @@ import com.atlassian.crowd.service.client.ClientProperties;
 import com.atlassian.crowd.service.client.CrowdClient;
 import org.acegisecurity.GrantedAuthority;
 import org.acegisecurity.GrantedAuthorityImpl;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 
 import java.util.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import static de.theit.jenkins.crowd.ErrorMessages.*;
 
@@ -53,7 +53,7 @@ import static de.theit.jenkins.crowd.ErrorMessages.*;
  */
 public class CrowdConfigurationService implements InitializingBean {
 	/** Used for logging purposes. */
-	private static final Logger LOG = Logger.getLogger(CrowdConfigurationService.class.getName());
+	private static final Logger LOG = LoggerFactory.getLogger(CrowdConfigurationService.class);
 
 	/**
 	 * The maximum number of groups that can be fetched from the Crowd server
@@ -97,15 +97,11 @@ public class CrowdConfigurationService implements InitializingBean {
      *            users against a group name.
      */
 	public CrowdConfigurationService(String pGroupNames, boolean pNestedGroups) {
-		if (LOG.isLoggable(Level.INFO)) {
-			LOG.info("Groups given for Crowd configuration service: " + pGroupNames);
-		}
+			LOG.info("Groups given for Crowd configuration service: {}", pGroupNames);
 		this.allowedGroupNames = new ArrayList<String>();
 		for (String group : pGroupNames.split(",")) {
 			if (null != group && group.trim().length() > 0) {
-				if (LOG.isLoggable(Level.FINE)) {
-					LOG.fine("-> adding allowed group name: " + group);
-				}
+				LOG.debug("-> adding allowed group name: {}", group);
 				this.allowedGroupNames.add(group);
 			}
 		}
@@ -135,11 +131,11 @@ public class CrowdConfigurationService implements InitializingBean {
 				}
 			}
 		} catch (ApplicationPermissionException ex) {
-			LOG.warning(applicationPermission());
+			LOG.warn(applicationPermission());
 		} catch (InvalidAuthenticationException ex) {
-			LOG.warning(invalidAuthentication());
+			LOG.warn(invalidAuthentication());
 		} catch (OperationFailedException ex) {
-			LOG.log(Level.SEVERE, operationFailed(), ex);
+			LOG.error(operationFailed(), ex);
 		}
 
 		return retval;
@@ -173,19 +169,13 @@ public class CrowdConfigurationService implements InitializingBean {
 		boolean retval = false;
 
 		if (isGroupActive(group)) {
-			if (LOG.isLoggable(Level.FINE)) {
-				LOG.fine("Checking group membership for user '" + username + "' and group '" + group + "'...");
-			}
+			LOG.info("Checking group membership for user '{}' and group '{}'...", username, group);
 			if (this.crowdClient.isUserDirectGroupMember(username, group)) {
 				retval = true;
-				if (LOG.isLoggable(Level.FINER)) {
-					LOG.finer("=> user is a direct group member");
-				}
+				LOG.debug("=> user is a direct group member");
 			} else if (this.nestedGroups && this.crowdClient.isUserNestedGroupMember(username, group)) {
 				retval = true;
-				if (LOG.isLoggable(Level.FINER)) {
-					LOG.finer("=> user is a nested group member");
-				}
+				LOG.debug("=> user is a nested group member");
 			}
 		}
 
@@ -217,17 +207,13 @@ public class CrowdConfigurationService implements InitializingBean {
 		boolean retval = false;
 
 		try {
-			if (LOG.isLoggable(Level.FINE)) {
-				LOG.fine("Checking whether group is active: " + groupName);
-			}
+			LOG.debug("Checking whether group is active: " + groupName);
 			Group group = this.crowdClient.getGroup(groupName);
 			if (null != group) {
 				retval = group.isActive();
 			}
 		} catch (GroupNotFoundException ex) {
-			if (LOG.isLoggable(Level.FINE)) {
-				LOG.fine(groupNotFound(groupName));
-			}
+			LOG.debug(groupNotFound(groupName));
 		}
 
 		return retval;
@@ -257,15 +243,9 @@ public class CrowdConfigurationService implements InitializingBean {
 		// retrieve the names of all groups the user is a direct member of
 		try {
 			int index = 0;
-			if (LOG.isLoggable(Level.FINE)) {
-				LOG.fine("Retrieve list of groups with direct membership for user '"
-						+ username + "'...");
-			}
+			LOG.debug("Retrieve list of groups with direct membership for user '{}'...", username);
 			while (true) {
-				if (LOG.isLoggable(Level.FINEST)) {
-					LOG.finest("Fetching groups [" + index + "..."
-							+ (index + MAX_GROUPS - 1) + "]...");
-				}
+				LOG.debug("Fetching groups [" + index + "..." + (index + MAX_GROUPS - 1) + "]...");
 				List<Group> groups = this.crowdClient.getGroupsForUser(username, index, MAX_GROUPS);
 				if (null == groups || groups.isEmpty()) {
 					break;
@@ -278,15 +258,13 @@ public class CrowdConfigurationService implements InitializingBean {
 				index += MAX_GROUPS;
 			}
 		} catch (UserNotFoundException ex) {
-			if (LOG.isLoggable(Level.INFO)) {
-				LOG.info(userNotFound(username));
-			}
+			LOG.info(userNotFound(username));
 		} catch (InvalidAuthenticationException ex) {
-			LOG.warning(invalidAuthentication());
+			LOG.warn(invalidAuthentication());
 		} catch (ApplicationPermissionException ex) {
-			LOG.warning(applicationPermission());
+			LOG.warn(applicationPermission());
 		} catch (OperationFailedException ex) {
-			LOG.log(Level.SEVERE, operationFailed(), ex);
+			LOG.error(operationFailed(), ex);
 		}
 
 		// now the same but for nested group membership if this configuration
@@ -294,13 +272,9 @@ public class CrowdConfigurationService implements InitializingBean {
 		if (this.nestedGroups) {
 			try {
 				int index = 0;
-				if (LOG.isLoggable(Level.FINE)) {
-					LOG.fine("Retrieve list of groups with direct membership for user '" + username + "'...");
-				}
+				LOG.debug("Retrieve list of groups with direct membership for user '" + username + "'...");
 				while (true) {
-					if (LOG.isLoggable(Level.FINEST)) {
-						LOG.finest("Fetching groups [" + index + "..." + (index + MAX_GROUPS - 1) + "]...");
-					}
+					LOG.debug("Fetching groups [" + index + "..." + (index + MAX_GROUPS - 1) + "]...");
 					List<Group> groups = this.crowdClient.getGroupsForNestedUser(username, index, MAX_GROUPS);
 					if (null == groups || groups.isEmpty()) {
 						break;
@@ -313,15 +287,13 @@ public class CrowdConfigurationService implements InitializingBean {
 					index += MAX_GROUPS;
 				}
 			} catch (UserNotFoundException ex) {
-				if (LOG.isLoggable(Level.INFO)) {
-					LOG.info(userNotFound(username));
-				}
+				LOG.info(userNotFound(username));
 			} catch (InvalidAuthenticationException ex) {
-				LOG.warning(invalidAuthentication());
+				LOG.warn(invalidAuthentication());
 			} catch (ApplicationPermissionException ex) {
-				LOG.warning(applicationPermission());
+				LOG.warn(applicationPermission());
 			} catch (OperationFailedException ex) {
-				LOG.log(Level.SEVERE, operationFailed(), ex);
+				LOG.error(operationFailed(), ex);
 			}
 		}
 
@@ -333,7 +305,6 @@ public class CrowdConfigurationService implements InitializingBean {
 
 		return authorities;
 	}
-
 
     @Override
     public void afterPropertiesSet() throws Exception {
