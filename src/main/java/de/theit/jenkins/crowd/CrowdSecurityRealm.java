@@ -283,14 +283,16 @@ public class CrowdSecurityRealm extends AbstractPasswordBasedSecurityRealm {
 		configuration.useSSO = useSSO;
 		Properties props = getProperties(url, applicationName, password, sessionValidationInterval,
 				useSSO, cookieDomain, cookieTokenkey, useProxy, httpProxyHost, httpProxyPort, httpProxyUsername,
-				httpProxyPassword, socketTimeout, httpTimeout, httpMaxConnections);
+				httpProxyPassword, socketTimeout, httpTimeout, httpMaxConnections
+		);
 		configuration.clientProperties = ClientPropertiesImpl.newInstanceFromProperties(props);
 		configuration.crowdClient = new RestCrowdClientFactory().newInstance(configuration.clientProperties);
 		configuration.tokenHelper = CrowdHttpTokenHelperImpl.getInstance(CrowdHttpValidationFactorExtractorImpl.getInstance());
 		configuration.crowdHttpAuthenticator = new CrowdHttpAuthenticatorImpl(
 				configuration.crowdClient,
 				configuration.clientProperties,
-				configuration.tokenHelper);
+				configuration.tokenHelper
+		);
 //		configuration.cookieConfiguration = new CookieConfiguration(cookieDomain, false, cookieTokenkey);
 		//}
 
@@ -401,7 +403,7 @@ public class CrowdSecurityRealm extends AbstractPasswordBasedSecurityRealm {
 				LOG.fine("Authenticate user '" + username + "' using password '"
 						+ (null != password ? "<available>'": "<not specified>'"));
 			}
-			crowdUser = this.configuration.crowdClient.authenticateUser(username, password);
+			crowdUser = configuration.crowdClient.authenticateUser(username, password);
 		} catch (UserNotFoundException ex) {
 			if (LOG.isLoggable(Level.INFO)) {
 				LOG.info(userNotFound(username));
@@ -424,11 +426,11 @@ public class CrowdSecurityRealm extends AbstractPasswordBasedSecurityRealm {
 			throw new AuthenticationServiceException(operationFailed(), ex);
 		}
 
-        if (! this.configuration.allowedGroupNames.isEmpty()) {
+        if (!configuration.allowedGroupNames.isEmpty()) {
             // ensure that the group is available, active and that the user
             // is a member of it
-            if (!this.configuration.isGroupMember(username)) {
-                throw new InsufficientAuthenticationException(userNotValid(username, this.configuration.allowedGroupNames));
+            if (!configuration.isGroupMember(username)) {
+                throw new InsufficientAuthenticationException(userNotValid(username, configuration.allowedGroupNames));
             }
         }
 

@@ -58,6 +58,7 @@ public class CrowdAuthenticationProvider implements AuthenticationProvider {
 	 * extract credentials to get group & authorities,
 	 * then return authenticated token.
 	 * Supports UsernamePasswordAuthenticationToken or CrowdSSOAuthenticationToken.
+	 * UserDetails as principal for working RememberMe.
 	 */
 	@Override
 	public Authentication authenticate(Authentication authentication) throws AuthenticationException {
@@ -73,7 +74,7 @@ public class CrowdAuthenticationProvider implements AuthenticationProvider {
 		Authentication authenticatedToken = null;
 
 		if ((authentication instanceof UsernamePasswordAuthenticationToken)) {
-			LOG.debug("Processing a UsernamePasswordAuthenticationToken");
+			LOG.debug("Processing a UsernamePasswordAuthenticationToken: ", authentication);
 			authenticatedToken = authenticateUsernamePassword((UsernamePasswordAuthenticationToken) authentication);
 		} else if ((authentication instanceof CrowdSSOAuthenticationToken)) {
 			LOG.debug("Processing a CrowdSSOAuthenticationToken");
@@ -88,18 +89,17 @@ public class CrowdAuthenticationProvider implements AuthenticationProvider {
 	 */
 	protected Authentication authenticateUsernamePassword(UsernamePasswordAuthenticationToken passwordToken)
 			throws AuthenticationException {
-		if (StringUtils.isNotEmpty((passwordToken.getPrincipal().toString()))) {
+		if (StringUtils.isEmpty((String) passwordToken.getPrincipal())) {
 			throw new BadCredentialsException("UsernamePasswordAuthenticationToken contains empty username");
 		}
 
-		if (StringUtils.isNotEmpty(passwordToken.getCredentials().toString())) {
+		if (StringUtils.isEmpty((String) passwordToken.getCredentials())) {
 			throw new BadCredentialsException("UsernamePasswordAuthenticationToken contains empty password");
 		}
 
 		Authentication authenticatedToken;
 		try {
-			//how SSO Auth details appeared here?
-			if ((passwordToken.getDetails() != null) && ((passwordToken.getDetails() instanceof CrowdSSOAuthenticationDetails))) {
+			if (passwordToken.getDetails() instanceof CrowdSSOAuthenticationDetails) {
 				CrowdSSOAuthenticationDetails details = (CrowdSSOAuthenticationDetails) passwordToken.getDetails();
 
 				String crowdToken = authenticateUsernamePassword(passwordToken.getPrincipal().toString(),
@@ -109,18 +109,19 @@ public class CrowdAuthenticationProvider implements AuthenticationProvider {
 				CrowdUserDetails userDetails = loadUserByUsername(passwordToken.getPrincipal().toString());
 				authenticatedToken = new CrowdSSOAuthenticationToken(userDetails, crowdToken, userDetails.getAuthorities());
 			} else {
+				// user/pass is in WebAuthDetails
 				authenticateUsernamePassword(passwordToken.getPrincipal().toString(),
 						passwordToken.getCredentials().toString(),
 						new ValidationFactor[0]
 				);
-				CrowdUserDetails userDetails = loadUserByUsername(passwordToken.getPrincipal().toString());
-				authenticatedToken = new UsernamePasswordAuthenticationToken(passwordToken.getPrincipal(),
+				CrowdUserDetails userDetails = loadUserByUsername((String) passwordToken.getPrincipal());
+				authenticatedToken = new UsernamePasswordAuthenticationToken(userDetails,
 						passwordToken.getCredentials(),
 						userDetails.getAuthorities()
 				);
 			}
 		} catch (Exception e) {
-			LOG.error("Can't authenticate token {}", e);
+			LOG.error("Can't authenticate token {}", passwordToken, e);
 			throw translateException(e);
 		}
 
@@ -139,7 +140,7 @@ public class CrowdAuthenticationProvider implements AuthenticationProvider {
 			throw new BadCredentialsException("CrowdSSOAuthenticationToken does not contain any validation factors");
 		}
 
-		Authentication authenticatedToken = null;
+		Authentication authenticatedToken;
 		String crowdToken = ssoToken.getCredentials().toString();
 		CrowdSSOAuthenticationDetails details = (CrowdSSOAuthenticationDetails)ssoToken.getDetails();
 		try {
@@ -158,8 +159,8 @@ public class CrowdAuthenticationProvider implements AuthenticationProvider {
 	 * Where it required?
 	 */
 	protected String authenticateUsernamePassword(String username, String password, ValidationFactor[] validationFactors)
-			throws InvalidAuthorizationTokenException, InvalidAuthenticationException, RemoteException, InactiveAccountException, ApplicationAccessDeniedException, ExpiredCredentialException {
-//		return this.configuration.verifyAuthentication(username, password, validationFactors);
+			throws InvalidAuthorizationTokenException, InvalidAuthenticationException, RemoteException, InactiveAccountException, ApplicationAccessDeniedException, ExpiredCredentialException, UserNotFoundException, OperationFailedException, ApplicationPermissionException {
+		configuration.crowdClient.authenticateUser(username, password);
 		return null;
 	}
 
@@ -212,19 +213,11 @@ public class CrowdAuthenticationProvider implements AuthenticationProvider {
      * Whether this provider support this type of token
      */
 	public boolean supports(AbstractAuthenticationToken authenticationToken) {
-        // no details and not sso?
-		if ((authenticationToken.getDetails() == null)
-                || (!(authenticationToken.getDetails() instanceof CrowdSSOAuthenticationDetails))) {
-
-			return true;
-		}
-
 		if (authenticationToken.getDetails() instanceof CrowdSSOAuthenticationDetails) {
 			CrowdSSOAuthenticationDetails details = (CrowdSSOAuthenticationDetails) authenticationToken.getDetails();
-
 			return details.getApplicationName().equals(configuration.clientProperties.getApplicationName());
+		} else {
+			return true;
 		}
-
-		return false;
 	}
 }

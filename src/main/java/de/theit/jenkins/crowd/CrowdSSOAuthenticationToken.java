@@ -59,11 +59,10 @@ public class CrowdSSOAuthenticationToken extends AbstractAuthenticationToken {
 	}
 
 	public void setAuthenticated(boolean isAuthenticated) throws IllegalArgumentException {
-		//TODO looks weird, verify with spring crowd security
 		if (isAuthenticated) {
 			throw new IllegalArgumentException("Cannot set this token to trusted - use constructor containing GrantedAuthority[]s instead");
+		} else {
+			super.setAuthenticated(false);
 		}
-
-		super.setAuthenticated(false);
 	}
 }

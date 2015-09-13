@@ -2,6 +2,7 @@ package de.theit.jenkins.crowd;
 
 import com.atlassian.crowd.model.user.User;
 import org.acegisecurity.GrantedAuthority;
+import org.acegisecurity.GrantedAuthorityImpl;
 import org.acegisecurity.userdetails.UserDetails;
 
 import java.util.Arrays;
@@ -18,8 +19,15 @@ import java.util.Collection;
 public class CrowdUserDetails implements UserDetails {
     /** Necessary for serialisation. */
 //    private static final long serialVersionUID = -907996070755427898L;
+// wow, seems it was mistake to change it
     private static final long serialVersionUID = 3L;
+
 	private final User principal;
+    /**
+     * like in spring security store it in Collection instead array.
+     * Acegi needs array and TreeSet.toArray fails.
+     * TODO migrate to GrantedAuthorityImpl instead GrantedAuthority?
+     */
 	private final Collection<GrantedAuthority> authorities;
 
     /**
@@ -43,7 +51,8 @@ public class CrowdUserDetails implements UserDetails {
 
     @Override
     public GrantedAuthority[] getAuthorities() {
-        return (GrantedAuthority[]) authorities.toArray();
+        // when authorities is TreeSet, toArray GA[] fails
+        return authorities.toArray(new GrantedAuthorityImpl[authorities.size()]);
     }
 
     @Override
