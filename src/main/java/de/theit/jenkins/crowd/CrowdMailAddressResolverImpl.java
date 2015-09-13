@@ -26,15 +26,15 @@
 package de.theit.jenkins.crowd;
 
 import hudson.Extension;
-import hudson.model.Hudson;
 import hudson.model.User;
 import hudson.security.SecurityRealm;
 import hudson.tasks.MailAddressResolver;
+import jenkins.model.Jenkins;
 import org.acegisecurity.userdetails.UsernameNotFoundException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessException;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * This class resolves email addresses via lookup in Crowd.
@@ -45,50 +45,41 @@ import java.util.logging.Logger;
  */
 @Extension
 public class CrowdMailAddressResolverImpl extends MailAddressResolver {
-	/** For logging purposes. */
-	private static final Logger LOG = Logger.getLogger(CrowdMailAddressResolverImpl.class.getName());
+    /** For logging purposes. */
+    private static final Logger LOG = LoggerFactory.getLogger(CrowdMailAddressResolverImpl.class);
 
-	/**
-	 * {@inheritDoc}
-	 * 
-	 * @see hudson.tasks.MailAddressResolver#findMailAddressFor(hudson.model.User)
-	 */
-	@Override
-	public String findMailAddressFor(User u) {
-		String mail = null;
-		SecurityRealm realm = Hudson.getInstance().getSecurityRealm();
+    @Override
+    public String findMailAddressFor(User u) {
+        String mail = null;
+        SecurityRealm realm = Jenkins.getInstance().getSecurityRealm();
 
-		if (realm instanceof CrowdSecurityRealm) {
-			try {
-				// Workaround:
-				// The user object given as parameter contains the user's
-				// display name. Looking up a user in Crowd by the full display
-				// name doesn't work; we have to use the user's Id instead which
-				// is actually appended at the end of the display name in
-				// brackets
-				String userId = u.getId();
-				int pos = userId.lastIndexOf('(');
-				if (pos > 0) {
-					int pos2 = userId.indexOf(')', pos + 1);
-					if (pos2 > pos) {
-						userId = userId.substring(pos + 1, pos2);
-					}
-				}
+        if (realm instanceof CrowdSecurityRealm) {
+            try {
+                // Workaround:
+                // The user object given as parameter contains the user's
+                // display name. Looking up a user in Crowd by the full display
+                // name doesn't work; we have to use the user's Id instead which
+                // is actually appended at the end of the display name in
+                // brackets
+                String userId = u.getId();
+                int pos = userId.lastIndexOf('(');
+                if (pos > 0) {
+                    int pos2 = userId.indexOf(')', pos + 1);
+                    if (pos2 > pos) {
+                        userId = userId.substring(pos + 1, pos2);
+                    }
+                }
 
-				if (LOG.isLoggable(Level.FINE)) {
-					LOG.fine("Looking up mail address for user: " + userId);
-				}
-				CrowdUserDetails details = (CrowdUserDetails) realm.getSecurityComponents().userDetails.loadUserByUsername(userId);
-				mail = details.getEmailAddress();
-			} catch (UsernameNotFoundException ex) {
-				if (LOG.isLoggable(Level.INFO)) {
-					LOG.info("Failed to look up email address in Crowd");
-				}
-			} catch (DataAccessException ex) {
-				LOG.log(Level.SEVERE, "Access exception trying to look up email address in Crowd", ex);
-			}
-		}
+                LOG.debug("Looking up mail address for user: {}", userId);
+                CrowdUserDetails details = (CrowdUserDetails) realm.getSecurityComponents().userDetails.loadUserByUsername(userId);
+                mail = details.getEmailAddress();
+            } catch (UsernameNotFoundException ex) {
+                LOG.info("Failed to look up email address in Crowd");
+            } catch (DataAccessException ex) {
+                LOG.error("Access exception trying to look up email address in Crowd", ex);
+            }
+        }
 
-		return mail;
-	}
+        return mail;
+    }
 }

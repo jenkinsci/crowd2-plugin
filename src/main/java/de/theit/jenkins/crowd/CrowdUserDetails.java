@@ -22,13 +22,13 @@ public class CrowdUserDetails implements UserDetails {
 // wow, seems it was mistake to change it
     private static final long serialVersionUID = 3L;
 
-	private final User principal;
+    private final User principal;
     /**
      * like in spring security store it in Collection instead array.
      * Acegi needs array and TreeSet.toArray fails.
      * TODO migrate to GrantedAuthorityImpl instead GrantedAuthority?
      */
-	private final Collection<GrantedAuthority> authorities;
+    private final Collection<GrantedAuthority> authorities;
 
     /**
      * Creates a new instance.
@@ -39,15 +39,15 @@ public class CrowdUserDetails implements UserDetails {
      *            The granted authorities of the user. May not be
      *            <code>null</code>.
      */
-	public CrowdUserDetails(User principal, GrantedAuthority[] authorities){
-		this.principal = principal;
-		this.authorities = Arrays.asList(authorities);
-	}
+    public CrowdUserDetails(User principal, GrantedAuthority[] authorities){
+        this.principal = principal;
+        this.authorities = Arrays.asList(authorities);
+    }
 
-	public CrowdUserDetails(User principal, Collection<GrantedAuthority> authorities){
-		this.principal = principal;
-		this.authorities = authorities;
-	}
+    public CrowdUserDetails(User principal, Collection<GrantedAuthority> authorities){
+        this.principal = principal;
+        this.authorities = authorities;
+    }
 
     @Override
     public GrantedAuthority[] getAuthorities() {
@@ -104,5 +104,4 @@ public class CrowdUserDetails implements UserDetails {
     public String getEmailAddress() {
         return principal.getEmailAddress();
     }
-
 }

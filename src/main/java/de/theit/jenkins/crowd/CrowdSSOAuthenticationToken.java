@@ -32,37 +32,37 @@ import org.acegisecurity.providers.AbstractAuthenticationToken;
  * initially was used for storing either Username+Password either Crowd token?
  */
 public class CrowdSSOAuthenticationToken extends AbstractAuthenticationToken {
-	private static final String UNAUTHENTICATED_TOKEN_PRINCIPAL = "CROWD.SSO";
-	private Object credentials;
-	private Object principal;
+    private static final String UNAUTHENTICATED_TOKEN_PRINCIPAL = "CROWD.SSO";
+    private Object credentials;
+    private Object principal;
 
-	public CrowdSSOAuthenticationToken(String ssoToken) {
-		super(null);
-		this.principal = UNAUTHENTICATED_TOKEN_PRINCIPAL;
-		this.credentials = ssoToken;
-		setAuthenticated(false);
-	}
+    public CrowdSSOAuthenticationToken(String ssoToken) {
+        super(null);
+        this.principal = UNAUTHENTICATED_TOKEN_PRINCIPAL;
+        this.credentials = ssoToken;
+        setAuthenticated(false);
+    }
 
-	public CrowdSSOAuthenticationToken(CrowdUserDetails principal, String ssoToken, GrantedAuthority[] authorities)	{
-		super(authorities);
-		this.principal = principal;
-		this.credentials = ssoToken;
-		super.setAuthenticated(true);
-	}
+    public CrowdSSOAuthenticationToken(CrowdUserDetails principal, String ssoToken, GrantedAuthority[] authorities)	{
+        super(authorities);
+        this.principal = principal;
+        this.credentials = ssoToken;
+        super.setAuthenticated(true);
+    }
 
-	public Object getCredentials() {
-		return this.credentials;
-	}
+    public Object getCredentials() {
+        return credentials;
+    }
 
-	public Object getPrincipal() {
-		return this.principal;
-	}
+    public Object getPrincipal() {
+        return principal;
+    }
 
-	public void setAuthenticated(boolean isAuthenticated) throws IllegalArgumentException {
-		if (isAuthenticated) {
-			throw new IllegalArgumentException("Cannot set this token to trusted - use constructor containing GrantedAuthority[]s instead");
-		} else {
-			super.setAuthenticated(false);
-		}
-	}
+    public void setAuthenticated(boolean isAuthenticated) throws IllegalArgumentException {
+        if (isAuthenticated) {
+            throw new IllegalArgumentException("Cannot set this token to trusted - use constructor containing GrantedAuthority[]s instead");
+        } else {
+            super.setAuthenticated(false);
+        }
+    }
 }

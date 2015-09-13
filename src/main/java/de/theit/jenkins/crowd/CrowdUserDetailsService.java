@@ -15,9 +15,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DataRetrievalFailureException;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 
 import static de.theit.jenkins.crowd.ErrorMessages.*;
 
@@ -45,14 +43,11 @@ public class CrowdUserDetailsService implements UserDetailsService {
      */
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException, DataAccessException {
-
-        if (!configuration.allowedGroupNames.isEmpty()) {
-            // check whether there's at least one active group the user is a member
-            // of
-            if (!configuration.isGroupMember(username)) {
-                throw new DataRetrievalFailureException(userNotValid(username, configuration.allowedGroupNames));
-            }
+        // check whether there's at least one active group the user is a member of
+        if (!configuration.allowedGroupNames.isEmpty() && !configuration.isGroupMember(username)) {
+            throw new DataRetrievalFailureException(userNotValid(username, configuration.allowedGroupNames));
         }
+
         com.atlassian.crowd.model.user.User principal;
         try {
             // load the user object from the remote Crowd server
@@ -73,12 +68,10 @@ public class CrowdUserDetailsService implements UserDetailsService {
         }
 
         LOG.info("adding authorities in CrowdUserDetailsService.loadUserByUsername");
-		Collection<GrantedAuthority> authorities = configuration.getAuthoritiesForUser(username);
-		authorities.add(SecurityRealm.AUTHENTICATED_AUTHORITY);
+        Collection<GrantedAuthority> authorities = configuration.getAuthoritiesForUser(username);
+        authorities.add(SecurityRealm.AUTHENTICATED_AUTHORITY);
 
         LOG.debug("Returning crowd user details {}, for principal {}", authorities, principal);
-		return new CrowdUserDetails(principal, authorities);
+        return new CrowdUserDetails(principal, authorities);
     }
-
-
 }
