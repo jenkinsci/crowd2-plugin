@@ -1,133 +1,77 @@
-/*
- * @(#)CrowdUserDetailsService.java
- * 
- * The MIT License
- * 
- * Copyright (C)2011 Thorsten Heit.
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE.
- */
+
 package de.theit.jenkins.crowd;
-
-import static de.theit.jenkins.crowd.ErrorMessages.applicationPermission;
-import static de.theit.jenkins.crowd.ErrorMessages.invalidAuthentication;
-import static de.theit.jenkins.crowd.ErrorMessages.operationFailed;
-import static de.theit.jenkins.crowd.ErrorMessages.userNotFound;
-import static de.theit.jenkins.crowd.ErrorMessages.userNotValid;
-import hudson.security.SecurityRealm;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-import org.acegisecurity.GrantedAuthority;
-import org.acegisecurity.userdetails.UserDetails;
-import org.acegisecurity.userdetails.UserDetailsService;
-import org.acegisecurity.userdetails.UsernameNotFoundException;
-import org.springframework.dao.DataAccessException;
-import org.springframework.dao.DataRetrievalFailureException;
 
 import com.atlassian.crowd.exception.ApplicationPermissionException;
 import com.atlassian.crowd.exception.InvalidAuthenticationException;
 import com.atlassian.crowd.exception.OperationFailedException;
 import com.atlassian.crowd.exception.UserNotFoundException;
-import com.atlassian.crowd.model.user.User;
+import hudson.security.SecurityRealm;
+import org.acegisecurity.GrantedAuthority;
+import org.acegisecurity.userdetails.UserDetails;
+import org.acegisecurity.userdetails.UserDetailsService;
+import org.acegisecurity.userdetails.UsernameNotFoundException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.dao.DataAccessException;
+import org.springframework.dao.DataRetrievalFailureException;
+
+import java.util.Collection;
+
+import static de.theit.jenkins.crowd.ErrorMessages.*;
 
 /**
  * This class provides the service to load a user object from the remote Crowd
  * server.
- * 
+ *
  * @author <a href="mailto:theit@gmx.de">Thorsten Heit (theit@gmx.de)</a>
  * @since 07.09.2011
  * @version $Id$
  */
 public class CrowdUserDetailsService implements UserDetailsService {
-	/** Used for logging purposes. */
-	private static final Logger LOG = Logger
-			.getLogger(CrowdUserDetailsService.class.getName());
+    private static final Logger LOG =  LoggerFactory.getLogger(CrowdUserDetailsService.class);
 
-	/**
-	 * The configuration data necessary for accessing the services on the remote
-	 * Crowd server.
-	 */
-	private CrowdConfigurationService configuration;
+    private final CrowdConfigurationService configuration;
 
-	/**
-	 * Creates a new instance of this class.
-	 * 
-	 * @param pConfiguration
-	 *            The configuration to access the services on the remote Crowd
-	 *            server. May not be <code>null</code>.
-	 */
-	public CrowdUserDetailsService(CrowdConfigurationService pConfiguration) {
-		this.configuration = pConfiguration;
-	}
+    public CrowdUserDetailsService(CrowdConfigurationService configuration){
+        this.configuration = configuration;
+    }
 
-	/**
-	 * {@inheritDoc}
-	 * 
-	 * @see org.acegisecurity.userdetails.UserDetailsService#loadUserByUsername(java.lang.String)
-	 */
-	@Override
-	public UserDetails loadUserByUsername(String username)
-			throws UsernameNotFoundException, DataAccessException {
-
-        if (!configuration.allowedGroupNames.isEmpty()) {
-            // check whether there's at least one active group the user is a member
-            // of
-            if (!this.configuration.isGroupMember(username)) {
-                throw new DataRetrievalFailureException(userNotValid(username,
-                        this.configuration.allowedGroupNames));
-            }
+    /**
+     * {@inheritDoc}
+     *
+     * @see org.acegisecurity.userdetails.UserDetailsService#loadUserByUsername(java.lang.String)
+     */
+    @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException, DataAccessException {
+        // check whether there's at least one active group the user is a member of
+        if (!configuration.allowedGroupNames.isEmpty() && !configuration.isGroupMember(username)) {
+            throw new DataRetrievalFailureException(userNotValid(username, configuration.allowedGroupNames));
         }
-		User user;
-		try {
-			// load the user object from the remote Crowd server
-			if (LOG.isLoggable(Level.FINE)) {
-				LOG.fine("Loading user object from the remote Crowd server...");
-			}
-			user = this.configuration.crowdClient.getUser(username);
-		} catch (UserNotFoundException ex) {
-			if (LOG.isLoggable(Level.INFO)) {
-				LOG.info(userNotFound(username));
-			}
-			throw new UsernameNotFoundException(userNotFound(username), ex);
-		} catch (ApplicationPermissionException ex) {
-			LOG.warning(applicationPermission());
-			throw new DataRetrievalFailureException(applicationPermission(), ex);
-		} catch (InvalidAuthenticationException ex) {
-			LOG.warning(invalidAuthentication());
-			throw new DataRetrievalFailureException(invalidAuthentication(), ex);
-		} catch (OperationFailedException ex) {
-			LOG.log(Level.SEVERE, operationFailed(), ex);
-			throw new DataRetrievalFailureException(operationFailed(), ex);
-		}
 
-		// create the list of granted authorities
-		List<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>();
-		// add the "authenticated" authority to the list of granted
-		// authorities...
-		authorities.add(SecurityRealm.AUTHENTICATED_AUTHORITY);
-		// ..and all authorities retrieved from the Crowd server
-		authorities.addAll(this.configuration.getAuthoritiesForUser(username));
+        com.atlassian.crowd.model.user.User principal;
+        try {
+            // load the user object from the remote Crowd server
+            LOG.debug("Loading user object from the remote Crowd server...");
+            principal = configuration.crowdClient.getUser(username);
+        } catch (UserNotFoundException ex) {
+            LOG.debug(userNotFound(username));
+            throw new UsernameNotFoundException(userNotFound(username), ex);
+        } catch (ApplicationPermissionException ex) {
+            LOG.warn(applicationPermission());
+            throw new DataRetrievalFailureException(applicationPermission(), ex);
+        } catch (InvalidAuthenticationException ex) {
+            LOG.warn(invalidAuthentication());
+            throw new DataRetrievalFailureException(invalidAuthentication(), ex);
+        } catch (OperationFailedException ex) {
+            LOG.error(operationFailed(), ex);
+            throw new DataRetrievalFailureException(operationFailed(), ex);
+        }
 
-		return new CrowdUser(user, authorities);
-	}
+        LOG.info("adding authorities in CrowdUserDetailsService.loadUserByUsername");
+        Collection<GrantedAuthority> authorities = configuration.getAuthoritiesForUser(username);
+        authorities.add(SecurityRealm.AUTHENTICATED_AUTHORITY);
+
+        LOG.debug("Returning crowd user details {}, for principal {}", authorities, principal);
+        return new CrowdUserDetails(principal, authorities);
+    }
 }
