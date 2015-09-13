@@ -41,21 +41,11 @@ public class CrowdUserDetails implements UserDetails {
 		this.authorities = authorities;
 	}
 
-	/**
-     * {@inheritDoc}
-     *
-     * @see org.acegisecurity.userdetails.UserDetails#getAuthorities()
-     */
     @Override
     public GrantedAuthority[] getAuthorities() {
         return (GrantedAuthority[]) authorities.toArray();
     }
 
-    /**
-     * {@inheritDoc}
-     *
-     * @see org.acegisecurity.userdetails.UserDetails#getPassword()
-     */
     @Override
     public String getPassword() {
         throw new UnsupportedOperationException("Not giving you the password");
@@ -66,41 +56,21 @@ public class CrowdUserDetails implements UserDetails {
         return principal.getName();
     }
 
-    /**
-     * {@inheritDoc}
-     *
-     * @see org.acegisecurity.userdetails.UserDetails#isAccountNonExpired()
-     */
     @Override
     public boolean isAccountNonExpired() {
         return true;
     }
 
-    /**
-     * {@inheritDoc}
-     *
-     * @see org.acegisecurity.userdetails.UserDetails#isAccountNonLocked()
-     */
     @Override
     public boolean isAccountNonLocked() {
         return true;
     }
 
-    /**
-     * {@inheritDoc}
-     *
-     * @see org.acegisecurity.userdetails.UserDetails#isCredentialsNonExpired()
-     */
     @Override
     public boolean isCredentialsNonExpired() {
         return true;
     }
 
-    /**
-     * {@inheritDoc}
-     *
-     * @see org.acegisecurity.userdetails.UserDetails#isEnabled()
-     */
     @Override
     public boolean isEnabled() {
         return principal.isActive();

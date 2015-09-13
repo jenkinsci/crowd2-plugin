@@ -10,14 +10,14 @@ import org.acegisecurity.GrantedAuthority;
 import org.acegisecurity.userdetails.UserDetails;
 import org.acegisecurity.userdetails.UserDetailsService;
 import org.acegisecurity.userdetails.UsernameNotFoundException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DataRetrievalFailureException;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import static de.theit.jenkins.crowd.ErrorMessages.*;
 
@@ -30,7 +30,8 @@ import static de.theit.jenkins.crowd.ErrorMessages.*;
  * @version $Id$
  */
 public class CrowdUserDetailsService implements UserDetailsService {
-    private static final Logger LOG =  Logger.getLogger(CrowdUserDetailsService.class.getName());
+    private static final Logger LOG =  LoggerFactory.getLogger(CrowdUserDetailsService.class);
+
     private final CrowdConfigurationService configuration;
 
     public CrowdUserDetailsService(CrowdConfigurationService configuration){
@@ -55,23 +56,19 @@ public class CrowdUserDetailsService implements UserDetailsService {
         com.atlassian.crowd.model.user.User principal;
         try {
             // load the user object from the remote Crowd server
-            if (LOG.isLoggable(Level.FINE)) {
-                LOG.fine("Loading user object from the remote Crowd server...");
-            }
+            LOG.debug("Loading user object from the remote Crowd server...");
             principal = configuration.crowdClient.getUser(username);
         } catch (UserNotFoundException ex) {
-            if (LOG.isLoggable(Level.INFO)) {
-                LOG.info(userNotFound(username));
-            }
+            LOG.debug(userNotFound(username));
             throw new UsernameNotFoundException(userNotFound(username), ex);
         } catch (ApplicationPermissionException ex) {
-            LOG.warning(applicationPermission());
+            LOG.warn(applicationPermission());
             throw new DataRetrievalFailureException(applicationPermission(), ex);
         } catch (InvalidAuthenticationException ex) {
-            LOG.warning(invalidAuthentication());
+            LOG.warn(invalidAuthentication());
             throw new DataRetrievalFailureException(invalidAuthentication(), ex);
         } catch (OperationFailedException ex) {
-            LOG.log(Level.SEVERE, operationFailed(), ex);
+            LOG.error(operationFailed(), ex);
             throw new DataRetrievalFailureException(operationFailed(), ex);
         }
 
@@ -79,6 +76,7 @@ public class CrowdUserDetailsService implements UserDetailsService {
 		Collection<GrantedAuthority> authorities = configuration.getAuthoritiesForUser(username);
 		authorities.add(SecurityRealm.AUTHENTICATED_AUTHORITY);
 
+        LOG.debug("Returning crowd user details {}, for principal {}", authorities, principal);
 		return new CrowdUserDetails(principal, authorities);
     }
 

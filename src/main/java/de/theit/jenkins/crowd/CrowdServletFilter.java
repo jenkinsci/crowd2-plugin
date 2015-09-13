@@ -27,75 +27,67 @@ package de.theit.jenkins.crowd;
 
 import com.atlassian.crowd.embedded.api.PasswordCredential;
 import com.atlassian.crowd.exception.*;
-import com.atlassian.crowd.integration.http.util.CrowdHttpValidationFactorExtractor;
 import com.atlassian.crowd.model.authentication.CookieConfiguration;
 import com.atlassian.crowd.model.authentication.UserAuthenticationContext;
 import com.atlassian.crowd.model.authentication.ValidationFactor;
-import com.atlassian.crowd.model.user.User;
 import hudson.security.AuthenticationProcessingFilter2;
-import hudson.security.SecurityRealm;
 import org.acegisecurity.Authentication;
 import org.acegisecurity.AuthenticationException;
-import org.acegisecurity.GrantedAuthority;
 import org.acegisecurity.context.SecurityContextHolder;
 import org.acegisecurity.providers.UsernamePasswordAuthenticationToken;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.servlet.*;
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Logger;
 
 import static org.acegisecurity.ui.rememberme.TokenBasedRememberMeServices.ACEGI_SECURITY_HASHED_REMEMBER_ME_COOKIE_KEY;
 
 /**
-* Created with IntelliJ IDEA.
-* User: integer
-* Date: 5/11/14
-* Time: 15:37
-*/
+ * Crowd Servlet Filter
+ */
 public class CrowdServletFilter extends AuthenticationProcessingFilter2 {
 
-    private static final Logger LOG = Logger.getLogger(CrowdServletFilter.class.getName());
+    private static final Logger LOG = LoggerFactory.getLogger(CrowdServletFilter.class);
 
     private final CrowdSecurityRealm realm;
     private final CrowdConfigurationService configuration;
     private final Filter filter;
 
-    public CrowdServletFilter(CrowdSecurityRealm realm, CrowdConfigurationService configuration, Filter filter){
+    public CrowdServletFilter(CrowdSecurityRealm realm, CrowdConfigurationService configuration, Filter filter) {
         this.realm = realm;
         this.configuration = configuration;
         this.filter = filter;
     }
 
-	// extract credentials or token from request and put to token
+	/**
+	 *  extract credentials or token from request and
+	 *  @return token object that will be authenticated by manager later
+	 */
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request)
             throws AuthenticationException {
 		LOG.info("in attemptAuthentication()");
+
 		String username = obtainUsername(request);
-        String password = obtainPassword(request);
+		String password = obtainPassword(request);
 
-		if (username == null) {
-            username = "";
-        }
+		username = username == null ? "" : username.trim();
 
-        if (password == null) {
-            password = "";
-        }
-
-		username = username.trim();
+		if (password == null) {
+			password = "";
+		}
 
 		Authentication authRequest;
 		if (configuration.useSSO){
 			List<ValidationFactor> validationFactors = configuration.tokenHelper.getValidationFactorExtractor().getValidationFactors(request);
-			String s;
 			try {
-				s = configuration.crowdClient.authenticateSSOUser(toContext(username, password, validationFactors));
+				final UserAuthenticationContext context = toContext(username, password, validationFactors);
+				final String ssoToken = configuration.crowdClient.authenticateSSOUser(context);
+				authRequest = new CrowdSSOAuthenticationToken(ssoToken);
 			} catch (ApplicationAccessDeniedException e) {
 				throw new CrowdAccessDeniedException(e.getMessage());
 			} catch (InactiveAccountException e) {
@@ -109,18 +101,17 @@ public class CrowdServletFilter extends AuthenticationProcessingFilter2 {
 			} catch (OperationFailedException e) {
 				throw new CrowdSSOTokenInvalidException(e.getMessage());
 			}
-			authRequest = new CrowdSSOAuthenticationToken(s);
 		} else {
 			authRequest = new UsernamePasswordAuthenticationToken(username, password);
 		}
 
-        // Place the last username attempted into HttpSession for views
-        request.getSession().setAttribute(ACEGI_SECURITY_LAST_USERNAME_KEY, username);
+		// Place the last username attempted into HttpSession for views
+		request.getSession().setAttribute(ACEGI_SECURITY_LAST_USERNAME_KEY, username);
 
         // Allow subclasses to set the "details" property
 //        setDetails(request, authRequest);
 		LOG.info("now calling manager to auth");
-		return this.getAuthenticationManager().authenticate(authRequest);
+		return getAuthenticationManager().authenticate(authRequest);
     }
 
 	private UserAuthenticationContext toContext(String name, String password, List<ValidationFactor> validationFactors){

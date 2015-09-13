@@ -34,10 +34,14 @@ import com.atlassian.crowd.service.client.ClientProperties;
 import com.atlassian.crowd.service.client.CrowdClient;
 import org.acegisecurity.GrantedAuthority;
 import org.acegisecurity.GrantedAuthorityImpl;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.ListUtils;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 
+import javax.annotation.Nonnull;
 import java.util.*;
 
 import static de.theit.jenkins.crowd.ErrorMessages.*;
@@ -71,8 +75,7 @@ public class CrowdConfigurationService implements InitializingBean {
 	CrowdHttpTokenHelper tokenHelper;
 
 	/**
-	 * The interface used to manage HTTP authentication and web/SSO
-	 * authentication integration.
+	 * The interface used to manage HTTP authentication and web/SSO authentication integration.
 	 */
 	CrowdHttpAuthenticator crowdHttpAuthenticator;
 
@@ -97,16 +100,17 @@ public class CrowdConfigurationService implements InitializingBean {
      *            users against a group name.
      */
 	public CrowdConfigurationService(String pGroupNames, boolean pNestedGroups) {
-			LOG.info("Groups given for Crowd configuration service: {}", pGroupNames);
-		this.allowedGroupNames = new ArrayList<String>();
+		LOG.info("Groups given for Crowd configuration service: {}", pGroupNames);
+
+		allowedGroupNames = new ArrayList<String>();
 		for (String group : pGroupNames.split(",")) {
-			if (null != group && group.trim().length() > 0) {
+			if (StringUtils.isNotBlank(group)) {
 				LOG.debug("-> adding allowed group name: {}", group);
-				this.allowedGroupNames.add(group);
+				allowedGroupNames.add(group);
 			}
 		}
 
-		this.nestedGroups = pNestedGroups;
+		nestedGroups = pNestedGroups;
 	}
 
 	/**
@@ -170,12 +174,13 @@ public class CrowdConfigurationService implements InitializingBean {
 
 		if (isGroupActive(group)) {
 			LOG.info("Checking group membership for user '{}' and group '{}'...", username, group);
-			if (this.crowdClient.isUserDirectGroupMember(username, group)) {
-				retval = true;
+
+			if (crowdClient.isUserDirectGroupMember(username, group)) {
 				LOG.debug("=> user is a direct group member");
-			} else if (this.nestedGroups && this.crowdClient.isUserNestedGroupMember(username, group)) {
 				retval = true;
+			} else if (nestedGroups && crowdClient.isUserNestedGroupMember(username, group)) {
 				LOG.debug("=> user is a nested group member");
+				retval = true;
 			}
 		}
 
@@ -208,7 +213,7 @@ public class CrowdConfigurationService implements InitializingBean {
 
 		try {
 			LOG.debug("Checking whether group is active: " + groupName);
-			Group group = this.crowdClient.getGroup(groupName);
+			Group group = crowdClient.getGroup(groupName);
 			if (null != group) {
 				retval = group.isActive();
 			}
@@ -228,7 +233,8 @@ public class CrowdConfigurationService implements InitializingBean {
 	 * @return The list of all groups that the user is a member of. Always
 	 *         non-null.
 	 */
-	public Collection<GrantedAuthority> getAuthoritiesForUser(String username) {
+	@Nonnull
+	public Collection<GrantedAuthority> getAuthoritiesForUser(@Nonnull String username) {
 		Collection<GrantedAuthority> authorities = new TreeSet<GrantedAuthority>(
 				new Comparator<GrantedAuthority>() {
 					@Override
@@ -247,7 +253,7 @@ public class CrowdConfigurationService implements InitializingBean {
 			while (true) {
 				LOG.debug("Fetching groups [" + index + "..." + (index + MAX_GROUPS - 1) + "]...");
 				List<Group> groups = this.crowdClient.getGroupsForUser(username, index, MAX_GROUPS);
-				if (null == groups || groups.isEmpty()) {
+				if (CollectionUtils.isEmpty(groups)) {
 					break;
 				}
 				for (Group group : groups) {
@@ -269,14 +275,15 @@ public class CrowdConfigurationService implements InitializingBean {
 
 		// now the same but for nested group membership if this configuration
 		// setting is active/enabled
-		if (this.nestedGroups) {
+		if (nestedGroups) {
 			try {
 				int index = 0;
 				LOG.debug("Retrieve list of groups with direct membership for user '" + username + "'...");
 				while (true) {
 					LOG.debug("Fetching groups [" + index + "..." + (index + MAX_GROUPS - 1) + "]...");
-					List<Group> groups = this.crowdClient.getGroupsForNestedUser(username, index, MAX_GROUPS);
-					if (null == groups || groups.isEmpty()) {
+
+					List<Group> groups = crowdClient.getGroupsForNestedUser(username, index, MAX_GROUPS);
+					if (CollectionUtils.isEmpty(groups)) {
 						break;
 					}
 					for (Group group : groups) {
@@ -298,9 +305,9 @@ public class CrowdConfigurationService implements InitializingBean {
 		}
 
 		// now create the list of authorities
-		for (String str : groupNames) {
-			LOG.info("adding authority: "+str);
-            authorities.add(new GrantedAuthorityImpl(str));
+		for (String group : groupNames) {
+			LOG.info("adding authority: {}", group);
+			authorities.add(new GrantedAuthorityImpl(group));
 		}
 
 		return authorities;

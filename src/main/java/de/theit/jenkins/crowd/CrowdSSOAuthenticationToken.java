@@ -28,6 +28,9 @@ package de.theit.jenkins.crowd;
 import org.acegisecurity.GrantedAuthority;
 import org.acegisecurity.providers.AbstractAuthenticationToken;
 
+/**
+ * initially was used for storing either Username+Password either Crowd token?
+ */
 public class CrowdSSOAuthenticationToken extends AbstractAuthenticationToken {
 	private static final String UNAUTHENTICATED_TOKEN_PRINCIPAL = "CROWD.SSO";
 	private Object credentials;
@@ -35,8 +38,8 @@ public class CrowdSSOAuthenticationToken extends AbstractAuthenticationToken {
 
 	public CrowdSSOAuthenticationToken(String ssoToken) {
 		super(null);
+		this.principal = UNAUTHENTICATED_TOKEN_PRINCIPAL;
 		this.credentials = ssoToken;
-		this.principal = "CROWD.SSO";
 		setAuthenticated(false);
 	}
 
@@ -56,8 +59,8 @@ public class CrowdSSOAuthenticationToken extends AbstractAuthenticationToken {
 	}
 
 	public void setAuthenticated(boolean isAuthenticated) throws IllegalArgumentException {
-		if (isAuthenticated)
-		{
+		//TODO looks weird, verify with spring crowd security
+		if (isAuthenticated) {
 			throw new IllegalArgumentException("Cannot set this token to trusted - use constructor containing GrantedAuthority[]s instead");
 		}
 
