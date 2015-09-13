@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
@@ -5,22 +6,20 @@
         <groupId>org.jenkins-ci.plugins</groupId>
         <artifactId>plugin</artifactId>
         <!--<version>1.509.3</version>-->
-        <version>1.582-SNAPSHOT</version>
+        <version>1.609.3</version>
     </parent>
 
     <artifactId>crowd2</artifactId>
     <version>1.9-SNAPSHOT</version>
-
     <packaging>hpi</packaging>
 
     <name>Crowd 2 Integration</name>
     <description>SecurityRealm that enables the use of Atlassian's Crowd identity management server.</description>
-
     <url>http://wiki.jenkins-ci.org/display/JENKINS/Crowd+2+Plugin</url>
-    <issueManagement>
-        <system>JIRA</system>
-        <url>https://issues.jenkins-ci.org/</url>
-    </issueManagement>
+
+    <properties>
+        <crowd-version>2.8.3</crowd-version>
+    </properties>
 
     <developers>
         <developer>
@@ -28,12 +27,11 @@
             <name>Thorsten Heit</name>
             <email>theit@gmx.de</email>
         </developer>
-	<developer>
-		<id>integer</id>
-		<name>Kanstantsin Shautsou</name>
-	</developer>
+        <developer>
+            <id>integer</id>
+            <name>Kanstantsin Shautsou</name>
+        </developer>
     </developers>
-
     <contributors>
         <contributor>
             <name>Johno Crawford</name>
@@ -42,14 +40,16 @@
         </contributor>
     </contributors>
 
-
     <scm>
         <connection>scm:git:git://github.com/jenkinsci/crowd2-plugin.git</connection>
         <developerConnection>scm:git:ssh://git@github.com/jenkinsci/crowd2-plugin.git</developerConnection>
         <url>https://github.com/jenkinsci/crowd2-plugin</url>
-      <tag>HEAD</tag>
-  </scm>
-
+        <tag>HEAD</tag>
+    </scm>
+    <issueManagement>
+        <system>JIRA</system>
+        <url>https://issues.jenkins-ci.org/</url>
+    </issueManagement>
 
     <repositories>
         <repository>
@@ -76,7 +76,6 @@
             </snapshots>
         </repository>
     </repositories>
-
     <pluginRepositories>
         <pluginRepository>
             <id>repo.jenkins-ci.org</id>
@@ -84,7 +83,40 @@
         </pluginRepository>
     </pluginRepositories>
 
+    <dependencies>
+        <dependency>
+            <groupId>com.atlassian.crowd</groupId>
+            <artifactId>crowd-integration-client-rest</artifactId>
+            <version>${crowd-version}</version>
+        </dependency>
 
+
+        <dependency>
+            <groupId>commons-codec</groupId>
+            <artifactId>commons-codec</artifactId>
+            <version>1.5</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.jenkins-ci.plugins</groupId>
+            <artifactId>mailer</artifactId>
+            <version>1.5</version>
+        </dependency>
+
+        <!-- acegi looks similar -->
+        <!--<dependency>-->
+            <!--<groupId>com.atlassian.crowd</groupId>-->
+            <!--<artifactId>crowd-integration-springsecurity</artifactId>-->
+            <!--<version>${crowd-version}</version>-->
+        <!--</dependency>-->
+
+        <!--<dependency>-->
+            <!--<groupId>org.jenkins-ci</groupId>-->
+            <!--<artifactId>acceptance-test-harness</artifactId>-->
+            <!--<version>1.17-SNAPSHOT</version>-->
+            <!--<scope>test</scope>-->
+        <!--</dependency>-->
+    </dependencies>
 
     <build>
         <plugins>
@@ -105,24 +137,4 @@
             </plugin>
         </plugins>
     </build>
-
-    <dependencies>
-        <dependency>
-            <groupId>com.atlassian.crowd</groupId>
-            <artifactId>crowd-integration-client-rest</artifactId>
-            <version>2.8.3</version>
-        </dependency>
-
-        <dependency>
-            <groupId>commons-codec</groupId>
-            <artifactId>commons-codec</artifactId>
-            <version>1.5</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.jenkins-ci.plugins</groupId>
-            <artifactId>mailer</artifactId>
-            <version>1.5</version>
-        </dependency>
-    </dependencies>
 </project>
