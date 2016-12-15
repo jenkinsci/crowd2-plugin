@@ -110,9 +110,9 @@ public class CrowdConfigurationService {
 		for (String group : pGroupNames.split(",")) {
 			if (null != group && group.trim().length() > 0) {
 				if (LOG.isLoggable(Level.FINE)) {
-					LOG.fine("-> adding allowed group name: " + group);
+					LOG.fine("-> adding allowed group name: " + group.trim());
 				}
-				this.allowedGroupNames.add(group);
+				this.allowedGroupNames.add(group.trim());
 			}
 		}
 
