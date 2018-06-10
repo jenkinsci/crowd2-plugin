@@ -51,6 +51,27 @@ We use [SemVer](http://semver.org/) for versioning (starting from version 1.9.0)
 
 See the list of [contributors](https://github.com/jenkinsci/crowd2-plugin/contributors) who participated in this project.
 
+## Roadmap
+
+The following changes and improvements are planned for the following releases
+
+### 1.9.0
+
+* add Jenkinsfile to run an automated build
+* Merge open pull requests to fix caching and httpclient to solve performance and compatibility issues
+* Update to latest libs
+* Add some unit tests
+
+### 2.0.0
+
+* Pickup changes from the refactoring branch
+* Make RememberMe work
+* Make SSO work
+
+### 2.x
+
+* Work on the open JIRA issues
+ 
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details
