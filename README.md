@@ -1,6 +1,6 @@
-# Crowd Plugin for Jenkins (crowd2-plugin)
+# Crowd 2 Plugin for Jenkins (crowd2-plugin)
 
-This plugin allows using [Crowd](https://www.atlassian.com/software/crowd) as an authentication and authorization provider for Jenkins.
+This plugin allows using [Atlassian Crowd](https://www.atlassian.com/software/crowd) as an authentication and authorization provider for Jenkins (Crowd version 2 and later). 
 
 [![Build Status](https://ci.jenkins.io/buildStatus/icon?job=Plugins/crowd2-plugin/master)](https://ci.jenkins.io/job/Plugins/job/crowd2-plugin/job/master/)
 
