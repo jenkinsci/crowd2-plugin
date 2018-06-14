@@ -1,3 +1,4 @@
+<?jelly escape-by-default='true'?>
 <!--
 @(#)config.jelly
 
@@ -49,6 +50,18 @@ THE SOFTWARE.
         </f:entry>
     </f:optionalBlock>
     <f:advanced>
+        <f:entry title="session.validationinterval" field="sessionValidationInterval">
+            <f:textbox default="2" />
+        </f:entry>
+        <f:entry title="http.max.connections" field="httpMaxConnections">
+            <f:textbox default="20" />
+        </f:entry>
+        <f:entry title="http.timeout" field="httpTimeout">
+            <f:textbox default="5000" />
+        </f:entry>
+        <f:entry title="socket.timeout" field="socketTimeout">
+            <f:textbox default="20000" />
+        </f:entry>
         <f:optionalBlock title="${%Enable Proxy}" field="useProxy" inline="true">
             <f:entry title="http.proxy.host" field="httpProxyHost">
                 <f:textbox />
@@ -63,18 +76,7 @@ THE SOFTWARE.
                 <f:password />
             </f:entry>
         </f:optionalBlock>
-        <f:entry title="session.validationinterval" field="sessionValidationInterval">
-            <f:textbox default="2" />
-        </f:entry>
-        <f:entry title="http.max.connections" field="httpMaxConnections">
-            <f:textbox default="20" />
-        </f:entry>
-        <f:entry title="http.timeout" field="httpTimeout">
-            <f:textbox default="5000" />
-        </f:entry>
-        <f:entry title="socket.timeout" field="socketTimeout">
-            <f:textbox default="20000" />
-        </f:entry>
+        <f:optionalProperty field="cache" title="${%Enable cache}"/>
     </f:advanced>
 	<f:validateButton method="testConnection" title="${%Check Connection}"
 		with="url,applicationName,password,group,useSSO,cookieDomain,cookieTokenkey,sessionValidationInterval,httpMaxConnections,httpTimeout,socketTimeout,useProxy,httpProxyHost,httpProxyPort,httpProxyUsername,httpProxyPassword" />

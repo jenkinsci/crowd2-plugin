@@ -25,18 +25,12 @@
  */
 package de.theit.jenkins.crowd;
 
-import static de.theit.jenkins.crowd.ErrorMessages.applicationPermission;
-import static de.theit.jenkins.crowd.ErrorMessages.invalidAuthentication;
-import static de.theit.jenkins.crowd.ErrorMessages.operationFailed;
-import static de.theit.jenkins.crowd.ErrorMessages.userNotFound;
-import static de.theit.jenkins.crowd.ErrorMessages.userNotValid;
+import com.atlassian.crowd.exception.ApplicationPermissionException;
+import com.atlassian.crowd.exception.InvalidAuthenticationException;
+import com.atlassian.crowd.exception.OperationFailedException;
+import com.atlassian.crowd.exception.UserNotFoundException;
+import com.atlassian.crowd.model.user.User;
 import hudson.security.SecurityRealm;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 import org.acegisecurity.GrantedAuthority;
 import org.acegisecurity.userdetails.UserDetails;
 import org.acegisecurity.userdetails.UserDetailsService;
@@ -44,11 +38,16 @@ import org.acegisecurity.userdetails.UsernameNotFoundException;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DataRetrievalFailureException;
 
-import com.atlassian.crowd.exception.ApplicationPermissionException;
-import com.atlassian.crowd.exception.InvalidAuthenticationException;
-import com.atlassian.crowd.exception.OperationFailedException;
-import com.atlassian.crowd.exception.UserNotFoundException;
-import com.atlassian.crowd.model.user.User;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import static de.theit.jenkins.crowd.ErrorMessages.applicationPermission;
+import static de.theit.jenkins.crowd.ErrorMessages.invalidAuthentication;
+import static de.theit.jenkins.crowd.ErrorMessages.operationFailed;
+import static de.theit.jenkins.crowd.ErrorMessages.userNotFound;
+import static de.theit.jenkins.crowd.ErrorMessages.userNotValid;
 
 /**
  * This class provides the service to load a user object from the remote Crowd
@@ -89,21 +88,19 @@ public class CrowdUserDetailsService implements UserDetailsService {
 	public UserDetails loadUserByUsername(String username)
 			throws UsernameNotFoundException, DataAccessException {
 
-        if (!configuration.allowedGroupNames.isEmpty()) {
-            // check whether there's at least one active group the user is a member
-            // of
-            if (!this.configuration.isGroupMember(username)) {
-                throw new DataRetrievalFailureException(userNotValid(username,
-                        this.configuration.allowedGroupNames));
-            }
-        }
+		// check whether there's at least one active group the user is a member
+		// of
+		if (!this.configuration.isGroupMember(username)) {
+			throw new DataRetrievalFailureException(userNotValid(username,
+					this.configuration.getAllowedGroupNames()));
+		}
 		User user;
 		try {
 			// load the user object from the remote Crowd server
 			if (LOG.isLoggable(Level.FINE)) {
 				LOG.fine("Loading user object from the remote Crowd server...");
 			}
-			user = this.configuration.crowdClient.getUser(username);
+			user = this.configuration.getUser(username);
 		} catch (UserNotFoundException ex) {
 			if (LOG.isLoggable(Level.INFO)) {
 				LOG.info(userNotFound(username));

@@ -25,37 +25,24 @@
  */
 package de.theit.jenkins.crowd;
 
-import static de.theit.jenkins.crowd.ErrorMessages.accountExpired;
-import static de.theit.jenkins.crowd.ErrorMessages.applicationPermission;
-import static de.theit.jenkins.crowd.ErrorMessages.expiredCredentials;
-import static de.theit.jenkins.crowd.ErrorMessages.groupNotFound;
-import static de.theit.jenkins.crowd.ErrorMessages.invalidAuthentication;
-import static de.theit.jenkins.crowd.ErrorMessages.operationFailed;
-import static de.theit.jenkins.crowd.ErrorMessages.specifyApplicationName;
-import static de.theit.jenkins.crowd.ErrorMessages.specifyApplicationPassword;
-import static de.theit.jenkins.crowd.ErrorMessages.specifyCrowdUrl;
-import static de.theit.jenkins.crowd.ErrorMessages.specifySessionValidationInterval;
-import static de.theit.jenkins.crowd.ErrorMessages.userNotFound;
-import static de.theit.jenkins.crowd.ErrorMessages.userNotValid;
+import com.atlassian.crowd.exception.ApplicationPermissionException;
+import com.atlassian.crowd.exception.ExpiredCredentialException;
+import com.atlassian.crowd.exception.GroupNotFoundException;
+import com.atlassian.crowd.exception.InactiveAccountException;
+import com.atlassian.crowd.exception.InvalidAuthenticationException;
+import com.atlassian.crowd.exception.OperationFailedException;
+import com.atlassian.crowd.exception.UserNotFoundException;
+import com.atlassian.crowd.model.group.Group;
+import com.atlassian.crowd.model.user.User;
 import hudson.Extension;
+import hudson.model.AbstractDescribableImpl;
 import hudson.model.Descriptor;
 import hudson.model.Hudson;
 import hudson.security.AbstractPasswordBasedSecurityRealm;
 import hudson.security.GroupDetails;
 import hudson.security.SecurityRealm;
 import hudson.util.FormValidation;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Properties;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-import javax.servlet.Filter;
-import javax.servlet.FilterConfig;
-import javax.servlet.ServletException;
-
+import hudson.util.ListBoxModel;
 import org.acegisecurity.AccountExpiredException;
 import org.acegisecurity.AuthenticationException;
 import org.acegisecurity.AuthenticationManager;
@@ -73,20 +60,16 @@ import org.kohsuke.stapler.StaplerResponse;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DataRetrievalFailureException;
 
-import com.atlassian.crowd.exception.ApplicationPermissionException;
-import com.atlassian.crowd.exception.ExpiredCredentialException;
-import com.atlassian.crowd.exception.GroupNotFoundException;
-import com.atlassian.crowd.exception.InactiveAccountException;
-import com.atlassian.crowd.exception.InvalidAuthenticationException;
-import com.atlassian.crowd.exception.OperationFailedException;
-import com.atlassian.crowd.exception.UserNotFoundException;
-import com.atlassian.crowd.integration.http.CrowdHttpAuthenticatorImpl;
-import com.atlassian.crowd.integration.http.util.CrowdHttpTokenHelperImpl;
-import com.atlassian.crowd.integration.http.util.CrowdHttpValidationFactorExtractorImpl;
-import com.atlassian.crowd.integration.rest.service.factory.RestCrowdClientFactory;
-import com.atlassian.crowd.model.group.Group;
-import com.atlassian.crowd.model.user.User;
-import com.atlassian.crowd.service.client.ClientPropertiesImpl;
+import javax.servlet.Filter;
+import javax.servlet.FilterConfig;
+import javax.servlet.ServletException;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import static de.theit.jenkins.crowd.ErrorMessages.*;
 
 /**
  * This class provides the security realm for authenticating users against a
@@ -150,6 +133,13 @@ public class CrowdSecurityRealm extends AbstractPasswordBasedSecurityRealm {
     public final String httpTimeout;
     public final String httpMaxConnections;
 
+	/**
+	 * The cache configuration
+	 *
+	 * @since 1.9
+	 */
+	private final CacheConfiguration cache;
+
     /**
 	 * The configuration data necessary for accessing the services on the remote
 	 * Crowd server.
@@ -193,7 +183,7 @@ public class CrowdSecurityRealm extends AbstractPasswordBasedSecurityRealm {
                               int sessionValidationInterval, boolean useSSO, String cookieDomain,
                               String cookieTokenkey, Boolean useProxy, String httpProxyHost, String httpProxyPort,
                               String httpProxyUsername, String httpProxyPassword, String socketTimeout,
-                              String httpTimeout, String httpMaxConnections) {
+                              String httpTimeout, String httpMaxConnections, CacheConfiguration cache) {
         this.cookieTokenkey = cookieTokenkey;
         this.useProxy = useProxy;
         this.httpProxyHost = httpProxyHost;
@@ -211,24 +201,47 @@ public class CrowdSecurityRealm extends AbstractPasswordBasedSecurityRealm {
 		this.sessionValidationInterval = sessionValidationInterval;
 		this.useSSO = useSSO;
         this.cookieDomain = cookieDomain;
+		this.cache = cache;
+	}
+
+	/**
+     * @deprecated retained for backwards binary compatibility.
+     */
+	@Deprecated
+	public CrowdSecurityRealm(String url, String applicationName, String password, String group, boolean nestedGroups,
+                              int sessionValidationInterval, boolean useSSO, String cookieDomain,
+                              String cookieTokenkey, Boolean useProxy, String httpProxyHost, String httpProxyPort,
+                              String httpProxyUsername, String httpProxyPassword, String socketTimeout,
+                              String httpTimeout, String httpMaxConnections) {
+		this(url, applicationName, password, group, nestedGroups,
+				sessionValidationInterval, useSSO, cookieDomain,
+				cookieTokenkey, useProxy, httpProxyHost, httpProxyPort,
+				httpProxyUsername, httpProxyPassword, socketTimeout,
+				httpTimeout, httpMaxConnections, null);
+	}
+
+	public CacheConfiguration getCache() {
+		return cache;
+	}
+
+	public Integer getCacheSize() {
+		return cache == null ? null : cache.getSize();
+	}
+
+	public Integer getCacheTTL() {
+		return cache == null ? null : cache.getTtl();
 	}
 
     /**
 	 * Initializes all objects necessary to talk to / with Crowd.
 	 */
 	private void initializeConfiguration() {
-        configuration = new CrowdConfigurationService(group, nestedGroups);
-        configuration.useSSO = useSSO;
-        Properties props = CrowdConfigurationService.getProperties(url, applicationName, password, sessionValidationInterval,
-                useSSO, cookieDomain, cookieTokenkey, useProxy, httpProxyHost, httpProxyPort, httpProxyUsername,
-                httpProxyPassword, socketTimeout, httpTimeout, httpMaxConnections);
-        configuration.clientProperties = ClientPropertiesImpl.newInstanceFromProperties(props);
-        configuration.crowdClient = new RestCrowdClientFactory().newInstance(configuration.clientProperties);
-        configuration.tokenHelper = CrowdHttpTokenHelperImpl.getInstance(CrowdHttpValidationFactorExtractorImpl.getInstance());
-        configuration.crowdHttpAuthenticator = new CrowdHttpAuthenticatorImpl(
-                configuration.crowdClient,
-                configuration.clientProperties,
-                configuration.tokenHelper);
+		configuration = new CrowdConfigurationService(
+				url, applicationName, password, sessionValidationInterval,
+				useSSO, cookieDomain, cookieTokenkey, useProxy, httpProxyHost, httpProxyPort, httpProxyUsername,
+				httpProxyPassword, socketTimeout, httpTimeout, httpMaxConnections,
+				cache != null, getCacheSize(), getCacheTTL(),
+				group, nestedGroups);
 	}
 
 	/**
@@ -319,8 +332,7 @@ public class CrowdSecurityRealm extends AbstractPasswordBasedSecurityRealm {
 			if (LOG.isLoggable(Level.FINER)) {
 				LOG.finer("Trying to load group: " + groupname);
 			}
-			final Group crowdGroup = this.configuration.crowdClient
-					.getGroup(groupname);
+			final Group crowdGroup = this.configuration.getGroup(groupname);
 
 			return new GroupDetails() {
 				@Override
@@ -354,13 +366,11 @@ public class CrowdSecurityRealm extends AbstractPasswordBasedSecurityRealm {
 	@Override
 	protected UserDetails authenticate(String pUsername, String pPassword)
 			throws AuthenticationException {
-		if (! this.configuration.allowedGroupNames.isEmpty()) {
-			// ensure that the group is available, active and that the user
-			// is a member of it
-			if (!this.configuration.isGroupMember(pUsername)) {
-				throw new InsufficientAuthenticationException(userNotValid(
-						pUsername, this.configuration.allowedGroupNames));
-			}
+		// ensure that the group is available, active and that the user
+		// is a member of it
+		if (!this.configuration.isGroupMember(pUsername)) {
+			throw new InsufficientAuthenticationException(userNotValid(
+					pUsername, this.configuration.getAllowedGroupNames()));
 		}
 
 		User user;
@@ -373,7 +383,7 @@ public class CrowdSecurityRealm extends AbstractPasswordBasedSecurityRealm {
 						+ (null != pPassword ? "<available>'"
 								: "<not specified>'"));
 			}
-			user = this.configuration.crowdClient.authenticateUser(pUsername, pPassword);
+			user = this.configuration.authenticateUser(pUsername, pPassword);
 		} catch (UserNotFoundException ex) {
 			if (LOG.isLoggable(Level.INFO)) {
 				LOG.info(userNotFound(pUsername));
@@ -545,18 +555,19 @@ public class CrowdSecurityRealm extends AbstractPasswordBasedSecurityRealm {
 
 //			Logger log = Logger.getLogger(getClass().getName());
 
-			CrowdConfigurationService tConfiguration = new CrowdConfigurationService(group, false);
-            Properties props = CrowdConfigurationService.getProperties(url, applicationName, password, sessionValidationInterval,
-                    useSSO, cookieDomain, cookieTokenkey, useProxy, httpProxyHost, httpProxyPort, httpProxyUsername,
-                    httpProxyPassword, socketTimeout, httpTimeout, httpMaxConnections);
-            tConfiguration.clientProperties = ClientPropertiesImpl.newInstanceFromProperties(props);
-            tConfiguration.crowdClient = new RestCrowdClientFactory().newInstance(tConfiguration.clientProperties);
+			CrowdConfigurationService tConfiguration = new CrowdConfigurationService(
+					url, applicationName, password, sessionValidationInterval,
+					useSSO, cookieDomain, cookieTokenkey, useProxy, httpProxyHost, httpProxyPort, httpProxyUsername,
+					httpProxyPassword, socketTimeout, httpTimeout, httpMaxConnections,
+					false, null, null,
+					group, false
+			);
 
 			try {
-                tConfiguration.crowdClient.testConnection();
+                tConfiguration.testConnection();
 
 				// ensure that the given group names are available and active
-				for (String groupName : tConfiguration.allowedGroupNames) {
+				for (String groupName : tConfiguration.getAllowedGroupNames()) {
 					if (!tConfiguration.isGroupActive(groupName)) {
 						return FormValidation.error(groupNotFound(groupName));
 					}
@@ -573,7 +584,7 @@ public class CrowdSecurityRealm extends AbstractPasswordBasedSecurityRealm {
                 LOG.log(Level.SEVERE, operationFailed(), ex);
 				return FormValidation.error(operationFailed());
 			} finally {
-				tConfiguration.crowdClient.shutdown();
+				tConfiguration.shutdown();
 			}
 		}
 
@@ -586,5 +597,58 @@ public class CrowdSecurityRealm extends AbstractPasswordBasedSecurityRealm {
 		public String getDisplayName() {
 			return "Crowd 2";
 		}
+	}
+
+	public static class CacheConfiguration extends AbstractDescribableImpl<CacheConfiguration> {
+     private final int size;
+     private final int ttl;
+
+     @DataBoundConstructor
+     public CacheConfiguration(int size, int ttl) {
+         this.size = Math.max(10, Math.min(size, 1000));
+         this.ttl = Math.max(30, Math.min(ttl, 3600));
+     }
+
+     public int getSize() {
+         return size;
+     }
+
+     public int getTtl() {
+         return ttl;
+     }
+
+     @Extension public static class DescriptorImpl extends Descriptor<CacheConfiguration> {
+
+         @Override public String getDisplayName() {
+             return "";
+         }
+
+         public ListBoxModel doFillSizeItems() {
+             ListBoxModel m = new ListBoxModel();
+             m.add("10");
+             m.add("20");
+             m.add("50");
+             m.add("100");
+             m.add("200");
+             m.add("500");
+             m.add("1000");
+             return m;
+         }
+
+         public ListBoxModel doFillTtlItems() {
+             ListBoxModel m = new ListBoxModel();
+             // TODO use Messages (not that there were any translations before)
+             m.add("30 sec", "30");
+             m.add("1 min", "60");
+             m.add("2 min", "120");
+             m.add("5 min", "300");
+             m.add("10 min", "600");
+             m.add("15 min", "900");
+             m.add("30 min", "1800");
+             m.add("1 hour", "3600");
+             return m;
+         }
+
+     }
 	}
 }

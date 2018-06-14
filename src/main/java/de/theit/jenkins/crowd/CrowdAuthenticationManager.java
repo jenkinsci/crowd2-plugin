@@ -25,20 +25,14 @@
  */
 package de.theit.jenkins.crowd;
 
-import static de.theit.jenkins.crowd.ErrorMessages.accountExpired;
-import static de.theit.jenkins.crowd.ErrorMessages.applicationPermission;
-import static de.theit.jenkins.crowd.ErrorMessages.expiredCredentials;
-import static de.theit.jenkins.crowd.ErrorMessages.invalidAuthentication;
-import static de.theit.jenkins.crowd.ErrorMessages.operationFailed;
-import static de.theit.jenkins.crowd.ErrorMessages.userNotFound;
-import static de.theit.jenkins.crowd.ErrorMessages.userNotValid;
+import com.atlassian.crowd.exception.ApplicationPermissionException;
+import com.atlassian.crowd.exception.ExpiredCredentialException;
+import com.atlassian.crowd.exception.InactiveAccountException;
+import com.atlassian.crowd.exception.InvalidAuthenticationException;
+import com.atlassian.crowd.exception.OperationFailedException;
+import com.atlassian.crowd.exception.UserNotFoundException;
+import com.atlassian.crowd.model.user.User;
 import hudson.security.SecurityRealm;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 import org.acegisecurity.AccountExpiredException;
 import org.acegisecurity.Authentication;
 import org.acegisecurity.AuthenticationException;
@@ -49,13 +43,18 @@ import org.acegisecurity.CredentialsExpiredException;
 import org.acegisecurity.GrantedAuthority;
 import org.acegisecurity.InsufficientAuthenticationException;
 
-import com.atlassian.crowd.exception.ApplicationPermissionException;
-import com.atlassian.crowd.exception.ExpiredCredentialException;
-import com.atlassian.crowd.exception.InactiveAccountException;
-import com.atlassian.crowd.exception.InvalidAuthenticationException;
-import com.atlassian.crowd.exception.OperationFailedException;
-import com.atlassian.crowd.exception.UserNotFoundException;
-import com.atlassian.crowd.model.user.User;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import static de.theit.jenkins.crowd.ErrorMessages.accountExpired;
+import static de.theit.jenkins.crowd.ErrorMessages.applicationPermission;
+import static de.theit.jenkins.crowd.ErrorMessages.expiredCredentials;
+import static de.theit.jenkins.crowd.ErrorMessages.invalidAuthentication;
+import static de.theit.jenkins.crowd.ErrorMessages.operationFailed;
+import static de.theit.jenkins.crowd.ErrorMessages.userNotFound;
+import static de.theit.jenkins.crowd.ErrorMessages.userNotValid;
 
 /**
  * This class implements the authentication manager for Jenkins.
@@ -110,13 +109,11 @@ public class CrowdAuthenticationManager implements AuthenticationManager {
 
 		String password = authentication.getCredentials().toString();
 
-		if (! this.configuration.allowedGroupNames.isEmpty()) {
-			// ensure that the group is available, active and that the user
-			// is a member of it
-			if (!this.configuration.isGroupMember(username)) {
-				throw new InsufficientAuthenticationException(userNotValid(
-					username, this.configuration.allowedGroupNames));
-			}
+		// ensure that the group is available, active and that the user
+		// is a member of it
+		if (!this.configuration.isGroupMember(username)) {
+			throw new InsufficientAuthenticationException(userNotValid(
+				username, this.configuration.getAllowedGroupNames()));
 		}
 
 		//String displayName = null;
@@ -125,7 +122,7 @@ public class CrowdAuthenticationManager implements AuthenticationManager {
 			if (LOG.isLoggable(Level.FINE)) {
 				LOG.fine("Authenticating user: " + username);
 			}
-			User user = this.configuration.crowdClient.authenticateUser(
+			User user = this.configuration.authenticateUser(
 					username, password);
 			CrowdAuthenticationToken.updateUserInfo(user);
 			//displayName = user.getDisplayName();
