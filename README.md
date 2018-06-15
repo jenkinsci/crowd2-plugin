@@ -1,8 +1,13 @@
 # Crowd 2 Plugin for Jenkins (crowd2-plugin)
 
-This plugin allows using [Atlassian Crowd](https://www.atlassian.com/software/crowd) as an authentication and authorization provider for Jenkins (Crowd version 2 and later). 
+This plugin allows using [Atlassian Crowd](https://www.atlassian.com/software/crowd) or [JIRA](https://www.atlassian.com/software/jira) as an authentication and authorization provider for Jenkins (Crowd version 2 and later). 
 
 [![Build Status](https://ci.jenkins.io/buildStatus/icon?job=Plugins/crowd2-plugin/master)](https://ci.jenkins.io/job/Plugins/job/crowd2-plugin/job/master/)
+[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=jenkins-crowd2-plugin&metric=coverage)](https://sonarcloud.io/dashboard?id=jenkins-crowd2-plugin)
+[![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=jenkins-crowd2-plugin&metric=security_rating)](https://sonarcloud.io/dashboard?id=jenkins-crowd2-plugin)
+
+[![Quality Gate](https://sonarcloud.io/api/project_badges/quality_gate?project=jenkins-crowd2-plugin)](https://sonarcloud.io/dashboard?id=jenkins-crowd2-plugin)
+
 
 ## Usage
 //TODO: describe usage and add some screenshots or gifs
@@ -55,14 +60,14 @@ See the list of [contributors](https://github.com/jenkinsci/crowd2-plugin/contri
 
 The following changes and improvements are planned for the following releases
 
-### 1.9.0
+### 2.0.0
 
 * add Jenkinsfile to run an automated build
 * Merge open pull requests to fix caching and httpclient to solve performance and compatibility issues
 * Update to latest libs
 * Add some unit tests
 
-### 2.0.0
+### 3.0.0
 
 * Pickup changes from the refactoring branch
 * Make RememberMe work
