@@ -1,4 +1,6 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
@@ -27,7 +29,7 @@
             <name>Thorsten Heit</name>
             <email>theit@gmx.de</email>
         </developer>
-	    <developer>
+        <developer>
             <id>integer</id>
             <name>Kanstantsin Shautsou</name>
         </developer>
@@ -48,6 +50,11 @@
     <properties>
         <jenkins.version>2.121.1</jenkins.version>
         <crowd-integration-client-rest.version>3.2.1</crowd-integration-client-rest.version>
+        <!-- JUnit dependency versions -->
+        <junit.version>4.12</junit.version>
+        <junit-vintage-engine>5.2.0</junit-vintage-engine>
+        <junit-jupiter.version>5.2.0</junit-jupiter.version>
+        <junit-platform.version>1.2.0</junit-platform.version>
         <jacoco-maven-plugin.version>0.8.1</jacoco-maven-plugin.version>
         <maven-surefire-plugin.version>2.21.0</maven-surefire-plugin.version>
         <jenkins-mailer-plugin.version>1.21</jenkins-mailer-plugin.version>
@@ -63,7 +70,7 @@
         <connection>scm:git:git://github.com/jenkinsci/crowd2-plugin.git</connection>
         <developerConnection>scm:git:ssh://git@github.com/jenkinsci/crowd2-plugin.git</developerConnection>
         <url>https://github.com/jenkinsci/crowd2-plugin</url>
-      <tag>HEAD</tag>
+        <tag>HEAD</tag>
     </scm>
 
 
@@ -108,7 +115,7 @@
                     <target>1.8</target>
                 </configuration>
             </plugin>
-             <plugin>
+            <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
                 <version>${jacoco-maven-plugin.version}</version>
@@ -148,7 +155,28 @@
                 <configuration>
                     <argLine>${surefireArgLine}</argLine>
                 </configuration>
-			</plugin>
+                <dependencies>
+                    <!-- to let surefire to run JUnit 4 but also JUnit 5 
+                        tests -->
+                    <dependency>
+                        <groupId>org.junit.platform</groupId>
+                        <artifactId>junit-platform-surefire-provider</artifactId>
+                        <version>${junit-platform.version}</version>
+                    </dependency>
+                    <!-- JUnit vintage engine to run JUnit 3 or JUnit 4 tests -->
+                    <dependency>
+                        <groupId>org.junit.vintage</groupId>
+                        <artifactId>junit-vintage-engine</artifactId>
+                        <version>${junit-vintage-engine}</version>
+                    </dependency>
+                    <!-- JUnit 5 engine to run JUnit 5 tests -->
+                    <dependency>
+                        <groupId>org.junit.jupiter</groupId>
+                        <artifactId>junit-jupiter-engine</artifactId>
+                        <version>${junit-jupiter.version}</version>
+                    </dependency>
+                </dependencies>
+            </plugin>
         </plugins>
     </build>
 
@@ -163,6 +191,12 @@
             <groupId>org.jenkins-ci.plugins</groupId>
             <artifactId>mailer</artifactId>
             <version>${jenkins-mailer-plugin.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-api</artifactId>
+            <version>${junit-jupiter.version}</version>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 </project>
