@@ -4,11 +4,11 @@
     <parent>
         <groupId>org.jenkins-ci.plugins</groupId>
         <artifactId>plugin</artifactId>
-        <version>2.17</version>
+        <version>3.15</version>
     </parent>
 
     <artifactId>crowd2</artifactId>
-    <version>1.9-SNAPSHOT</version>
+    <version>2.0.0-SNAPSHOT</version>
 
     <packaging>hpi</packaging>
 
@@ -27,10 +27,14 @@
             <name>Thorsten Heit</name>
             <email>theit@gmx.de</email>
         </developer>
-	<developer>
-		<id>integer</id>
-		<name>Kanstantsin Shautsou</name>
-	</developer>
+	    <developer>
+		    <id>integer</id>
+            <name>Kanstantsin Shautsou</name>
+        </developer>
+        <developer>
+		    <id>pingunaut</id>
+            <name>Martin Spielmann</name>
+        </developer>
     </developers>
 
     <contributors>
@@ -42,10 +46,15 @@
     </contributors>
 
     <properties>
+        <jenkins.version>2.121.1</jenkins.version>
+        <crowd-integration-client-rest.version>3.2.1</crowd-integration-client-rest.version>
         <jacoco-maven-plugin.version>0.8.1</jacoco-maven-plugin.version>
         <maven-surefire-plugin.version>2.21.0</maven-surefire-plugin.version>
-        <jenkins.version>1.625.3</jenkins.version>
-        <java.level>7</java.level>
+        <jenkins-mailer-plugin.version>1.21</jenkins-mailer-plugin.version>
+        <commons-codec.version>1.11</commons-codec.version>
+        <maven-release-plugin.version>2.5.3</maven-release-plugin.version>
+        <maven-compiler-plugin.version>3.7.0</maven-compiler-plugin.version>
+        <java.level>8</java.level>
         <findbugs.failOnError>false</findbugs.failOnError>
     </properties>
 
@@ -87,16 +96,16 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-release-plugin</artifactId>
-                <version>2.5</version>
+                <version>${maven-release-plugin.version}</version>
             </plugin>
 
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>2.5.1</version>
+                <version>${maven-compiler-plugin.version}</version>
                 <configuration>
-                    <source>1.6</source>
-                    <target>1.6</target>
+                    <source>1.8</source>
+                    <target>1.8</target>
                 </configuration>
             </plugin>
              <plugin>
@@ -147,19 +156,19 @@
         <dependency>
             <groupId>com.atlassian.crowd</groupId>
             <artifactId>crowd-integration-client-rest</artifactId>
-            <version>2.8.8</version>
+            <version>${crowd-integration-client-rest.version}</version>
         </dependency>
 
         <dependency>
             <groupId>commons-codec</groupId>
             <artifactId>commons-codec</artifactId>
-            <version>1.5</version>
+            <version>${commons-codec.version}</version>
         </dependency>
 
         <dependency>
             <groupId>org.jenkins-ci.plugins</groupId>
             <artifactId>mailer</artifactId>
-            <version>1.5</version>
+            <version>${jenkins-mailer-plugin.version}</version>
         </dependency>
     </dependencies>
 </project>
