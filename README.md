@@ -8,10 +8,15 @@ This plugin allows using [Atlassian Crowd](https://www.atlassian.com/software/cr
 
 [![Quality Gate](https://sonarcloud.io/api/project_badges/quality_gate?project=jenkins-crowd2-plugin)](https://sonarcloud.io/dashboard?id=jenkins-crowd2-plugin)
 
-
 ## Usage
-//TODO: describe usage and add some screenshots or gifs
 
+1. Add a new generic application in Crowd like described in the [official docs](https://confluence.atlassian.com/crowd/adding-an-application-18579591.html#AddinganApplication-UsingCrowd's'AddApplication'Wizard).
+2. In Jenkins navigate to *Manage Jenkins* -> *Manage Plugins* -> *Available*, and search for "*Crowd 2 Integration*". Install this plugin.
+3. In Jenkins navigate to *Manage Jenkins* -> *Configure Global Security*. Tick *Enable Security* and select *Crowd 2* as your Security Realm.
+4. Insert your Crowd URL and the application credentials you created in step 1.
+
+This plugin works well with [Matrix Authorization Strategy Plugin](https://plugins.jenkins.io/matrix-auth):
+You can use Crowd users and groups to define permissions on folder/pipeline/job level.
 
 ## Development
 
@@ -50,7 +55,7 @@ then upload the resulting .hpi file (target/crowd2-VERSION.hpi) like described i
 
 ## Versioning
 
-We use [SemVer](http://semver.org/) for versioning (starting from version 1.9.0). For the versions available, see the [tags on this repository](https://github.com/pingunaut/crowd2-plugin/tags). 
+We use [SemVer](http://semver.org/) for versioning (starting from version 2.0.0). For the versions available, see the [tags on this repository](https://github.com/pingunaut/crowd2-plugin/tags). 
 
 ## Authors
 
@@ -69,11 +74,12 @@ The following changes and improvements are planned for the following releases
 
 ### 3.0.0
 
+* Improve test coverage
 * Pickup changes from the refactoring branch
 * Make RememberMe work
 * Make SSO work
 
-### 2.x
+### 3.x
 
 * Work on the open JIRA issues
  
