@@ -143,6 +143,24 @@ public class CrowdConfigurationService {
     /**
      * Creates a new Crowd configuration object.
      *
+     * @param url The Crowd URL
+     * @param applicationName The Crowd application name
+     * @param password The Crowd application password
+     * @param sessionValidationInterval The session validation interval
+     * @param useSSO Specifies if SSO should be enabled
+     * @param cookieDomain The cookie domain
+     * @param cookieTokenkey The cookie token key
+     * @param useProxy the Specifies if a proxy should be used
+     * @param httpProxyHost The http proxy host
+     * @param httpProxyPort The http proxy port
+     * @param httpProxyUsername The http proxy username
+     * @param httpProxyPassword The http proxy password
+     * @param socketTimeout The socket timeout
+     * @param httpTimeout The http timeout
+     * @param httpMaxConnections The http max connections
+     * @param useCache The use cache
+     * @param cacheSize the cache size
+     * @param cacheTTL The cache TTL
      * @param pGroupNames   The group names to use when authenticating Crowd users. May
      *                      not be <code>null</code>.
      * @param pNestedGroups Specifies whether nested groups should be used when validating

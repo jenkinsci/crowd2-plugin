@@ -149,35 +149,30 @@ public class CrowdSecurityRealm extends AbstractPasswordBasedSecurityRealm {
 	/**
 	 * Default constructor. Fields in config.jelly must match the parameter
 	 * names in the "DataBoundConstructor".
-     * @param url
-*            The URL for Crowd.
-* @param applicationName
-*            The application name.
-     * @param password
-*            The application password.
-     * @param group
-*            The group to which users must belong to. If this parameter is
-*            not specified, a users group membership will not be checked.
-     * @param nestedGroups
-*            <code>true</code> when nested groups may be used.
-*            <code>false</code> else.
-     * @param sessionValidationInterval
-*            The number of minutes to cache authentication validation in
-*            the session. If this value is set to <code>0</code>, each HTTP
-*            request will be authenticated with the Crowd server.
-     * @param useSSO
-*            Enable SSO authentication.
-     * @param cookieDomain
-     * @param cookieTokenkey
-     * @param useProxy
-     * @param httpProxyHost
-     * @param httpProxyPort
-     * @param httpProxyUsername
-     * @param httpProxyPassword
-     * @param socketTimeout
-     * @param httpTimeout
-     * @param httpMaxConnections
-     */
+	 *
+	 * @param url            The URL for Crowd.
+	 * @param applicationName            The application name.
+	 * @param password            The application password.
+	 * @param group            The group to which users must belong to. If this parameter is
+	 *            not specified, a users group membership will not be checked.
+	 * @param nestedGroups            <code>true</code> when nested groups may be used.
+	 *            <code>false</code> else.
+	 * @param sessionValidationInterval            The number of minutes to cache authentication validation in
+	 *            the session. If this value is set to <code>0</code>, each HTTP
+	 *            request will be authenticated with the Crowd server.
+	 * @param useSSO            Enable SSO authentication.
+	 * @param cookieDomain The cookie domain
+	 * @param cookieTokenkey The cookie token key
+	 * @param useProxy Specifies if a proxy should be used
+	 * @param httpProxyHost The http proxy host
+	 * @param httpProxyPort The http proxy port
+	 * @param httpProxyUsername The http proxy username
+	 * @param httpProxyPassword The http proxy password
+	 * @param socketTimeout The socket timeout
+	 * @param httpTimeout The http timeout
+	 * @param httpMaxConnections The http max connections
+	 * @param cache The cache configuration
+	 */
 	@DataBoundConstructor
 	public CrowdSecurityRealm(String url, String applicationName, String password, String group, boolean nestedGroups,
                               int sessionValidationInterval, boolean useSSO, String cookieDomain,
@@ -205,6 +200,30 @@ public class CrowdSecurityRealm extends AbstractPasswordBasedSecurityRealm {
 	}
 
 	/**
+	 * Fields in config.jelly must match the parameter names in the "DataBoundConstructor".
+	 *
+	 * @param url            The URL for Crowd.
+	 * @param applicationName            The application name.
+	 * @param password            The application password.
+	 * @param group            The group to which users must belong to. If this parameter is
+	 *            not specified, a users group membership will not be checked.
+	 * @param nestedGroups            <code>true</code> when nested groups may be used.
+	 *            <code>false</code> else.
+	 * @param sessionValidationInterval            The number of minutes to cache authentication validation in
+	 *            the session. If this value is set to <code>0</code>, each HTTP
+	 *            request will be authenticated with the Crowd server.
+	 * @param useSSO            Enable SSO authentication.
+	 * @param cookieDomain The cookie domain
+	 * @param cookieTokenkey The cookie token key
+	 * @param useProxy Specifies if a proxy should be used
+	 * @param httpProxyHost The http proxy host
+	 * @param httpProxyPort The http proxy port
+	 * @param httpProxyUsername The http proxy username
+	 * @param httpProxyPassword The http proxy password
+	 * @param socketTimeout The socket timeout
+	 * @param httpTimeout The http timeout
+	 * @param httpMaxConnections The http max connections
+	 *
      * @deprecated retained for backwards binary compatibility.
      */
 	@Deprecated
@@ -531,16 +550,23 @@ public class CrowdSecurityRealm extends AbstractPasswordBasedSecurityRealm {
 		/**
 		 * Checks whether the connection to the Crowd server can be established
 		 * using the given credentials.
-		 * 
-		 * @param url
-		 *            The URL of the Crowd server.
-		 * @param applicationName
-		 *            The application name.
-		 * @param password
-		 *            The application's password.
-		 * @param group
-		 *            The Crowd groups users have to belong to if specified.
-		 * 
+		 *
+		 * @param url            The URL of the Crowd server.
+		 * @param applicationName            The application name.
+		 * @param password            The application's password.
+		 * @param group            The Crowd groups users have to belong to if specified.
+		 * @param useSSO Spcifies if SSO should be used
+		 * @param cookieDomain The cookie domain
+		 * @param sessionValidationInterval The session validation interval
+		 * @param cookieTokenkey The cookie token key
+		 * @param useProxy Specifies if a proxy should be used
+		 * @param httpProxyHost The http proxy host
+		 * @param httpProxyPort The http proxy port
+		 * @param httpProxyUsername The http proxy username
+		 * @param httpProxyPassword The http proxy password
+		 * @param socketTimeout The socket timeout
+		 * @param httpTimeout The http timeout
+		 * @param httpMaxConnections The http max connections
 		 * @return Indicates the outcome of the validation. This is sent to the
 		 *         browser.
 		 */
