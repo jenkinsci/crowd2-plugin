@@ -48,6 +48,7 @@
     <properties>
         <jenkins.version>2.121.1</jenkins.version>
         <crowd-integration-client-rest.version>3.2.1</crowd-integration-client-rest.version>
+        <apache-httpcomponents-client-4-api-plugin.version>4.5.5-3.0</apache-httpcomponents-client-4-api-plugin.version>
         <!-- JUnit dependency versions -->
         <junit.version>4.12</junit.version>
         <junit-vintage-engine>5.2.0</junit-vintage-engine>
@@ -184,8 +185,22 @@
             <groupId>com.atlassian.crowd</groupId>
             <artifactId>crowd-integration-client-rest</artifactId>
             <version>${crowd-integration-client-rest.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.apache.httpcomponents</groupId>
+                    <artifactId>httpclient</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.apache.httpcomponents</groupId>
+                    <artifactId>httpclient-cache</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
-
+        <dependency>
+            <groupId>org.jenkins-ci.plugins</groupId>
+            <artifactId>apache-httpcomponents-client-4-api</artifactId>
+            <version>${apache-httpcomponents-client-4-api-plugin.version}</version>
+        </dependency>
         <dependency>
             <groupId>org.jenkins-ci.plugins</groupId>
             <artifactId>mailer</artifactId>
