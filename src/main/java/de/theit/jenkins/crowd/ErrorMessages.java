@@ -26,7 +26,6 @@
 package de.theit.jenkins.crowd;
 
 import java.util.ArrayList;
-import java.util.Collection;
 
 import org.jvnet.localizer.ResourceBundleHolder;
 

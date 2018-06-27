@@ -769,7 +769,8 @@ public class CrowdConfigurationService {
      */
     private static class CacheMap<K, V> extends LinkedHashMap<K, CacheEntry<V>> {
 
-        private final int cacheSize;
+		private static final long serialVersionUID = 1L;
+		private final int cacheSize;
 
         public CacheMap(int cacheSize) {
             super(cacheSize + 1); // prevent realloc when hitting cache size limit
