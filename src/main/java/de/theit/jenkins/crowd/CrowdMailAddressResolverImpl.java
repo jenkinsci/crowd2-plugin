@@ -47,8 +47,7 @@ import org.springframework.dao.DataAccessException;
 @Extension
 public class CrowdMailAddressResolverImpl extends MailAddressResolver {
 	/** For logging purposes. */
-	private static final Logger LOG = Logger
-			.getLogger(CrowdMailAddressResolverImpl.class.getName());
+	private static final Logger LOG = Logger.getLogger(CrowdMailAddressResolverImpl.class.getName());
 
 	/**
 	 * {@inheritDoc}
@@ -62,20 +61,7 @@ public class CrowdMailAddressResolverImpl extends MailAddressResolver {
 
 		if (realm instanceof CrowdSecurityRealm) {
 			try {
-				// Workaround:
-				// The user object given as parameter contains the user's
-				// display name. Looking up a user in Crowd by the full display
-				// name doesn't work; we have to use the user's Id instead which
-				// is actually appended at the end of the display name in
-				// brackets
-				String userId = u.getId();
-				int pos = userId.lastIndexOf('(');
-				if (pos > 0) {
-					int pos2 = userId.indexOf(')', pos + 1);
-					if (pos2 > pos) {
-						userId = userId.substring(pos + 1, pos2);
-					}
-				}
+				String userId = getUserIdFromDisplayName(u);
 
 				if (LOG.isLoggable(Level.FINE)) {
 					LOG.fine("Looking up mail address for user: " + userId);
@@ -94,6 +80,30 @@ public class CrowdMailAddressResolverImpl extends MailAddressResolver {
 		}
 
 		return mail;
+	}
+
+	/**
+	 * Gets the user id from display name.
+	 *
+	 * This is a workaround.
+	 * The user object given as parameter contains the user's
+	 * display name. Looking up a user in Crowd by the full display
+	 * name doesn't work; we have to use the user's Id instead which
+	 * is actually appended at the end of the display name in brackets
+	 *
+	 * @param user the user
+	 * @return the user id from display name
+	 */
+	String getUserIdFromDisplayName(User user) {
+		String userId = user.getId();
+		int pos = userId.lastIndexOf('(');
+		if (pos > 0) {
+			int pos2 = userId.indexOf(')', pos + 1);
+			if (pos2 > pos) {
+				userId = userId.substring(pos + 1, pos2);
+			}
+		}
+		return userId;
 	}
 
 	SecurityRealm getSecurityRealm() {
