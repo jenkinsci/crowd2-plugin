@@ -37,12 +37,13 @@ import com.atlassian.crowd.model.user.User;
 import hudson.Extension;
 import hudson.model.AbstractDescribableImpl;
 import hudson.model.Descriptor;
-import hudson.model.Hudson;
 import hudson.security.AbstractPasswordBasedSecurityRealm;
 import hudson.security.GroupDetails;
 import hudson.security.SecurityRealm;
 import hudson.util.FormValidation;
 import hudson.util.ListBoxModel;
+import jenkins.model.Jenkins;
+
 import org.acegisecurity.AccountExpiredException;
 import org.acegisecurity.AuthenticationException;
 import org.acegisecurity.AuthenticationManager;
@@ -294,7 +295,7 @@ public class CrowdSecurityRealm extends AbstractPasswordBasedSecurityRealm {
 	@Override
 	public void doLogout(StaplerRequest req, StaplerResponse rsp)
 			throws IOException, ServletException {
-		SecurityRealm realm = Hudson.getInstance().getSecurityRealm();
+		SecurityRealm realm = Jenkins.get().getSecurityRealm();
 
         if (useSSO) {
             if (realm instanceof CrowdSecurityRealm
@@ -465,7 +466,7 @@ public class CrowdSecurityRealm extends AbstractPasswordBasedSecurityRealm {
 		 *         browser.
 		 */
 		public FormValidation doCheckUrl(@QueryParameter final String url) {
-			if (!Hudson.getInstance().hasPermission(Hudson.ADMINISTER)) {
+			if (!Jenkins.get().hasPermission(Jenkins.ADMINISTER)) {
 				return FormValidation.ok();
 			}
 
@@ -487,7 +488,7 @@ public class CrowdSecurityRealm extends AbstractPasswordBasedSecurityRealm {
 		 */
 		public FormValidation doCheckApplicationName(
 				@QueryParameter final String applicationName) {
-			if (!Hudson.getInstance().hasPermission(Hudson.ADMINISTER)) {
+			if (!Jenkins.get().hasPermission(Jenkins.ADMINISTER)) {
 				return FormValidation.ok();
 			}
 
@@ -509,7 +510,7 @@ public class CrowdSecurityRealm extends AbstractPasswordBasedSecurityRealm {
 		 */
 		public FormValidation doCheckPassword(
 				@QueryParameter final String password) {
-			if (!Hudson.getInstance().hasPermission(Hudson.ADMINISTER)) {
+			if (!Jenkins.get().hasPermission(Jenkins.ADMINISTER)) {
 				return FormValidation.ok();
 			}
 
@@ -531,7 +532,7 @@ public class CrowdSecurityRealm extends AbstractPasswordBasedSecurityRealm {
 		 */
 		public FormValidation doCheckSessionValidationInterval(
 				@QueryParameter final String sessionValidationInterval) {
-			if (!Hudson.getInstance().hasPermission(Hudson.ADMINISTER)) {
+			if (!Jenkins.get().hasPermission(Jenkins.ADMINISTER)) {
 				return FormValidation.ok();
 			}
 
