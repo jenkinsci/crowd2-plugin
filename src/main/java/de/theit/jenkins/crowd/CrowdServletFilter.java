@@ -182,6 +182,15 @@ public class CrowdServletFilter implements Filter {
 								LOG.fine("User sucessfully logged in");
 							}
 							sc.setAuthentication(auth);
+						} else { // Auto login failed.
+							if (LOG.isLoggable(Level.FINE)) {
+								LOG.fine("User failed to log in");
+							}
+							HttpSession session = req.getSession(false);
+							if (session != null) {
+								session.invalidate();
+							}
+							SecurityContextHolder.clearContext();
 						}
 					}
 				}
