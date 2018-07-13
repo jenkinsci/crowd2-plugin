@@ -295,7 +295,7 @@ public class CrowdSecurityRealm extends AbstractPasswordBasedSecurityRealm {
 	@Override
 	public void doLogout(StaplerRequest req, StaplerResponse rsp)
 			throws IOException, ServletException {
-		SecurityRealm realm = Jenkins.get().getSecurityRealm();
+		SecurityRealm realm = Jenkins.getInstance().getSecurityRealm();
 
         if (useSSO) {
             if (realm instanceof CrowdSecurityRealm
@@ -466,7 +466,7 @@ public class CrowdSecurityRealm extends AbstractPasswordBasedSecurityRealm {
 		 *         browser.
 		 */
 		public FormValidation doCheckUrl(@QueryParameter final String url) {
-			if (!Jenkins.get().hasPermission(Jenkins.ADMINISTER)) {
+			if (!Jenkins.getInstance().hasPermission(Jenkins.ADMINISTER)) {
 				return FormValidation.ok();
 			}
 
@@ -488,7 +488,7 @@ public class CrowdSecurityRealm extends AbstractPasswordBasedSecurityRealm {
 		 */
 		public FormValidation doCheckApplicationName(
 				@QueryParameter final String applicationName) {
-			if (!Jenkins.get().hasPermission(Jenkins.ADMINISTER)) {
+			if (!Jenkins.getInstance().hasPermission(Jenkins.ADMINISTER)) {
 				return FormValidation.ok();
 			}
 
@@ -510,7 +510,7 @@ public class CrowdSecurityRealm extends AbstractPasswordBasedSecurityRealm {
 		 */
 		public FormValidation doCheckPassword(
 				@QueryParameter final String password) {
-			if (!Jenkins.get().hasPermission(Jenkins.ADMINISTER)) {
+			if (!Jenkins.getInstance().hasPermission(Jenkins.ADMINISTER)) {
 				return FormValidation.ok();
 			}
 
@@ -532,7 +532,7 @@ public class CrowdSecurityRealm extends AbstractPasswordBasedSecurityRealm {
 		 */
 		public FormValidation doCheckSessionValidationInterval(
 				@QueryParameter final String sessionValidationInterval) {
-			if (!Jenkins.get().hasPermission(Jenkins.ADMINISTER)) {
+			if (!Jenkins.getInstance().hasPermission(Jenkins.ADMINISTER)) {
 				return FormValidation.ok();
 			}
 
