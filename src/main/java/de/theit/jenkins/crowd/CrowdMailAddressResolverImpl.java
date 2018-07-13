@@ -107,6 +107,6 @@ public class CrowdMailAddressResolverImpl extends MailAddressResolver {
 	}
 
 	SecurityRealm getSecurityRealm() {
-		return Jenkins.get().getSecurityRealm();
+		return Jenkins.getInstance().getSecurityRealm();
 	}
 }
