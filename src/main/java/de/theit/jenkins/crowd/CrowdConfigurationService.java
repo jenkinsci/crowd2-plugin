@@ -358,7 +358,7 @@ public class CrowdConfigurationService {
                 try {
                     int index = 0;
                     if (LOG.isLoggable(Level.FINE)) {
-                        LOG.fine("Retrieve list of groups with direct membership for user '"
+                        LOG.fine("Retrieve list of groups with nested membership for user '"
                                 + username + "'...");
                     }
                     while (true) {
