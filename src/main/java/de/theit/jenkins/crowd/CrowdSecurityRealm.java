@@ -42,6 +42,7 @@ import hudson.security.GroupDetails;
 import hudson.security.SecurityRealm;
 import hudson.util.FormValidation;
 import hudson.util.ListBoxModel;
+import hudson.util.Secret;
 import jenkins.model.Jenkins;
 
 import org.acegisecurity.AccountExpiredException;
@@ -92,7 +93,7 @@ public class CrowdSecurityRealm extends AbstractPasswordBasedSecurityRealm {
 	public final String applicationName;
 
 	/** Contains the application password to access Crowd. */
-	public final String password;
+	public final Secret password;
 
 	/** Contains the Crowd group to which a user must belong to. */
 	public final String group;
@@ -129,7 +130,7 @@ public class CrowdSecurityRealm extends AbstractPasswordBasedSecurityRealm {
     public final String httpProxyHost;
     public final String httpProxyPort;
     public final String httpProxyUsername;
-    public final String httpProxyPassword;
+    public final Secret httpProxyPassword;
 
     public final String socketTimeout;
     public final String httpTimeout;
@@ -176,10 +177,10 @@ public class CrowdSecurityRealm extends AbstractPasswordBasedSecurityRealm {
 	 * @param cache The cache configuration
 	 */
 	@DataBoundConstructor
-	public CrowdSecurityRealm(String url, String applicationName, String password, String group, boolean nestedGroups,
+	public CrowdSecurityRealm(String url, String applicationName, Secret password, String group, boolean nestedGroups,
                               int sessionValidationInterval, boolean useSSO, String cookieDomain,
                               String cookieTokenkey, Boolean useProxy, String httpProxyHost, String httpProxyPort,
-                              String httpProxyUsername, String httpProxyPassword, String socketTimeout,
+                              String httpProxyUsername, Secret httpProxyPassword, String socketTimeout,
                               String httpTimeout, String httpMaxConnections, CacheConfiguration cache) {
         this.cookieTokenkey = cookieTokenkey;
         this.useProxy = useProxy;
@@ -192,13 +193,56 @@ public class CrowdSecurityRealm extends AbstractPasswordBasedSecurityRealm {
         this.httpMaxConnections = httpMaxConnections;
         this.url = url.trim();
 		this.applicationName = applicationName.trim();
-		this.password = password.trim();
+		this.password = password;
 		this.group = group.trim();
 		this.nestedGroups = nestedGroups;
 		this.sessionValidationInterval = sessionValidationInterval;
 		this.useSSO = useSSO;
         this.cookieDomain = cookieDomain;
 		this.cache = cache;
+	}
+	
+	/**
+	 * Default constructor. Fields in config.jelly must match the parameter
+	 * names in the "DataBoundConstructor".
+	 *
+	 * @param url            The URL for Crowd.
+	 * @param applicationName            The application name.
+	 * @param password            The application password.
+	 * @param group            The group to which users must belong to. If this parameter is
+	 *            not specified, a users group membership will not be checked.
+	 * @param nestedGroups            <code>true</code> when nested groups may be used.
+	 *            <code>false</code> else.
+	 * @param sessionValidationInterval            The number of minutes to cache authentication validation in
+	 *            the session. If this value is set to <code>0</code>, each HTTP
+	 *            request will be authenticated with the Crowd server.
+	 * @param useSSO            Enable SSO authentication.
+	 * @param cookieDomain The cookie domain
+	 * @param cookieTokenkey The cookie token key
+	 * @param useProxy Specifies if a proxy should be used
+	 * @param httpProxyHost The http proxy host
+	 * @param httpProxyPort The http proxy port
+	 * @param httpProxyUsername The http proxy username
+	 * @param httpProxyPassword The http proxy password
+	 * @param socketTimeout The socket timeout
+	 * @param httpTimeout The http timeout
+	 * @param httpMaxConnections The http max connections
+	 * @param cache The cache configuration
+	 *
+	 * @deprecated retained for backwards binary compatibility.
+     */
+	@Deprecated
+	public CrowdSecurityRealm(String url, String applicationName, String password, String group, boolean nestedGroups,
+                              int sessionValidationInterval, boolean useSSO, String cookieDomain,
+                              String cookieTokenkey, Boolean useProxy, String httpProxyHost, String httpProxyPort,
+                              String httpProxyUsername, String httpProxyPassword, String socketTimeout,
+                              String httpTimeout, String httpMaxConnections, CacheConfiguration cache) {
+		this(url, applicationName, Secret.fromString(password.trim()), group, nestedGroups, sessionValidationInterval, useSSO, 
+				cookieDomain, cookieTokenkey, useProxy, httpProxyHost, httpProxyPort, httpProxyUsername, 
+				Secret.fromString(httpProxyPassword), socketTimeout, httpTimeout, httpMaxConnections, cache);
+		// If this constructor is called, make sure to re-save the configuration.
+		// This way, migrated secrets are persisted securely without user interaction.
+		getDescriptor().save();
 	}
 
 	/**
@@ -585,9 +629,9 @@ public class CrowdSecurityRealm extends AbstractPasswordBasedSecurityRealm {
 //			Logger log = Logger.getLogger(getClass().getName());
 			Jenkins.getInstance().checkPermission(Jenkins.ADMINISTER);
 			CrowdConfigurationService tConfiguration = new CrowdConfigurationService(
-					url, applicationName, password, sessionValidationInterval,
+					url, applicationName, Secret.fromString(password), sessionValidationInterval,
 					useSSO, cookieDomain, cookieTokenkey, useProxy, httpProxyHost, httpProxyPort, httpProxyUsername,
-					httpProxyPassword, socketTimeout, httpTimeout, httpMaxConnections,
+					Secret.fromString(httpProxyPassword), socketTimeout, httpTimeout, httpMaxConnections,
 					false, null, null,
 					group, false
 			);

@@ -46,6 +46,9 @@ import com.atlassian.crowd.model.user.User;
 import com.atlassian.crowd.service.client.ClientProperties;
 import com.atlassian.crowd.service.client.ClientPropertiesImpl;
 import com.atlassian.crowd.service.client.CrowdClient;
+
+import hudson.util.Secret;
+
 import org.acegisecurity.GrantedAuthority;
 import org.acegisecurity.GrantedAuthorityImpl;
 
@@ -166,11 +169,11 @@ public class CrowdConfigurationService {
      * @param pNestedGroups Specifies whether nested groups should be used when validating
      *                      users against a group name.
      */
-    public CrowdConfigurationService(String url, String applicationName, String password,
+    public CrowdConfigurationService(String url, String applicationName, Secret password,
                                      int sessionValidationInterval, boolean useSSO,
                                      String cookieDomain, String cookieTokenkey, Boolean useProxy,
                                      String httpProxyHost, String httpProxyPort, String httpProxyUsername,
-                                     String httpProxyPassword, String socketTimeout,
+                                     Secret httpProxyPassword, String socketTimeout,
                                      String httpTimeout, String httpMaxConnections,
                                      boolean useCache, Integer cacheSize, Integer cacheTTL,
                                      String pGroupNames, boolean pNestedGroups) {
@@ -193,9 +196,9 @@ public class CrowdConfigurationService {
         this.useCache = useCache;
         this.cacheSize = cacheSize;
         this.cacheTTL = cacheTTL;
-        Properties props = getProperties(url, applicationName, password, sessionValidationInterval,
+        Properties props = getProperties(url, applicationName, Secret.toString(password), sessionValidationInterval,
                 useSSO, cookieDomain, cookieTokenkey, useProxy, httpProxyHost, httpProxyPort, httpProxyUsername,
-                httpProxyPassword, socketTimeout, httpTimeout, httpMaxConnections);
+                Secret.toString(httpProxyPassword), socketTimeout, httpTimeout, httpMaxConnections);
         this.clientProperties = ClientPropertiesImpl.newInstanceFromProperties(props);
         this.crowdClient = new RestCrowdClientFactory().newInstance(this.clientProperties);
         this.tokenHelper = CrowdHttpTokenHelperImpl.getInstance(CrowdHttpValidationFactorExtractorImpl.getInstance());
