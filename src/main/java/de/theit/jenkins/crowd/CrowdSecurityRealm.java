@@ -58,6 +58,7 @@ import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.QueryParameter;
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
+import org.kohsuke.stapler.verb.POST;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DataRetrievalFailureException;
 
@@ -571,6 +572,7 @@ public class CrowdSecurityRealm extends AbstractPasswordBasedSecurityRealm {
 		 * @return Indicates the outcome of the validation. This is sent to the
 		 *         browser.
 		 */
+		@POST
 		public FormValidation doTestConnection(@QueryParameter String url, @QueryParameter String applicationName,
 				@QueryParameter String password, @QueryParameter String group, @QueryParameter boolean useSSO,
                 @QueryParameter String cookieDomain, @QueryParameter int sessionValidationInterval,
@@ -581,7 +583,7 @@ public class CrowdSecurityRealm extends AbstractPasswordBasedSecurityRealm {
         {
 
 //			Logger log = Logger.getLogger(getClass().getName());
-
+			Jenkins.getInstance().checkPermission(Jenkins.ADMINISTER);
 			CrowdConfigurationService tConfiguration = new CrowdConfigurationService(
 					url, applicationName, password, sessionValidationInterval,
 					useSSO, cookieDomain, cookieTokenkey, useProxy, httpProxyHost, httpProxyPort, httpProxyUsername,
