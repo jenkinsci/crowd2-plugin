@@ -227,6 +227,9 @@ public class CrowdConfigurationService {
      * be used, a nested group member. <code>false</code> else.
      */
     public boolean isGroupMember(String username) {
+	if (username == null) {
+	  return false; // prevent NPE
+	}
         if (allowedGroupNames.isEmpty()) {
             return true;
         }
