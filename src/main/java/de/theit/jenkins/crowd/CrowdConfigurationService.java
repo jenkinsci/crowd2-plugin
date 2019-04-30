@@ -152,6 +152,8 @@ public class CrowdConfigurationService {
 
     private transient Map<String, CacheEntry<Group>> groupCache = null;
 
+    private transient Map<String, CacheEntry<Boolean>> validationCache = null;
+
     private transient Map<String, CacheEntry<Collection<GrantedAuthority>>> authoritiesForUserCache = null;
 
     /**
@@ -675,24 +677,50 @@ public class CrowdConfigurationService {
         }
     }
 
-    public void validateSSOAuthentication(String token, List<ValidationFactor> list)
-            throws OperationFailedException, InvalidAuthenticationException, ApplicationPermissionException,
-            InvalidTokenException {
-        if (LOG.isLoggable(Level.FINEST)) {
-            LOG.finest("CrowdClient.validateSSOAuthentication()");
+    public void validateSSOAuthentication(String token, List<ValidationFactor> list) throws OperationFailedException, InvalidAuthenticationException, ApplicationPermissionException, InvalidTokenException {
+        Boolean cachedRep;
+        if (useCache) {
+            final CacheEntry<Boolean> cached;
+            synchronized (this) {
+                cached = validationCache != null ? validationCache.get(token) : null;
+            }
+            if (cached != null && cached.isValid()) {
+                cachedRep = cached.getValue();
+            } else {
+                cachedRep = null;
+            }
+        } else {
+            cachedRep = null;
         }
-        ClassLoader orgContextClassLoader = null;
-        Thread currentThread = null;
-        if (IS_MIN_JAVA_11) {
-            currentThread = Thread.currentThread();
-            orgContextClassLoader = currentThread.getContextClassLoader();
-            currentThread.setContextClassLoader(CrowdConfigurationService.class.getClassLoader());
+        Boolean retval = true;
+        if (cachedRep != null) {
+            retval = cachedRep;
+        } else {
+            if (LOG.isLoggable(Level.FINEST)) {
+                LOG.finest("CrowdClient.validateSSOAuthentication()");
+            }
+            ClassLoader orgContextClassLoader = null;
+            Thread currentThread = null;
+            if (IS_MIN_JAVA_11) {
+                currentThread = Thread.currentThread();
+                orgContextClassLoader = currentThread.getContextClassLoader();
+                currentThread.setContextClassLoader(CrowdConfigurationService.class.getClassLoader());
+            }
+            try {
+                crowdClient.validateSSOAuthentication(token, list);
+            } finally {
+                if (currentThread != null) {
+                    currentThread.setContextClassLoader(orgContextClassLoader);
+                }
+            }
         }
-        try {
-            crowdClient.validateSSOAuthentication(token, list);
-        } finally {
-            if (currentThread != null) {
-                currentThread.setContextClassLoader(orgContextClassLoader);
+        // Successful validation call means token is valid
+        if (useCache && cachedRep == null && retval != null) {
+            synchronized (this) {
+                if (validationCache == null) {
+                    validationCache = new CacheMap<String, Boolean>(cacheSize);
+                }
+                validationCache.put(token, new CacheEntry<Boolean>(cacheTTL, retval));
             }
         }
     }

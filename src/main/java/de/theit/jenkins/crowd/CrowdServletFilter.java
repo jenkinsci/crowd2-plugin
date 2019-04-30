@@ -177,7 +177,7 @@ public class CrowdServletFilter implements Filter {
                                 res);
                         if (null != auth) {
                             if (LOG.isLoggable(Level.FINE)) {
-                                LOG.fine("User sucessfully logged in");
+                                LOG.fine("User successfully logged in");
                             }
                             sc.setAuthentication(auth);
                         }
