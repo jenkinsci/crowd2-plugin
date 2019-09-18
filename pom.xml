@@ -4,7 +4,7 @@
     <parent>
         <groupId>org.jenkins-ci.plugins</groupId>
         <artifactId>plugin</artifactId>
-        <version>3.17</version>
+        <version>3.50</version>
     </parent>
 
     <artifactId>crowd2</artifactId>
@@ -49,18 +49,7 @@
         <jenkins.version>2.89.3</jenkins.version>
         <crowd-integration-client-rest.version>2.8.8</crowd-integration-client-rest.version>
         <apache-httpcomponents-client-4-api-plugin.version>4.5.5-3.0</apache-httpcomponents-client-4-api-plugin.version>
-        <!-- JUnit dependency versions -->
-        <junit.version>4.12</junit.version>
-        <junit-vintage-engine>5.2.0</junit-vintage-engine>
-        <junit-jupiter.version>5.2.0</junit-jupiter.version>
-        <junit-platform.version>1.2.0</junit-platform.version>
-        <mockito.version>2.19.0</mockito.version>
-        <jacoco-maven-plugin.version>0.8.1</jacoco-maven-plugin.version>
-        <maven-surefire-plugin.version>2.21.0</maven-surefire-plugin.version>
         <jenkins-mailer-plugin.version>1.21</jenkins-mailer-plugin.version>
-        <commons-codec.version>1.11</commons-codec.version>
-        <maven-release-plugin.version>2.5.3</maven-release-plugin.version>
-        <maven-compiler-plugin.version>3.7.0</maven-compiler-plugin.version>
         <java.level>8</java.level>
         <findbugs.failOnError>false</findbugs.failOnError>
     </properties>
@@ -98,105 +87,6 @@
         </pluginRepository>
     </pluginRepositories>
 
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-release-plugin</artifactId>
-                <version>${maven-release-plugin.version}</version>
-            </plugin>
-
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>${maven-compiler-plugin.version}</version>
-                <configuration>
-                    <source>1.8</source>
-                    <target>1.8</target>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.jacoco</groupId>
-                <artifactId>jacoco-maven-plugin</artifactId>
-                <version>${jacoco-maven-plugin.version}</version>
-                <executions>
-                    <execution>
-                        <id>jacoco-initialize</id>
-                        <goals>
-                            <goal>prepare-agent</goal>
-                        </goals>
-                    </execution>
-                    <execution>
-                        <id>jacoco-report</id>
-                        <phase>prepare-package</phase>
-                        <goals>
-                            <goal>report</goal>
-                        </goals>
-                    </execution>
-                    <execution>
-                        <id>post-unit-test</id>
-                        <phase>test</phase>
-                        <goals>
-                            <goal>report</goal>
-                        </goals>
-                        <configuration>
-                            <dataFile>target/jacoco.exec</dataFile>
-                            <outputDirectory>target/jacoco-ut</outputDirectory>
-                        </configuration>
-                    </execution>
-                </executions>
-                <configuration>
-                    <propertyName>surefireArgLine</propertyName>
-                </configuration>
-            </plugin>
-            <plugin>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <version>${maven-surefire-plugin.version}</version>
-                <configuration>
-                    <argLine>${surefireArgLine}</argLine>
-                </configuration>
-                <dependencies>
-                    <!-- to let surefire to run JUnit 4 but also JUnit 5 
-                        tests -->
-                    <dependency>
-                        <groupId>org.junit.platform</groupId>
-                        <artifactId>junit-platform-surefire-provider</artifactId>
-                        <version>${junit-platform.version}</version>
-                    </dependency>
-                    <!-- JUnit vintage engine to run JUnit 3 or JUnit 4 tests -->
-                    <dependency>
-                        <groupId>org.junit.vintage</groupId>
-                        <artifactId>junit-vintage-engine</artifactId>
-                        <version>${junit-vintage-engine}</version>
-                    </dependency>
-                    <!-- JUnit 5 engine to run JUnit 5 tests -->
-                    <dependency>
-                        <groupId>org.junit.jupiter</groupId>
-                        <artifactId>junit-jupiter-engine</artifactId>
-                        <version>${junit-jupiter.version}</version>
-                    </dependency>
-                </dependencies>
-            </plugin>
-            <plugin>
-                <artifactId>maven-enforcer-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>display-info</id>
-                        <configuration>
-                            <rules>
-                                <requireUpperBoundDeps>
-                                    <excludes combine.children="append">
-                                        <exclude>org.apache.commons:commons-lang3</exclude>
-                                    </excludes>
-                                </requireUpperBoundDeps>
-                            </rules>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-        </plugins>
-    </build>
-
     <dependencies>
         <dependency>
             <groupId>com.atlassian.crowd</groupId>
@@ -227,17 +117,32 @@
             <artifactId>mailer</artifactId>
             <version>${jenkins-mailer-plugin.version}</version>
         </dependency>
+        <!-- Tests -->
         <dependency>
-            <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter-api</artifactId>
-            <version>${junit-jupiter.version}</version>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>
-            <version>${mockito.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.assertj</groupId>
+            <artifactId>assertj-core</artifactId>
+            <version>3.13.2</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-lang3</artifactId>
+                <version>3.7</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 </project>
