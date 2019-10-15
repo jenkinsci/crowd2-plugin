@@ -25,6 +25,7 @@
  */
 package de.theit.jenkins.crowd;
 
+import com.atlassian.crowd.embedded.api.PasswordCredential;
 import com.atlassian.crowd.exception.ApplicationAccessDeniedException;
 import com.atlassian.crowd.exception.ApplicationPermissionException;
 import com.atlassian.crowd.exception.ExpiredCredentialException;
@@ -34,12 +35,8 @@ import com.atlassian.crowd.exception.InvalidAuthenticationException;
 import com.atlassian.crowd.exception.InvalidTokenException;
 import com.atlassian.crowd.exception.OperationFailedException;
 import com.atlassian.crowd.exception.UserNotFoundException;
-import com.atlassian.crowd.integration.http.CrowdHttpAuthenticator;
-import com.atlassian.crowd.integration.http.CrowdHttpAuthenticatorImpl;
-import com.atlassian.crowd.integration.http.util.CrowdHttpTokenHelper;
-import com.atlassian.crowd.integration.http.util.CrowdHttpTokenHelperImpl;
-import com.atlassian.crowd.integration.http.util.CrowdHttpValidationFactorExtractorImpl;
 import com.atlassian.crowd.integration.rest.service.factory.RestCrowdClientFactory;
+import com.atlassian.crowd.model.authentication.UserAuthenticationContext;
 import com.atlassian.crowd.model.authentication.ValidationFactor;
 import com.atlassian.crowd.model.group.Group;
 import com.atlassian.crowd.model.user.User;
@@ -52,6 +49,7 @@ import hudson.util.Secret;
 import org.acegisecurity.GrantedAuthority;
 import org.acegisecurity.GrantedAuthorityImpl;
 
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.ArrayList;
@@ -103,17 +101,6 @@ public class CrowdConfigurationService {
      * The Crowd client to access the REST services on the remote Crowd server.
      */
     private final CrowdClient crowdClient;
-
-    /**
-     * The helper class for Crowd SSO token operations.
-     */
-    private final CrowdHttpTokenHelper tokenHelper;
-
-    /**
-     * The interface used to manage HTTP authentication and web/SSO
-     * authentication integration.
-     */
-    private final CrowdHttpAuthenticator crowdHttpAuthenticator;
 
     /**
      * The names of all user groups that are allowed to login.
@@ -181,7 +168,7 @@ public class CrowdConfigurationService {
         if (LOG.isLoggable(Level.INFO)) {
             LOG.info("Groups given for Crowd configuration service: " + pGroupNames);
         }
-        this.allowedGroupNames = new ArrayList<String>();
+        this.allowedGroupNames = new ArrayList<>();
         for (String group : pGroupNames.split(",")) {
         	group = group.trim();
         	if (group.length() > 0) {
@@ -201,11 +188,6 @@ public class CrowdConfigurationService {
                 Secret.toString(httpProxyPassword), socketTimeout, httpTimeout, httpMaxConnections);
         this.clientProperties = ClientPropertiesImpl.newInstanceFromProperties(props);
         this.crowdClient = new RestCrowdClientFactory().newInstance(this.clientProperties);
-        this.tokenHelper = CrowdHttpTokenHelperImpl.getInstance(CrowdHttpValidationFactorExtractorImpl.getInstance());
-        this.crowdHttpAuthenticator = new CrowdHttpAuthenticatorImpl(
-                this.crowdClient,
-                this.clientProperties,
-                this.tokenHelper);
     }
 
     public ArrayList<String> getAllowedGroupNames() {
@@ -522,7 +504,7 @@ public class CrowdConfigurationService {
         if (useCache && cachedRep == null && retval != null) {
             synchronized (this) {
                 if (groupCache == null) {
-                    groupCache = new CacheMap<String, Group>(cacheSize);
+                    groupCache = new CacheMap<>(cacheSize);
                 }
                 groupCache.put(name, new CacheEntry<Group>(cacheTTL, retval));
             }
@@ -620,35 +602,82 @@ public class CrowdConfigurationService {
         if (LOG.isLoggable(Level.FINEST)) {
             LOG.finest("TokenHelper.getCrowdToken()");
         }
-        return tokenHelper.getCrowdToken(httpServletRequest, clientProperties.getCookieTokenKey());
+
+        Cookie[] cookies = httpServletRequest.getCookies();
+
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if (cookie.getName().equals("clientProperties.getCookieTokenKey()")) {
+                    return cookie.getValue();
+                }
+            }
+        }
+        return null;
     }
 
+    /**
+     * Retrieves validation factors from the request:
+     * Remote Address: the source IP address of the HTTP request.
+     * Original Address: the X-Forwarded-For HTTP header (if present and distinct from the Remote Address).
+     * @link https://docs.atlassian.com/atlassian-crowd/3.1.1/com/atlassian/crowd/integration/http/util/CrowdHttpValidationFactorExtractor.html
+     *
+     * @param request
+     * @return
+     */
     public List<ValidationFactor> getValidationFactors(HttpServletRequest request) {
         if (LOG.isLoggable(Level.FINEST)) {
             LOG.finest("TokenHelper.getValidationFactorExtractor().getValidationFactors()");
         }
-        return tokenHelper.getValidationFactorExtractor().getValidationFactors(request);
+        List<ValidationFactor> validationFactors = new ArrayList<>();
+
+        String xForwardedFor = request.getHeader(ValidationFactor.X_FORWARDED_FOR);
+        if (xForwardedFor != null) {
+            validationFactors.add(new ValidationFactor(ValidationFactor.X_FORWARDED_FOR,xForwardedFor));
+        }
+
+        String remoteAddress = request.getHeader(ValidationFactor.REMOTE_ADDRESS);
+        if (remoteAddress != null) {
+            validationFactors.add(new ValidationFactor(ValidationFactor.REMOTE_ADDRESS,remoteAddress));
+        }
+
+        return validationFactors;
     }
 
     public void logout(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) throws ApplicationPermissionException, InvalidAuthenticationException, OperationFailedException {
         if (LOG.isLoggable(Level.FINEST)) {
             LOG.finest("CrowdHttpAuthenticator.logout()");
         }
-        crowdHttpAuthenticator.logout(httpServletRequest, httpServletResponse);
+
+        this.crowdClient.invalidateSSOToken(this.getCrowdToken(httpServletRequest));
     }
 
     public User authenticate(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, String name, String credentials) throws ApplicationPermissionException, InvalidAuthenticationException, OperationFailedException, ApplicationAccessDeniedException, ExpiredCredentialException, InactiveAccountException, InvalidTokenException {
         if (LOG.isLoggable(Level.FINEST)) {
             LOG.finest("CrowdHttpAuthenticator.authenticate()");
         }
-        return crowdHttpAuthenticator.authenticate(httpServletRequest, httpServletResponse, name, credentials);
+        UserAuthenticationContext ctx = new UserAuthenticationContext();
+        ctx.withName(name);
+        ctx.setCredential(PasswordCredential.unencrypted(credentials));
+        String token = this.crowdClient.authenticateSSOUser(ctx);
+        return this.crowdClient.findUserFromSSOToken(token);
     }
 
     public boolean isAuthenticated(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) throws OperationFailedException {
         if (LOG.isLoggable(Level.FINEST)) {
             LOG.finest("CrowdHttpAuthenticator.isAuthenticated()");
         }
-        return crowdHttpAuthenticator.isAuthenticated(httpServletRequest, httpServletResponse);
+
+        try {
+            this.crowdClient.validateSSOAuthentication(this.getCrowdToken(httpServletRequest),this.getValidationFactors(httpServletRequest));
+            return true;
+        } catch (InvalidAuthenticationException e) {
+            e.printStackTrace();
+        } catch (ApplicationPermissionException e) {
+            e.printStackTrace();
+        } catch (InvalidTokenException e) {
+            e.printStackTrace();
+        }
+        return false;
     }
 
     /**

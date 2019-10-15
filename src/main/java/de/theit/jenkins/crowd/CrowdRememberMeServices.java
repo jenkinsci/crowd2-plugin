@@ -126,7 +126,7 @@ public class CrowdRememberMeServices implements RememberMeServices {
                         // user is authenticated and validated
                         // => create the user object and finalize the auto-login
                         // process
-                        List<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>();
+                        List<GrantedAuthority> authorities = new ArrayList<>();
                         authorities.add(SecurityRealm.AUTHENTICATED_AUTHORITY);
                         authorities.addAll(this.configuration.getAuthoritiesForUser(user.getName()));
                         result = new CrowdAuthenticationToken(user.getName(), null, authorities, ssoToken);
