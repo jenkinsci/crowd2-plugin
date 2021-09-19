@@ -25,6 +25,32 @@
  */
 package de.theit.jenkins.crowd;
 
+import static de.theit.jenkins.crowd.ErrorMessages.applicationPermission;
+import static de.theit.jenkins.crowd.ErrorMessages.groupNotFound;
+import static de.theit.jenkins.crowd.ErrorMessages.invalidAuthentication;
+import static de.theit.jenkins.crowd.ErrorMessages.operationFailed;
+import static de.theit.jenkins.crowd.ErrorMessages.userNotFound;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.TreeSet;
+import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.acegisecurity.GrantedAuthority;
+import org.acegisecurity.GrantedAuthorityImpl;
+import org.apache.commons.lang.SystemUtils;
+
 import com.atlassian.crowd.exception.ApplicationAccessDeniedException;
 import com.atlassian.crowd.exception.ApplicationPermissionException;
 import com.atlassian.crowd.exception.ExpiredCredentialException;
@@ -49,30 +75,6 @@ import com.atlassian.crowd.service.client.CrowdClient;
 
 import hudson.util.Secret;
 
-import org.acegisecurity.GrantedAuthority;
-import org.acegisecurity.GrantedAuthorityImpl;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.TreeSet;
-import java.util.concurrent.TimeUnit;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-import static de.theit.jenkins.crowd.ErrorMessages.applicationPermission;
-import static de.theit.jenkins.crowd.ErrorMessages.groupNotFound;
-import static de.theit.jenkins.crowd.ErrorMessages.invalidAuthentication;
-import static de.theit.jenkins.crowd.ErrorMessages.operationFailed;
-import static de.theit.jenkins.crowd.ErrorMessages.userNotFound;
-
 /**
  * This class contains all objects that are necessary to access the REST
  * services on the remote Crowd server. Additionally it contains some helper
@@ -83,6 +85,15 @@ import static de.theit.jenkins.crowd.ErrorMessages.userNotFound;
  * @since 08.09.2011
  */
 public class CrowdConfigurationService {
+
+    /**
+     * Classloader problem with Java 11 and jaxb
+     * 
+     */
+	//TODO remove it if a better solutions is found without classloader hack
+	//@Issue("JENKINS-59301")
+    private static final boolean IS_MIN_JAVA_11 = SystemUtils.JAVA_VERSION_FLOAT >= 11.0f;
+
     /**
      * Used for logging purposes.
      */
@@ -181,10 +192,10 @@ public class CrowdConfigurationService {
         if (LOG.isLoggable(Level.INFO)) {
             LOG.info("Groups given for Crowd configuration service: " + pGroupNames);
         }
-        this.allowedGroupNames = new ArrayList<String>();
+        this.allowedGroupNames = new ArrayList<>();
         for (String group : pGroupNames.split(",")) {
-        	group = group.trim();
-        	if (group.length() > 0) {
+            group = group.trim();
+            if (group.length() > 0) {
                 if (LOG.isLoggable(Level.FINE)) {
                     LOG.fine("-> adding allowed group name: " + group);
                 }
@@ -227,9 +238,9 @@ public class CrowdConfigurationService {
      * be used, a nested group member. <code>false</code> else.
      */
     public boolean isGroupMember(String username) {
-	if (username == null) {
-	  return false; // prevent NPE
-	}
+        if (username == null) {
+            return false; // prevent NPE
+        }
         if (allowedGroupNames.isEmpty()) {
             return true;
         }
@@ -274,9 +285,9 @@ public class CrowdConfigurationService {
         if (useCache && cachedRep == null && retval != null) {
             synchronized (this) {
                 if (isGroupMemberCache == null) {
-                    isGroupMemberCache = new CacheMap<String, Boolean>(cacheSize);
+                    isGroupMemberCache = new CacheMap<>(cacheSize);
                 }
-                isGroupMemberCache.put(username, new CacheEntry<Boolean>(cacheTTL, retval));
+                isGroupMemberCache.put(username, new CacheEntry<>(cacheTTL, retval));
             }
         }
         return retval;
@@ -348,15 +359,15 @@ public class CrowdConfigurationService {
         if (cachedRep != null) {
             authorities = cachedRep;
         } else {
-            authorities = new TreeSet<GrantedAuthority>(
+            authorities = new TreeSet<>(
                     new Comparator<GrantedAuthority>() {
                         @Override
                         public int compare(GrantedAuthority ga1,
-                                           GrantedAuthority ga2) {
+                                GrantedAuthority ga2) {
                             return ga1.getAuthority().compareTo(ga2.getAuthority());
                         }
                     });
-            HashSet<String> groupNames = new HashSet<String>();
+            HashSet<String> groupNames = new HashSet<>();
 
             // retrieve the names of all groups the user is a directly or indirectly member of
             // if this configuration setting is active/enabled
@@ -441,19 +452,33 @@ public class CrowdConfigurationService {
         if (useCache && cachedRep == null && authorities != null) {
             synchronized (this) {
                 if (authoritiesForUserCache == null) {
-                    authoritiesForUserCache = new CacheMap<String, Collection<GrantedAuthority>>(cacheSize);
+                    authoritiesForUserCache = new CacheMap<>(cacheSize);
                 }
-                authoritiesForUserCache.put(username, new CacheEntry<Collection<GrantedAuthority>>(cacheTTL, authorities));
+                authoritiesForUserCache.put(username, new CacheEntry<>(cacheTTL, authorities));
             }
         }
         return authorities;
     }
 
-    public User authenticateUser(String login, String password) throws UserNotFoundException, InactiveAccountException, ExpiredCredentialException, ApplicationPermissionException, InvalidAuthenticationException, OperationFailedException {
+    public User authenticateUser(String login, String password) throws UserNotFoundException, InactiveAccountException,
+            ExpiredCredentialException, ApplicationPermissionException, InvalidAuthenticationException, OperationFailedException {
         if (LOG.isLoggable(Level.FINEST)) {
             LOG.finest("CrowdClient.authenticateUser()");
         }
-        return crowdClient.authenticateUser(login, password);
+        ClassLoader orgContextClassLoader = null;
+        Thread currentThread = null;
+        if (IS_MIN_JAVA_11) {
+            currentThread = Thread.currentThread();
+            orgContextClassLoader = currentThread.getContextClassLoader();
+            currentThread.setContextClassLoader(CrowdConfigurationService.class.getClassLoader());
+        } 
+        try {
+        	return crowdClient.authenticateUser(login, password);
+		} finally {
+		    if (currentThread != null) {
+		        currentThread.setContextClassLoader(orgContextClassLoader);
+		    }
+		}
     }
 
     public User getUser(String username) throws UserNotFoundException, OperationFailedException, ApplicationPermissionException, InvalidAuthenticationException {
@@ -479,15 +504,28 @@ public class CrowdConfigurationService {
             if (LOG.isLoggable(Level.FINEST)) {
                 LOG.finest("CrowdClient.getUser()");
             }
-            retval = crowdClient.getUser(username);
+            ClassLoader orgContextClassLoader = null;
+            Thread currentThread = null;
+            if (IS_MIN_JAVA_11) {
+                currentThread = Thread.currentThread();
+                orgContextClassLoader = currentThread.getContextClassLoader();
+                currentThread.setContextClassLoader(CrowdConfigurationService.class.getClassLoader());
+            }
+            try {
+            	retval = crowdClient.getUser(username);
+	        } finally {
+			    if (currentThread != null) {
+			        currentThread.setContextClassLoader(orgContextClassLoader);
+			    }
+			}
         }
         // Let's save the entry in the cache if necessary
         if (useCache && cachedRep == null && retval != null) {
             synchronized (this) {
                 if (userCache == null) {
-                    userCache = new CacheMap<String, User>(cacheSize);
+                    userCache = new CacheMap<>(cacheSize);
                 }
-                userCache.put(username, new CacheEntry<User>(cacheTTL, retval));
+                userCache.put(username, new CacheEntry<>(cacheTTL, retval));
             }
         }
         return retval;
@@ -516,53 +554,135 @@ public class CrowdConfigurationService {
             if (LOG.isLoggable(Level.FINEST)) {
                 LOG.finest("CrowdClient.getGroup()");
             }
-            retval = crowdClient.getGroup(name);
+            ClassLoader orgContextClassLoader = null;
+            Thread currentThread = null;
+            if (IS_MIN_JAVA_11) {
+                currentThread = Thread.currentThread();
+                orgContextClassLoader = currentThread.getContextClassLoader();
+                currentThread.setContextClassLoader(CrowdConfigurationService.class.getClassLoader());
+            }
+            try {
+            	retval = crowdClient.getGroup(name);
+	        } finally {
+			    if (currentThread != null) {
+			        currentThread.setContextClassLoader(orgContextClassLoader);
+			    }
+			}
         }
         // Let's save the entry in the cache if necessary
         if (useCache && cachedRep == null && retval != null) {
             synchronized (this) {
                 if (groupCache == null) {
-                    groupCache = new CacheMap<String, Group>(cacheSize);
+                    groupCache = new CacheMap<>(cacheSize);
                 }
-                groupCache.put(name, new CacheEntry<Group>(cacheTTL, retval));
+                groupCache.put(name, new CacheEntry<>(cacheTTL, retval));
             }
         }
         return retval;
     }
 
-    public List<Group> getGroupsForNestedUser(String username, int start, int size) throws OperationFailedException, InvalidAuthenticationException, ApplicationPermissionException, UserNotFoundException {
+    public List<Group> getGroupsForNestedUser(String username, int start, int size)
+            throws OperationFailedException, InvalidAuthenticationException, ApplicationPermissionException, UserNotFoundException {
         if (LOG.isLoggable(Level.FINEST)) {
             LOG.finest("CrowdClient.getGroupsForNestedUser()");
         }
-        return crowdClient.getGroupsForNestedUser(username, start, size);
+        ClassLoader orgContextClassLoader = null;
+        Thread currentThread = null;
+        if (IS_MIN_JAVA_11) {
+            currentThread = Thread.currentThread();
+            orgContextClassLoader = currentThread.getContextClassLoader();
+            currentThread.setContextClassLoader(CrowdConfigurationService.class.getClassLoader());
+        }
+        try {
+        	return crowdClient.getGroupsForNestedUser(username, start, size);
+        } finally {
+		    if (currentThread != null) {
+		        currentThread.setContextClassLoader(orgContextClassLoader);
+		    }
+		}
     }
 
     public List<Group> getGroupsForUser(String username, int start, int size) throws OperationFailedException, InvalidAuthenticationException, ApplicationPermissionException, UserNotFoundException {
         if (LOG.isLoggable(Level.FINEST)) {
             LOG.finest("CrowdClient.getGroupsForUser()");
         }
-        return crowdClient.getGroupsForUser(username, start, size);
+        ClassLoader orgContextClassLoader = null;
+        Thread currentThread = null;
+        if (IS_MIN_JAVA_11) {
+            currentThread = Thread.currentThread();
+            orgContextClassLoader = currentThread.getContextClassLoader();
+            currentThread.setContextClassLoader(CrowdConfigurationService.class.getClassLoader());
+        }
+        try {
+        	return crowdClient.getGroupsForUser(username, start, size);
+	    } finally {
+		    if (currentThread != null) {
+		        currentThread.setContextClassLoader(orgContextClassLoader);
+		    }
+		}
     }
 
-    public boolean isUserDirectGroupMember(String username, String groupname) throws OperationFailedException, ApplicationPermissionException, InvalidAuthenticationException {
+    public boolean isUserDirectGroupMember(String username, String groupname)
+            throws OperationFailedException, ApplicationPermissionException, InvalidAuthenticationException {
         if (LOG.isLoggable(Level.FINEST)) {
             LOG.finest("CrowdClient.isUserDirectGroupMember()");
         }
-        return crowdClient.isUserDirectGroupMember(username, groupname);
+        ClassLoader orgContextClassLoader = null;
+        Thread currentThread = null;
+        if (IS_MIN_JAVA_11) {
+            currentThread = Thread.currentThread();
+            orgContextClassLoader = currentThread.getContextClassLoader();
+            currentThread.setContextClassLoader(CrowdConfigurationService.class.getClassLoader());
+        }
+        try {
+        	return crowdClient.isUserDirectGroupMember(username, groupname);
+	    } finally {
+		    if (currentThread != null) {
+		        currentThread.setContextClassLoader(orgContextClassLoader);
+		    }
+		}
     }
 
-    public boolean isUserNestedGroupMember(String username, String groupname) throws OperationFailedException, ApplicationPermissionException, InvalidAuthenticationException {
+    public boolean isUserNestedGroupMember(String username, String groupname)
+            throws OperationFailedException, ApplicationPermissionException, InvalidAuthenticationException {
         if (LOG.isLoggable(Level.FINEST)) {
             LOG.finest("CrowdClient.isUserNestedGroupMember()");
         }
-        return crowdClient.isUserNestedGroupMember(username, groupname);
+        ClassLoader orgContextClassLoader = null;
+        Thread currentThread = null;
+        if (IS_MIN_JAVA_11) {
+            currentThread = Thread.currentThread();
+            orgContextClassLoader = currentThread.getContextClassLoader();
+            currentThread.setContextClassLoader(CrowdConfigurationService.class.getClassLoader());
+        }
+        try {
+        	return crowdClient.isUserNestedGroupMember(username, groupname);
+	    } finally {
+		    if (currentThread != null) {
+		        currentThread.setContextClassLoader(orgContextClassLoader);
+		    }
+		}
     }
 
-    public void validateSSOAuthentication(String token, List<ValidationFactor> list) throws OperationFailedException, InvalidAuthenticationException, ApplicationPermissionException, InvalidTokenException {
+    public void validateSSOAuthentication(String token, List<ValidationFactor> list)
+            throws OperationFailedException, InvalidAuthenticationException, ApplicationPermissionException, InvalidTokenException {
         if (LOG.isLoggable(Level.FINEST)) {
             LOG.finest("CrowdClient.validateSSOAuthentication()");
         }
-        crowdClient.validateSSOAuthentication(token, list);
+        ClassLoader orgContextClassLoader = null;
+        Thread currentThread = null;
+        if (IS_MIN_JAVA_11) {
+            currentThread = Thread.currentThread();
+            orgContextClassLoader = currentThread.getContextClassLoader();
+            currentThread.setContextClassLoader(CrowdConfigurationService.class.getClassLoader());
+        }
+        try {
+        	crowdClient.validateSSOAuthentication(token, list);
+	    } finally {
+		    if (currentThread != null) {
+		        currentThread.setContextClassLoader(orgContextClassLoader);
+		    }
+		}
     }
 
     public User findUserFromSSOToken(String token) throws OperationFailedException, InvalidAuthenticationException, ApplicationPermissionException, InvalidTokenException {
@@ -588,15 +708,28 @@ public class CrowdConfigurationService {
             if (LOG.isLoggable(Level.FINEST)) {
                 LOG.finest("CrowdClient.findUserFromSSOToken()");
             }
-            retval = crowdClient.findUserFromSSOToken(token);
+            ClassLoader orgContextClassLoader = null;
+            Thread currentThread = null;
+            if (IS_MIN_JAVA_11) {
+                currentThread = Thread.currentThread();
+                orgContextClassLoader = currentThread.getContextClassLoader();
+                currentThread.setContextClassLoader(CrowdConfigurationService.class.getClassLoader());
+            }
+            try {
+	            retval = crowdClient.findUserFromSSOToken(token);
+		    } finally {
+			    if (currentThread != null) {
+			        currentThread.setContextClassLoader(orgContextClassLoader);
+			    }
+			}
         }
         // Let's save the entry in the cache if necessary
         if (useCache && cachedRep == null && retval != null) {
             synchronized (this) {
                 if (userFromSSOTokenCache == null) {
-                    userFromSSOTokenCache = new CacheMap<String, User>(cacheSize);
+                    userFromSSOTokenCache = new CacheMap<>(cacheSize);
                 }
-                userFromSSOTokenCache.put(token, new CacheEntry<User>(cacheTTL, retval));
+                userFromSSOTokenCache.put(token, new CacheEntry<>(cacheTTL, retval));
             }
         }
         return retval;
@@ -606,14 +739,40 @@ public class CrowdConfigurationService {
         if (LOG.isLoggable(Level.FINEST)) {
             LOG.finest("CrowdClient.shutdown()");
         }
-        crowdClient.shutdown();
+        ClassLoader orgContextClassLoader = null;
+        Thread currentThread = null;
+        if (IS_MIN_JAVA_11) {
+            currentThread = Thread.currentThread();
+            orgContextClassLoader = currentThread.getContextClassLoader();
+            currentThread.setContextClassLoader(CrowdConfigurationService.class.getClassLoader());
+        }
+        try {
+	        crowdClient.shutdown();
+	    } finally {
+		    if (currentThread != null) {
+		        currentThread.setContextClassLoader(orgContextClassLoader);
+		    }
+		}
     }
 
     public void testConnection() throws OperationFailedException, InvalidAuthenticationException, ApplicationPermissionException {
+        ClassLoader orgContextClassLoader = null;
+        Thread currentThread = null;
+        if (IS_MIN_JAVA_11) {
+            currentThread = Thread.currentThread();
+            orgContextClassLoader = currentThread.getContextClassLoader();
+            currentThread.setContextClassLoader(CrowdConfigurationService.class.getClassLoader());
+        }
         if (LOG.isLoggable(Level.FINEST)) {
             LOG.finest("CrowdClient.testConnection()");
         }
-        crowdClient.testConnection();
+        try {
+        	crowdClient.testConnection();
+	    } finally {
+		    if (currentThread != null) {
+		        currentThread.setContextClassLoader(orgContextClassLoader);
+		    }
+		}
     }
 
     public String getCrowdToken(HttpServletRequest httpServletRequest) {
@@ -630,25 +789,68 @@ public class CrowdConfigurationService {
         return tokenHelper.getValidationFactorExtractor().getValidationFactors(request);
     }
 
-    public void logout(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) throws ApplicationPermissionException, InvalidAuthenticationException, OperationFailedException {
+    public void logout(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse)
+            throws ApplicationPermissionException, InvalidAuthenticationException, OperationFailedException {
         if (LOG.isLoggable(Level.FINEST)) {
             LOG.finest("CrowdHttpAuthenticator.logout()");
         }
-        crowdHttpAuthenticator.logout(httpServletRequest, httpServletResponse);
+        ClassLoader orgContextClassLoader = null;
+        Thread currentThread = null;
+        if (IS_MIN_JAVA_11) {
+            currentThread = Thread.currentThread();
+            orgContextClassLoader = currentThread.getContextClassLoader();
+            currentThread.setContextClassLoader(CrowdConfigurationService.class.getClassLoader());
+        }
+        try {
+        	crowdHttpAuthenticator.logout(httpServletRequest, httpServletResponse);
+	    } finally {
+	        if (currentThread != null) {
+	            currentThread.setContextClassLoader(orgContextClassLoader);
+	        }
+	    }
     }
 
-    public User authenticate(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, String name, String credentials) throws ApplicationPermissionException, InvalidAuthenticationException, OperationFailedException, ApplicationAccessDeniedException, ExpiredCredentialException, InactiveAccountException, InvalidTokenException {
+    public User authenticate(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, String name,
+            String credentials) throws ApplicationPermissionException, InvalidAuthenticationException, OperationFailedException,
+            ApplicationAccessDeniedException, ExpiredCredentialException, InactiveAccountException, InvalidTokenException {
         if (LOG.isLoggable(Level.FINEST)) {
             LOG.finest("CrowdHttpAuthenticator.authenticate()");
         }
-        return crowdHttpAuthenticator.authenticate(httpServletRequest, httpServletResponse, name, credentials);
+        ClassLoader orgContextClassLoader = null;
+        Thread currentThread = null;
+        if (IS_MIN_JAVA_11) {
+            currentThread = Thread.currentThread();
+            orgContextClassLoader = currentThread.getContextClassLoader();
+            currentThread.setContextClassLoader(CrowdConfigurationService.class.getClassLoader());
+        }
+        try {
+        	return crowdHttpAuthenticator.authenticate(httpServletRequest, httpServletResponse, name, credentials);
+	    } finally {
+	        if (currentThread != null) {
+	            currentThread.setContextClassLoader(orgContextClassLoader);
+	        }
+	    }
     }
 
-    public boolean isAuthenticated(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) throws OperationFailedException {
+    public boolean isAuthenticated(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse)
+            throws OperationFailedException {
         if (LOG.isLoggable(Level.FINEST)) {
             LOG.finest("CrowdHttpAuthenticator.isAuthenticated()");
         }
-        return crowdHttpAuthenticator.isAuthenticated(httpServletRequest, httpServletResponse);
+        ClassLoader orgContextClassLoader = null;
+        Thread currentThread = null;
+        if (IS_MIN_JAVA_11) {
+            currentThread = Thread.currentThread();
+            orgContextClassLoader = currentThread.getContextClassLoader();
+            currentThread.setContextClassLoader(CrowdConfigurationService.class.getClassLoader());
+        }
+        try {
+        	return crowdHttpAuthenticator.isAuthenticated(httpServletRequest, httpServletResponse);
+        } finally {
+	        if (currentThread != null) {
+	            currentThread.setContextClassLoader(orgContextClassLoader);
+	        }
+        }
     }
 
     /**
