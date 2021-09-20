@@ -48,7 +48,7 @@
     <properties>
         <jenkins.version>2.163</jenkins.version>
         <crowd-integration-client-rest.version>4.0.2</crowd-integration-client-rest.version>
-        <apache-httpcomponents-client-4-api-plugin.version>4.5.13-1.0</apache-httpcomponents-client-4-api-plugin.version>
+        <apache-httpcomponents-client-4-api-plugin.version>4.5.5-3.0</apache-httpcomponents-client-4-api-plugin.version>
         <jenkins-mailer-plugin.version>1.21</jenkins-mailer-plugin.version>
         <java.level>8</java.level>
         <findbugs.failOnError>false</findbugs.failOnError>
@@ -88,11 +88,6 @@
     </pluginRepositories>
 
     <dependencies>
-    	<dependency>
-			<groupId>io.jenkins.plugins</groupId>
-			<artifactId>jaxb</artifactId>
-			<version>2.3.0.1</version>
-		</dependency>
         <dependency>
             <groupId>com.atlassian.crowd</groupId>
             <artifactId>crowd-integration-client-rest</artifactId>
