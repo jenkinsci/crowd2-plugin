@@ -82,7 +82,7 @@ public class CrowdUser implements UserDetails {
 	 */
 	@Override
 	public String getPassword() {
-		throw new UnsupportedOperationException("Not giving you the password");
+		return null;
 	}
 
 	/**
