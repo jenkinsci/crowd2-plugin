@@ -52,6 +52,8 @@
         <jenkins-mailer-plugin.version>1.21</jenkins-mailer-plugin.version>
         <java.level>8</java.level>
         <findbugs.failOnError>false</findbugs.failOnError>
+        <spotbugs.effort>Max</spotbugs.effort>
+        <spotbugs.failOnError>true</spotbugs.failOnError> 
     </properties>
 
 

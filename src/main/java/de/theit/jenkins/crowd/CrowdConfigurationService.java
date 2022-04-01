@@ -279,7 +279,7 @@ public class CrowdConfigurationService {
                 isGroupMemberCache.put(username, new CacheEntry<Boolean>(cacheTTL, retval));
             }
         }
-        return retval;
+        return Boolean.TRUE.equals(retval);
     }
 
     /**
