@@ -583,7 +583,7 @@ public class CrowdSecurityRealm extends AbstractPasswordBasedSecurityRealm {
 
 			try {
 				if (0 == sessionValidationInterval.length()
-						|| Integer.valueOf(sessionValidationInterval) < 0) {
+						|| Integer.parseInt(sessionValidationInterval) < 0) {
 					return FormValidation.error(specifySessionValidationInterval());
 				}
 			} catch (NumberFormatException ex) {
