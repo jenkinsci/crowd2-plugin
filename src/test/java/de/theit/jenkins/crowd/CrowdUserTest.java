@@ -38,7 +38,7 @@ public class CrowdUserTest {
 
 	@Test
 	public void testGetPassword() {
-		Assertions.assertThatThrownBy(() -> dummy.getPassword()).isInstanceOf(UnsupportedOperationException.class);
+		Assertions.assertThat(dummy.getPassword()).isNull();
 	}
 
 	@Test
