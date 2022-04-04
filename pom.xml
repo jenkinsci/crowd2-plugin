@@ -35,6 +35,10 @@
             <id>pingunaut</id>
             <name>Martin Spielmann</name>
         </developer>
+        <developer>
+            <id>dumam</id>
+            <name>Bartosz Nowak</name>
+        </developer>
     </developers>
 
     <contributors>
