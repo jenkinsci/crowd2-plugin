@@ -1,6 +1,8 @@
 
 # Version History
 
+## Newer one can be found on [github](https://github.com/jenkinsci/crowd2-plugin/releases)
+
 ## Version 2.0.1 (Sep 25, 2018)
 
 -   Fix security issues:
