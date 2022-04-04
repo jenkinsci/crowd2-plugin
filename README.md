@@ -80,7 +80,7 @@ mvn install
 mvn hpi:run
 ```
 
-### Standalone test environment
+### Standalone Test Environment
 
 To start a local build of the plugin in a standalone test environment, run
 ```
