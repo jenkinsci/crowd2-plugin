@@ -1,19 +1,67 @@
-# Crowd 2 Plugin for Jenkins (crowd2-plugin)
-
-This plugin allows using [Atlassian Crowd](https://www.atlassian.com/software/crowd) or [JIRA](https://www.atlassian.com/software/jira) as an authentication and authorization provider for Jenkins (Crowd version 2 and later). 
 
 [![Build Status](https://ci.jenkins.io/buildStatus/icon?job=Plugins/crowd2-plugin/master)](https://ci.jenkins.io/job/Plugins/job/crowd2-plugin/job/master/)
 [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=jenkins-crowd2-plugin&metric=coverage)](https://sonarcloud.io/dashboard?id=jenkins-crowd2-plugin)
 [![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=jenkins-crowd2-plugin&metric=security_rating)](https://sonarcloud.io/dashboard?id=jenkins-crowd2-plugin)
 
-[![Quality Gate](https://sonarcloud.io/api/project_badges/quality_gate?project=jenkins-crowd2-plugin)](https://sonarcloud.io/dashboard?id=jenkins-crowd2-plugin)
+# Crowd 2 Plugin for Jenkins (crowd2-plugin)
 
-## Usage
+This plugin allows using [Atlassian Crowd](https://www.atlassian.com/software/crowd) or [JIRA](https://www.atlassian.com/software/jira) as an authentication and authorization provider for Jenkins (Crowd version 2 and later). Crowd is a commercial identity management and Single Sign-On (SSO) application.
 
-1. Add a new generic application in Crowd like described in the [official docs](https://confluence.atlassian.com/crowd/adding-an-application-18579591.html#AddinganApplication-UsingCrowd's'AddApplication'Wizard).
-2. In Jenkins navigate to *Manage Jenkins* -> *Manage Plugins* -> *Available*, and search for "*Crowd 2 Integration*". Install this plugin.
-3. In Jenkins navigate to *Manage Jenkins* -> *Configure Global Security*. Tick *Enable Security* and select *Crowd 2* as your Security Realm.
-4. Insert your Crowd URL and the application credentials you created in step 1.
+## Requirements
+
+This plugin has been tested with Jenkins 1.431 and Crowd 2.3.x, but was
+built using Jenkins core 1.398 so it should work with Jenkins \>= 1.398.
+
+This plugin uses Crowd REST APIs for connecting to Crowd and therefore
+requires Crowd \>= 2.1  
+(see <http://developer.atlassian.com/display/CROWDDEV/Crowd+REST+APIs>).
+If you have an older Crowd server, use the older "Crowd Plugin" instead.
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details
+
+## Configuration
+
+To configure the plugin, you first need to create a new application in
+Crowd. <https://confluence.atlassian.com/crowd/adding-an-application-18579591.html>
+has more information on how to configure applications in Crowd.
+
+![](docs/images/image2018-7-23_21:9:2.png)
+Be sure to also allow connections to Crowd from the server Jenkins runs
+on.
+
+Next you need to configure a group that contains all users that are
+allowed to login into Jenkins.
+<https://confluence.atlassian.com/crowd/managing-users-and-groups-193223.html>
+has more information how to manage users and groups.
+
+![](docs/images/image2018-7-23_21:15:51.png)
+
+Once you have the application and group configured in Crowd, you can
+enable Crowd-based security in Jenkins on the "Manage Jenkins" page.
+Enter the URL of your Crowd server (will typically end with .../crowd)
+as well as the application name, password and group name you configured
+in Crowd.
+
+![](docs/images/jenkins-crowd.png)
+
+Click on the "Check Connection" button to ensure that your connection
+credentials are valid.
+
+Crowd supports nested groups, i.e. groups which contain other groups as
+members and groups that are members of other groups (see
+<http://confluence.atlassian.com/display/CROWD/Nested+Groups+in+Crowd>).
+If you want to use this feature, click on the "Advanced..." button and
+enable it. This may degrade performance, depending on your server
+configuration.
+
+This plugin doesn't support Crowd roles. As long as there's not enough
+interest, it's unlikely that they are supported in a future version
+because they are deprecated since Crowd 2.0 (see
+[here](http://confluence.atlassian.com/display/CROWD/Crowd+2.0+Upgrade+Notes)
+for details).
+
 
 This plugin works well with [Matrix Authorization Strategy Plugin](https://plugins.jenkins.io/matrix-auth):
 You can use Crowd users and groups to define permissions on folder/pipeline/job level.
@@ -31,15 +79,6 @@ mvn install
 mvn hpi:run
 ```
 
-## Deployment
-
-### Local embedded test environment
-
-To start the plugin in a local test environment, run
-```
-mvn hpi:run
-```
-
 ### Standalone test environment
 
 To start a local build of the plugin in a standalone test environment, run
@@ -48,41 +87,84 @@ mvn install
 ```
 then upload the resulting .hpi file (target/crowd2-VERSION.hpi) like described in the [official documentation](https://jenkins.io/doc/book/managing/plugins/#advanced-installation).
 
-## Built With
+### Built With
 
 * [Jenkins](https://jenkins.io/) - Automation server
 * [Maven](https://maven.apache.org/) - Dependency Management
 
-## Versioning
+### Versioning
 
 We use [SemVer](http://semver.org/) for versioning (starting from version 2.0.0). For the versions available, see the [tags on this repository](https://github.com/pingunaut/crowd2-plugin/tags). 
 
-## Authors
+### Authors
 
 See the list of [contributors](https://github.com/jenkinsci/crowd2-plugin/contributors) who participated in this project.
+
+
+## FAQ
+
+### Is Single-Sign-On (SSO) supported?
+
+Yes :-) That was the main reason I wrote this plugin.
+
+### What's the difference between this plugin and "Crowd Plugin"?
+
+Apart from SSO this plugin contains fixes for almost all open issues of
+the "Crowd Plugin". (If you look at the issue navigator, there are
+actually seven; five of them are almost or even older than one year.
+Looking at the source code at GitHub
+(<https://github.com/jenkinsci/crowd-plugin>), there doesn't seem to be
+much activity trying to fix them). I have to admit that I haven't tested
+[JENKINS-9924](https://issues.jenkins-ci.org/browse/JENKINS-9924) so
+far, i.e. what happens when the Crowd server is down. This will be done
+in the near future.
+
+A more technically answer is that this plugin code was written from
+scratch using a different API to connect to the Crowd server, i.e. the
+Crowd REST APIs. These are recommeded by Atlassian for long-term
+compatibility.
+
+In contrary, the "Crowd Plugin" uses Crowd's Java integration libraries
+that have the disadvantage that one perhaps has to re-compile the source
+code when a new Crowd release is available and one has to update these
+libraries.
+
+### Why do I have to choose a group for users?
+
+To restrict the number of your Crowd users that are allowed to login. I
+thought it's cool to have such a feature because for example Confluence
+and JIRA, other well known products from Atlassian, also work that way.
+
+### Is there Localization support?
+
+Yes.
+
+Actually only German localization is included. If you can translate a
+couple of messages and info texts into other languages, please send me a
+note, and I'll include them in a newer version.
 
 ## Roadmap
 
 The following changes and improvements are planned for the following releases
 
-### 2.0.0
+### 2.1.0
 
-* add Jenkinsfile to run an automated build
-* Merge open pull requests to fix caching and httpclient to solve performance and compatibility issues
-* Update to latest libs
-* Add some unit tests
+* [x] Make RememberMe work
+* [x] Add java 11 support
 
-### 3.0.0
+### 2.2.0
 
-* Improve test coverage
-* Pickup changes from the refactoring branch
-* Make RememberMe work
-* Make SSO work
+* [ ] Improve test coverage by adding new tests
+* [ ] Merge open pull requests to fix caching and httpclient to solve performance and compatibility issues
 
-### 3.x
+### 2.3.0
 
-* Work on the open JIRA issues
- 
-## License
+* [ ] Update to latest libs
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details
+### 3.x.x
+
+* [ ] Pickup changes from the refactoring branch
+* [ ] Bump crowd rest client version
+* [ ] Work on the open JIRA issues
+
+
