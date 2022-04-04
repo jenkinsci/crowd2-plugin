@@ -28,6 +28,7 @@ Crowd. <https://confluence.atlassian.com/crowd/adding-an-application-18579591.ht
 has more information on how to configure applications in Crowd.
 
 ![](docs/images/image2018-7-23_21:9:2.png)
+
 Be sure to also allow connections to Crowd from the server Jenkins runs
 on.
 
@@ -121,7 +122,7 @@ in the near future.
 
 A more technically answer is that this plugin code was written from
 scratch using a different API to connect to the Crowd server, i.e. the
-Crowd REST APIs. These are recommeded by Atlassian for long-term
+Crowd REST APIs. These are recommended by Atlassian for long-term
 compatibility.
 
 In contrary, the "Crowd Plugin" uses Crowd's Java integration libraries
