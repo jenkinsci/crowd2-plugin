@@ -27,7 +27,7 @@ To configure the plugin, you first need to create a new application in
 Crowd. <https://confluence.atlassian.com/crowd/adding-an-application-18579591.html>
 has more information on how to configure applications in Crowd.
 
-![crowd screen](./docs/images/image2018-7-23_21:9:2.png)
+![crowd screen](./docs/images/image_crowd_screen.png)
 
 Be sure to also allow connections to Crowd from the server Jenkins runs
 on.
@@ -37,7 +37,7 @@ allowed to login into Jenkins.
 <https://confluence.atlassian.com/crowd/managing-users-and-groups-193223.html>
 has more information how to manage users and groups.
 
-![crowd add group](./docs/images/image2018-7-23_21:15:51.png)
+![crowd add group](./docs/images/image_crowd_add_group.png)
 
 Once you have the application and group configured in Crowd, you can
 enable Crowd-based security in Jenkins on the "Manage Jenkins" page.
