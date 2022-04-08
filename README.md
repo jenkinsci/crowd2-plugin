@@ -79,6 +79,7 @@ mvn install
 # to start the plugin in a local embedded test environment, run
 mvn hpi:run
 ```
+https://developer.atlassian.com/platform/marketplace/timebomb-licenses-for-testing-server-apps/
 
 ### Standalone Test Environment
 

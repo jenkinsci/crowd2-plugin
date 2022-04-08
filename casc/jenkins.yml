@@ -2,9 +2,6 @@ jenkins:
   agentProtocols:
   - "JNLP4-connect"
   - "Ping"
-  authorizationStrategy:
-    loggedInUsersCanDoAnything:
-      allowAnonymousRead: false
   crumbIssuer:
     standard:
       excludeClientIPFromCrumb: false
@@ -24,19 +21,20 @@ jenkins:
     enabled: true
   scmCheckoutRetryCount: 0
   securityRealm:
-    local:
-      allowsSignup: false
-      enableCaptcha: false
-      users:
-      - id: "admin"
-        name: "admin"
-        properties:
-        - "myView"
-        - "timezone"
-        - "apiToken"
-        - "mailer"
-        - preferredProvider:
-            providerId: "default"
+    crowd:
+      applicationName: "jenkins"
+      cookieTokenkey: "crowd.token_key"
+      group: "jenkins"
+      httpMaxConnections: "20"
+      httpProxyPassword: "{AQAAABAAAAAQT5B43lEWVkihJ+kO4u40OqJ7yq951tQexa9YCpbH6oU=}"
+      httpTimeout: "5000"
+      nestedGroups: false
+      password: "{AQAAABAAAAAQhYymjJIMhijQ43DNkR2Xpcwgixat+4/m+EwD2IRMYmw=}"
+      sessionValidationInterval: 2
+      socketTimeout: "20000"
+      url: "https://8095-dumam-crowd2plugin-5w988mk7i9v.ws-eu38.gitpod.io/crowd/"
+      useProxy: false
+      useSSO: false
   slaveAgentPort: 50000
   updateCenter:
     sites:
@@ -62,7 +60,7 @@ unclassified:
     storage: "file"
   location:
     adminAddress: "nobody@nowhere"
-    url: "https://${JENKINS_SITE_NAME}/"
+    url: "https://8080-dumam-crowd2plugin-5w988mk7i9v.ws-eu38.gitpod.io/"
   mailer:
     charset: "UTF-8"
     useSsl: false

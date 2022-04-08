@@ -6,10 +6,10 @@ ARG JENKINS_SITE_NAME
 ENV JENKINS_SITE_NAME=$JENKINS_SITE_NAME 
 
 # add configuration of jenkins casc to test instance
-# ENV     CASC_JENKINS_CONFIG_DIR="/var/jenkins_home/custom_casc_config"
-# ENV     CASC_JENKINS_CONFIG="${CASC_JENKINS_CONFIG_DIR}/jenkins.yaml"
-# RUN     mkdir -p "${CASC_JENKINS_CONFIG_DIR}"
-# COPY    --chown=jenkins:jenkins "casc/jenkins.yml" "${CASC_JENKINS_CONFIG}"
+ENV     CASC_JENKINS_CONFIG_DIR="/var/jenkins_home/custom_casc_config"
+ENV     CASC_JENKINS_CONFIG="${CASC_JENKINS_CONFIG_DIR}/jenkins.yml"
+RUN     mkdir -p "${CASC_JENKINS_CONFIG_DIR}"
+COPY    --chown=jenkins:jenkins "casc/jenkins.yml" "${CASC_JENKINS_CONFIG}"
 
 # install builded plugin and add dependencies
 COPY    --chown=jenkins:jenkins target/crowd2.hpi /usr/share/jenkins/ref/plugins/

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <crowd dateformat="yyyy-MM-dd'T'HH:mm:ssX">
-  <creationDate>Fri Apr 08 00:21:10 UTC 2022</creationDate>
+  <creationDate>Fri Apr 08 22:25:06 UTC 2022</creationDate>
   <version>3.3.0</version>
   <buildNumber>1011</buildNumber>
   <buildDate>2018-09-26</buildDate>
@@ -16,7 +16,7 @@
       <id>163841</id>
       <name>Atlassian Crowd server</name>
       <createdDate>2022-04-08T00:18:02Z</createdDate>
-      <updatedDate>2022-04-08T00:18:34Z</updatedDate>
+      <updatedDate>2022-04-08T21:52:59Z</updatedDate>
       <active>true</active>
       <description></description>
       <type>INTERNAL</type>
@@ -33,8 +33,12 @@
       </permissions>
       <attributes>
         <attribute>
+          <name>autoAddGroups</name>
+          <value>crowd-administrators|jenkins</value>
+        </attribute>
+        <attribute>
           <name>configuration.change.timestamp</name>
-          <value>1649377113969</value>
+          <value>1649454779718</value>
         </attribute>
         <attribute>
           <name>password_history_count</name>
@@ -61,20 +65,20 @@
       <id>196609</id>
       <name>admin</name>
       <createdDate>2022-04-08T00:18:30Z</createdDate>
-      <updatedDate>2022-04-08T00:18:30Z</updatedDate>
+      <updatedDate>2022-04-08T22:10:27Z</updatedDate>
       <active>true</active>
       <firstName>admin</firstName>
       <lastName>admin</lastName>
-      <displayName>admin admin</displayName>
+      <displayName>admin</displayName>
       <email>admin@admin.com</email>
       <externalId>22aa23c5-2061-4338-89b2-f414af5fb14a</externalId>
-      <credential>{PKCS5S2}CoU0SL1n4Jzl+oOwnp+aHkhC2UsHKTC6iFRZCqTxaAF49hKPiuLQrbC30zAMQFsg</credential>
+      <credential>{PKCS5S2}SkTmGmE/jZwkP28GSzimRvf4FRBdXUKlP4+RoAHmKeWMGrUh0Mm+VCyzpMLSB+3T</credential>
       <credentialRecords/>
       <attributes>
         <attribute>
-          <id>229379</id>
-          <name>passwordLastChanged</name>
-          <value>1649377110202</value>
+          <id>491521</id>
+          <name>lastAuthenticated</name>
+          <value>1649456667780</value>
         </attribute>
         <attribute>
           <id>229377</id>
@@ -82,14 +86,29 @@
           <value>false</value>
         </attribute>
         <attribute>
-          <id>491522</id>
-          <name>lastActive</name>
-          <value>1649377268305</value>
+          <id>851970</id>
+          <name>autoGroupsAdded</name>
+          <value>true</value>
         </attribute>
         <attribute>
-          <id>491521</id>
-          <name>lastAuthenticated</name>
-          <value>1649377121647</value>
+          <id>851971</id>
+          <name>autoGroupsAdded.app.622593</name>
+          <value>true</value>
+        </attribute>
+        <attribute>
+          <id>229379</id>
+          <name>passwordLastChanged</name>
+          <value>1649455077007</value>
+        </attribute>
+        <attribute>
+          <id>491522</id>
+          <name>lastActive</name>
+          <value>1649456701633</value>
+        </attribute>
+        <attribute>
+          <id>851969</id>
+          <name>lastGroupLevelAdminAction</name>
+          <value>1649454368929</value>
         </attribute>
         <attribute>
           <id>229378</id>
@@ -134,6 +153,17 @@
       <membershipType>GROUP_USER</membershipType>
       <groupType>GROUP</groupType>
       <createdDate>2022-04-08T00:18:30Z</createdDate>
+    </membership>
+    <membership>
+      <id>819201</id>
+      <directoryId>163841</directoryId>
+      <parentName>jenkins</parentName>
+      <childName>admin</childName>
+      <parentId>557057</parentId>
+      <childId>196609</childId>
+      <membershipType>GROUP_USER</membershipType>
+      <groupType>GROUP</groupType>
+      <createdDate>2022-04-08T21:46:08Z</createdDate>
     </membership>
   </memberships>
   <applications>
@@ -284,15 +314,25 @@
       <id>622593</id>
       <name>jenkins</name>
       <createdDate>2022-04-08T00:21:01Z</createdDate>
-      <updatedDate>2022-04-08T00:21:01Z</updatedDate>
+      <updatedDate>2022-04-08T22:24:21Z</updatedDate>
       <active>true</active>
       <type>GENERIC_APPLICATION</type>
-      <description></description>
-      <credential>{PKCS5S2}u3mBqRGILb6Nc4YvJVg1kDsqZPqToLLURuCF1l7rKSnSrHmNDj4LTPZliqmYybOg</credential>
+      <description>Jenkins Testing Instance</description>
+      <credential>{PKCS5S2}U1a10OLCUHQsPdzSPsiKcgHPuO9cYgvYpVm8ehoMCl+FFxdH4X5JKTulxWP8AwpN</credential>
       <remoteAddresses>
-        <remoteAddress>34.140.113.49</remoteAddress>
+        <remoteAddress>0.0.0.0/0</remoteAddress>
+        <remoteAddress>10.20.0.0/16</remoteAddress>
+        <remoteAddress>34.140.113.0/16</remoteAddress>
       </remoteAddresses>
       <attributes>
+        <attribute>
+          <name>aggregateMemberships</name>
+          <value>false</value>
+        </attribute>
+        <attribute>
+          <name>aliasingEnabled</name>
+          <value>false</value>
+        </attribute>
         <attribute>
           <name>applicationURL</name>
           <value>https://8080-dumam-crowd2plugin-5w988mk7i9v.ws-eu38.gitpod.io</value>
@@ -301,34 +341,102 @@
           <name>atlassian_sha1_applied</name>
           <value>true</value>
         </attribute>
+        <attribute>
+          <name>lowerCaseOutput</name>
+          <value>true</value>
+        </attribute>
       </attributes>
       <directoryMappings>
         <directoryMapping>
           <id>655361</id>
           <directoryId>163841</directoryId>
           <allowAll>false</allowAll>
-          <groupMappings/>
+          <groupMappings>
+            <groupMapping>
+              <id>950274</id>
+              <groupName>crowd-administrators</groupName>
+            </groupMapping>
+            <groupMapping>
+              <id>950273</id>
+              <groupName>jenkins</groupName>
+            </groupMapping>
+          </groupMappings>
           <permissions>
             <permission>CREATE_USER</permission>
             <permission>CREATE_GROUP</permission>
-            <permission>CREATE_ROLE</permission>
             <permission>UPDATE_USER</permission>
             <permission>UPDATE_GROUP</permission>
-            <permission>UPDATE_ROLE</permission>
             <permission>UPDATE_USER_ATTRIBUTE</permission>
             <permission>UPDATE_GROUP_ATTRIBUTE</permission>
-            <permission>UPDATE_ROLE_ATTRIBUTE</permission>
             <permission>DELETE_USER</permission>
             <permission>DELETE_GROUP</permission>
-            <permission>DELETE_ROLE</permission>
           </permissions>
-          <defaultGroupMembershipConfigs/>
+          <defaultGroupMembershipConfigs>
+            <defaultGroupMembershipConfig>
+              <id>983042</id>
+              <groupName>crowd-administrators</groupName>
+            </defaultGroupMembershipConfig>
+            <defaultGroupMembershipConfig>
+              <id>983041</id>
+              <groupName>jenkins</groupName>
+            </defaultGroupMembershipConfig>
+          </defaultGroupMembershipConfigs>
         </directoryMapping>
       </directoryMappings>
     </application>
   </applications>
   <aliases/>
   <properties encoding="base64">
+    <property>
+      <key>Y3Jvd2Q=</key>
+      <name>YmFzZS51cmw=</name>
+      <value>aHR0cDovLzgwOTUtZHVtYW0tY3Jvd2QycGx1Z2luLTV3OTg4bWs3aTl2LndzLWV1MzguZ2l0cG9kLmlvL2Nyb3dk</value>
+    </property>
+    <property>
+      <key>Y3Jvd2Q=</key>
+      <name>YnVpbGQubnVtYmVy</name>
+      <value>MTAxMQ==</value>
+    </property>
+    <property>
+      <key>Y3Jvd2Q=</key>
+      <name>Y2FjaGUuZW5hYmxlZA==</name>
+      <value>dHJ1ZQ==</value>
+    </property>
+    <property>
+      <key>Y3Jvd2Q=</key>
+      <name>Y29tLnN1bi5qbmRpLmxkYXAuY29ubmVjdC5wb29sLmF1dGhlbnRpY2F0aW9u</name>
+      <value>c2ltcGxl</value>
+    </property>
+    <property>
+      <key>Y3Jvd2Q=</key>
+      <name>Y29tLnN1bi5qbmRpLmxkYXAuY29ubmVjdC5wb29sLmluaXRzaXpl</name>
+      <value>MQ==</value>
+    </property>
+    <property>
+      <key>Y3Jvd2Q=</key>
+      <name>Y29tLnN1bi5qbmRpLmxkYXAuY29ubmVjdC5wb29sLm1heHNpemU=</name>
+      <value>MA==</value>
+    </property>
+    <property>
+      <key>Y3Jvd2Q=</key>
+      <name>Y29tLnN1bi5qbmRpLmxkYXAuY29ubmVjdC5wb29sLnByZWZzaXpl</name>
+      <value>MTA=</value>
+    </property>
+    <property>
+      <key>Y3Jvd2Q=</key>
+      <name>Y29tLnN1bi5qbmRpLmxkYXAuY29ubmVjdC5wb29sLnByb3RvY29s</name>
+      <value>cGxhaW4gc3Ns</value>
+    </property>
+    <property>
+      <key>Y3Jvd2Q=</key>
+      <name>Y29tLnN1bi5qbmRpLmxkYXAuY29ubmVjdC5wb29sLnRpbWVvdXQ=</name>
+      <value>MzAwMDA=</value>
+    </property>
+    <property>
+      <key>Y3Jvd2Q=</key>
+      <name>Y3VycmVudC5saWNlbnNlLnJlc291cmNlLnRvdGFs</name>
+      <value>MA==</value>
+    </property>
     <property>
       <key>Y3Jvd2Q=</key>
       <name>ZGVwbG95bWVudC50aXRsZQ==</name>
@@ -341,33 +449,8 @@
     </property>
     <property>
       <key>Y3Jvd2Q=</key>
-      <name>c2Vzc2lvbi50aW1l</name>
-      <value>MTgwMDAwMA==</value>
-    </property>
-    <property>
-      <key>Y3Jvd2Q=</key>
-      <name>Y2FjaGUuZW5hYmxlZA==</name>
-      <value>dHJ1ZQ==</value>
-    </property>
-    <property>
-      <key>Y3Jvd2Q=</key>
-      <name>YmFzZS51cmw=</name>
-      <value>aHR0cDovLzgwOTUtZHVtYW0tY3Jvd2QycGx1Z2luLTV3OTg4bWs3aTl2LndzLWV1MzguZ2l0cG9kLmlvL2Nyb3dk</value>
-    </property>
-    <property>
-      <key>Y3Jvd2Q=</key>
-      <name>bWFpbHNlcnZlci5tZXNzYWdlLnRlbXBsYXRl</name>
-      <value>SGVsbG8gJGZpcnN0bmFtZSAkbGFzdG5hbWUsCgpZb3UgKG9yIHNvbWVvbmUgZWxzZSkgaGF2ZSByZXF1ZXN0ZWQgdG8gcmVzZXQgeW91ciBwYXNzd29yZCBmb3IgJGRlcGxveW1lbnR0aXRsZSBvbiAkZGF0ZS4KCklmIHlvdSBmb2xsb3cgdGhlIGxpbmsgYmVsb3cgeW91IHdpbGwgYmUgYWJsZSB0byBwZXJzb25hbGx5IHJlc2V0IHlvdXIgcGFzc3dvcmQuCiRyZXNldGxpbmsKClRoaXMgcGFzc3dvcmQgcmVzZXQgcmVxdWVzdCBpcyB2YWxpZCBmb3IgdGhlIG5leHQgMjQgaG91cnMuCgpIZXJlIGFyZSB0aGUgZGV0YWlscyBvZiB5b3VyIGFjY291bnQ6CgpVc2VybmFtZTogJHVzZXJuYW1lCkZ1bGwgbmFtZTogJGZpcnN0bmFtZSAkbGFzdG5hbWUKWW91ciBhY2NvdW50IGlzIGN1cnJlbnRseTogJGFjdGl2ZQoKJGRlcGxveW1lbnR0aXRsZSBhZG1pbmlzdHJhdG9y</value>
-    </property>
-    <property>
-      <key>Y3Jvd2Q=</key>
       <name>ZW1haWwudGVtcGxhdGUuZm9yZ290dGVuLnVzZXJuYW1l</name>
       <value>SGVsbG8gJGZpcnN0bmFtZSAkbGFzdG5hbWUsCgpZb3UgaGF2ZSByZXF1ZXN0ZWQgdGhlIHVzZXJuYW1lIGZvciB5b3VyIGVtYWlsIGFkZHJlc3M6ICRlbWFpbC4KCllvdXIgdXNlcm5hbWUocykgYXJlOiAkdXNlcm5hbWUKCklmIHlvdSB0aGluayB0aGlzIGVtYWlsIHdhcyBzZW50IGluY29ycmVjdGx5LCBwbGVhc2UgY29udGFjdCBvbmUgb2YgdGhlIGFkbWluaXN0cmF0b3JzIGF0OiAkYWRtaW5jb250YWN0CgokZGVwbG95bWVudHRpdGxlIGFkbWluaXN0cmF0b3I=</value>
-    </property>
-    <property>
-      <key>Y3Jvd2Q=</key>
-      <name>bWFpbHNlcnZlci5wcmVmaXg=</name>
-      <value>W0F0bGFzc2lhbiBDcm93ZCBzZXJ2ZXIgLSBBdGxhc3NpYW4gQ3Jvd2Rd</value>
     </property>
     <property>
       <key>Y3Jvd2Q=</key>
@@ -376,43 +459,13 @@
     </property>
     <property>
       <key>Y3Jvd2Q=</key>
-      <name>Y3VycmVudC5saWNlbnNlLnJlc291cmNlLnRvdGFs</name>
-      <value>MA==</value>
+      <name>bWFpbHNlcnZlci5tZXNzYWdlLnRlbXBsYXRl</name>
+      <value>SGVsbG8gJGZpcnN0bmFtZSAkbGFzdG5hbWUsCgpZb3UgKG9yIHNvbWVvbmUgZWxzZSkgaGF2ZSByZXF1ZXN0ZWQgdG8gcmVzZXQgeW91ciBwYXNzd29yZCBmb3IgJGRlcGxveW1lbnR0aXRsZSBvbiAkZGF0ZS4KCklmIHlvdSBmb2xsb3cgdGhlIGxpbmsgYmVsb3cgeW91IHdpbGwgYmUgYWJsZSB0byBwZXJzb25hbGx5IHJlc2V0IHlvdXIgcGFzc3dvcmQuCiRyZXNldGxpbmsKClRoaXMgcGFzc3dvcmQgcmVzZXQgcmVxdWVzdCBpcyB2YWxpZCBmb3IgdGhlIG5leHQgMjQgaG91cnMuCgpIZXJlIGFyZSB0aGUgZGV0YWlscyBvZiB5b3VyIGFjY291bnQ6CgpVc2VybmFtZTogJHVzZXJuYW1lCkZ1bGwgbmFtZTogJGZpcnN0bmFtZSAkbGFzdG5hbWUKWW91ciBhY2NvdW50IGlzIGN1cnJlbnRseTogJGFjdGl2ZQoKJGRlcGxveW1lbnR0aXRsZSBhZG1pbmlzdHJhdG9y</value>
     </property>
     <property>
       <key>Y3Jvd2Q=</key>
-      <name>c2VjdXJlLmNvb2tpZQ==</name>
-      <value>ZmFsc2U=</value>
-    </property>
-    <property>
-      <key>Y3Jvd2Q=</key>
-      <name>Y29tLnN1bi5qbmRpLmxkYXAuY29ubmVjdC5wb29sLmluaXRzaXpl</name>
-      <value>MQ==</value>
-    </property>
-    <property>
-      <key>Y3Jvd2Q=</key>
-      <name>Y29tLnN1bi5qbmRpLmxkYXAuY29ubmVjdC5wb29sLnByZWZzaXpl</name>
-      <value>MTA=</value>
-    </property>
-    <property>
-      <key>Y3Jvd2Q=</key>
-      <name>Y29tLnN1bi5qbmRpLmxkYXAuY29ubmVjdC5wb29sLm1heHNpemU=</name>
-      <value>MA==</value>
-    </property>
-    <property>
-      <key>Y3Jvd2Q=</key>
-      <name>Y29tLnN1bi5qbmRpLmxkYXAuY29ubmVjdC5wb29sLnRpbWVvdXQ=</name>
-      <value>MzAwMDA=</value>
-    </property>
-    <property>
-      <key>Y3Jvd2Q=</key>
-      <name>Y29tLnN1bi5qbmRpLmxkYXAuY29ubmVjdC5wb29sLnByb3RvY29s</name>
-      <value>cGxhaW4gc3Ns</value>
-    </property>
-    <property>
-      <key>Y3Jvd2Q=</key>
-      <name>Y29tLnN1bi5qbmRpLmxkYXAuY29ubmVjdC5wb29sLmF1dGhlbnRpY2F0aW9u</name>
-      <value>c2ltcGxl</value>
+      <name>bWFpbHNlcnZlci5wcmVmaXg=</name>
+      <value>W0F0bGFzc2lhbiBDcm93ZCBzZXJ2ZXIgLSBBdGxhc3NpYW4gQ3Jvd2Rd</value>
     </property>
     <property>
       <key>Y3Jvd2Q=</key>
@@ -426,28 +479,13 @@
     </property>
     <property>
       <key>Y3Jvd2Q=</key>
-      <name>YnVpbGQubnVtYmVy</name>
-      <value>MTAxMQ==</value>
+      <name>c2VjdXJlLmNvb2tpZQ==</name>
+      <value>ZmFsc2U=</value>
     </property>
     <property>
-      <key>cGx1Z2luLm51bGw=</key>
-      <name>Y3Jvd2Qtc2FtbC1wbHVnaW46YnVpbGQ=</name>
-      <value>MQ==</value>
-    </property>
-    <property>
-      <key>cGx1Z2luLm51bGw=</key>
-      <name>Y29tLmF0bGFzc2lhbi5hbmFseXRpY3MuY2xpZW50LmNvbmZpZ3VyYXRpb24udXVpZA==</name>
-      <value>ODA0Y2NiYTAtNzBlOC00ZWE4LTgwMjMtODY2MmExOGRlNDEz</value>
-    </property>
-    <property>
-      <key>cGx1Z2luLm51bGw=</key>
-      <name>Y29tLmF0bGFzc2lhbi5hbmFseXRpY3MuY2xpZW50LmNvbmZpZ3VyYXRpb24uc2VydmVyaWQ=</name>
-      <value>Qkc5VC1YVVY0LUtaWkgtQjAxVw==</value>
-    </property>
-    <property>
-      <key>cGx1Z2luLm51bGw=</key>
-      <name>Y29tLmF0bGFzc2lhbi5hbmFseXRpY3MuY2xpZW50LmNvbmZpZ3VyYXRpb24uLnBvbGljeV9hY2tub3dsZWRnZWQ=</name>
-      <value>dHJ1ZQ==</value>
+      <key>Y3Jvd2Q=</key>
+      <name>c2Vzc2lvbi50aW1l</name>
+      <value>MTgwMDAwMA==</value>
     </property>
     <property>
       <key>cGx1Z2luLm51bGw=</key>
@@ -456,13 +494,33 @@
     </property>
     <property>
       <key>cGx1Z2luLm51bGw=</key>
-      <name>Y3Jvd2QuYW5hbHl0aWNzLmluc3RhbmNlLnN0YXJ0dXAuaW5mbw==</name>
-      <value>I2phdmEudXRpbC5NYXAKc3RhcnRfdGltZQwxNjQ5Mzc3MTE0NDYyCmJ1aWxkX251bWJlcgwxMDExCmNsdXN0ZXJlZAxmYWxzZQ==</value>
+      <name>Y29tLmF0bGFzc2lhbi5hbmFseXRpY3MuY2xpZW50LmNvbmZpZ3VyYXRpb24uLmxvZ2dlZF9iYXNlX2FuYWx5dGljc19kYXRh</name>
+      <value>dHJ1ZQ==</value>
     </property>
     <property>
       <key>cGx1Z2luLm51bGw=</key>
-      <name>Y29tLmF0bGFzc2lhbi5hbmFseXRpY3MuY2xpZW50LmNvbmZpZ3VyYXRpb24uLmxvZ2dlZF9iYXNlX2FuYWx5dGljc19kYXRh</name>
+      <name>Y29tLmF0bGFzc2lhbi5hbmFseXRpY3MuY2xpZW50LmNvbmZpZ3VyYXRpb24uLnBvbGljeV9hY2tub3dsZWRnZWQ=</name>
       <value>dHJ1ZQ==</value>
+    </property>
+    <property>
+      <key>cGx1Z2luLm51bGw=</key>
+      <name>Y29tLmF0bGFzc2lhbi5hbmFseXRpY3MuY2xpZW50LmNvbmZpZ3VyYXRpb24uc2VydmVyaWQ=</name>
+      <value>Qkc5VC1YVVY0LUtaWkgtQjAxVw==</value>
+    </property>
+    <property>
+      <key>cGx1Z2luLm51bGw=</key>
+      <name>Y29tLmF0bGFzc2lhbi5hbmFseXRpY3MuY2xpZW50LmNvbmZpZ3VyYXRpb24udXVpZA==</name>
+      <value>ODA0Y2NiYTAtNzBlOC00ZWE4LTgwMjMtODY2MmExOGRlNDEz</value>
+    </property>
+    <property>
+      <key>cGx1Z2luLm51bGw=</key>
+      <name>Y3Jvd2Qtc2FtbC1wbHVnaW46YnVpbGQ=</name>
+      <value>MQ==</value>
+    </property>
+    <property>
+      <key>cGx1Z2luLm51bGw=</key>
+      <name>Y3Jvd2QuYW5hbHl0aWNzLmluc3RhbmNlLnN0YXJ0dXAuaW5mbw==</name>
+      <value>I2phdmEudXRpbC5NYXAKc3RhcnRfdGltZQwxNjQ5NDU0MTY3Njc3CmJ1aWxkX251bWJlcgwxMDExCmNsdXN0ZXJlZAxmYWxzZQ==</value>
     </property>
   </properties>
   <grantedPermissions>
@@ -482,6 +540,738 @@
     </grantedPermission>
   </grantedPermissions>
   <auditLogs>
+    <auditLog>
+      <id>688152</id>
+      <timestamp>1649456661395</timestamp>
+      <authorType>USER</authorType>
+      <authorId>196609</authorId>
+      <authorName>admin</authorName>
+      <eventType>APPLICATION_UPDATED</eventType>
+      <ipAddress>10.20.142.200</ipAddress>
+      <eventMessage></eventMessage>
+      <source>MANUAL</source>
+      <auditEntries>
+        <auditEntry>
+          <id>720949</id>
+          <propertyName>Remote addresses</propertyName>
+          <oldValue>[0.0.0.0/0, 34.140.113.0/16]</oldValue>
+          <newValue>[0.0.0.0/0, 10.20.0.0/16, 34.140.113.0/16]</newValue>
+        </auditEntry>
+      </auditEntries>
+      <entities>
+        <entity>
+          <id>786460</id>
+          <entityType>APPLICATION</entityType>
+          <entityId>622593</entityId>
+          <entityName>jenkins</entityName>
+          <primary>true</primary>
+        </entity>
+      </entities>
+    </auditLog>
+    <auditLog>
+      <id>688151</id>
+      <timestamp>1649456593704</timestamp>
+      <authorType>USER</authorType>
+      <authorId>196609</authorId>
+      <authorName>admin</authorName>
+      <eventType>APPLICATION_UPDATED</eventType>
+      <ipAddress>10.20.142.200</ipAddress>
+      <eventMessage></eventMessage>
+      <source>MANUAL</source>
+      <auditEntries>
+        <auditEntry>
+          <id>720948</id>
+          <propertyName>Remote addresses</propertyName>
+          <oldValue>[34.140.113.0/16]</oldValue>
+          <newValue>[0.0.0.0/0, 34.140.113.0/16]</newValue>
+        </auditEntry>
+      </auditEntries>
+      <entities>
+        <entity>
+          <id>786459</id>
+          <entityType>APPLICATION</entityType>
+          <entityId>622593</entityId>
+          <entityName>jenkins</entityName>
+          <primary>true</primary>
+        </entity>
+      </entities>
+    </auditLog>
+    <auditLog>
+      <id>688150</id>
+      <timestamp>1649456585864</timestamp>
+      <authorType>USER</authorType>
+      <authorId>196609</authorId>
+      <authorName>admin</authorName>
+      <eventType>APPLICATION_UPDATED</eventType>
+      <ipAddress>10.20.142.200</ipAddress>
+      <eventMessage></eventMessage>
+      <source>MANUAL</source>
+      <auditEntries>
+        <auditEntry>
+          <id>720947</id>
+          <propertyName>Remote addresses</propertyName>
+          <oldValue>[34.140.113.0/16, 34.140.113.49]</oldValue>
+          <newValue>[34.140.113.0/16]</newValue>
+        </auditEntry>
+      </auditEntries>
+      <entities>
+        <entity>
+          <id>786458</id>
+          <entityType>APPLICATION</entityType>
+          <entityId>622593</entityId>
+          <entityName>jenkins</entityName>
+          <primary>true</primary>
+        </entity>
+      </entities>
+    </auditLog>
+    <auditLog>
+      <id>688149</id>
+      <timestamp>1649456581931</timestamp>
+      <authorType>USER</authorType>
+      <authorId>196609</authorId>
+      <authorName>admin</authorName>
+      <eventType>APPLICATION_UPDATED</eventType>
+      <ipAddress>10.20.142.200</ipAddress>
+      <eventMessage></eventMessage>
+      <source>MANUAL</source>
+      <auditEntries>
+        <auditEntry>
+          <id>720946</id>
+          <propertyName>Remote addresses</propertyName>
+          <oldValue>[34.140.113.49]</oldValue>
+          <newValue>[34.140.113.0/16, 34.140.113.49]</newValue>
+        </auditEntry>
+      </auditEntries>
+      <entities>
+        <entity>
+          <id>786457</id>
+          <entityType>APPLICATION</entityType>
+          <entityId>622593</entityId>
+          <entityName>jenkins</entityName>
+          <primary>true</primary>
+        </entity>
+      </entities>
+    </auditLog>
+    <auditLog>
+      <id>688148</id>
+      <timestamp>1649456280760</timestamp>
+      <authorType>USER</authorType>
+      <authorId>196609</authorId>
+      <authorName>admin</authorName>
+      <eventType>APPLICATION_UPDATED</eventType>
+      <ipAddress>10.20.142.200</ipAddress>
+      <eventMessage></eventMessage>
+      <source>MANUAL</source>
+      <auditEntries>
+        <auditEntry>
+          <id>720945</id>
+          <propertyName>Attribute: lowerCaseOutput</propertyName>
+          <oldValue>false</oldValue>
+          <newValue>true</newValue>
+        </auditEntry>
+      </auditEntries>
+      <entities>
+        <entity>
+          <id>786456</id>
+          <entityType>APPLICATION</entityType>
+          <entityId>622593</entityId>
+          <entityName>jenkins</entityName>
+          <primary>true</primary>
+        </entity>
+      </entities>
+    </auditLog>
+    <auditLog>
+      <id>688147</id>
+      <timestamp>1649455800667</timestamp>
+      <authorType>USER</authorType>
+      <authorId>196609</authorId>
+      <authorName>admin</authorName>
+      <eventType>APPLICATION_UPDATED</eventType>
+      <ipAddress>10.20.142.200</ipAddress>
+      <eventMessage></eventMessage>
+      <source>MANUAL</source>
+      <auditEntries>
+        <auditEntry>
+          <id>720944</id>
+          <propertyName>Directory mappings.163841.Groups</propertyName>
+          <oldValue>[jenkins]</oldValue>
+          <newValue>[crowd-administrators, jenkins]</newValue>
+        </auditEntry>
+      </auditEntries>
+      <entities>
+        <entity>
+          <id>786455</id>
+          <entityType>APPLICATION</entityType>
+          <entityId>622593</entityId>
+          <entityName>jenkins</entityName>
+          <primary>true</primary>
+        </entity>
+      </entities>
+    </auditLog>
+    <auditLog>
+      <id>688146</id>
+      <timestamp>1649455768716</timestamp>
+      <authorType>USER</authorType>
+      <authorId>196609</authorId>
+      <authorName>admin</authorName>
+      <eventType>APPLICATION_UPDATED</eventType>
+      <ipAddress>10.20.142.200</ipAddress>
+      <eventMessage></eventMessage>
+      <source>MANUAL</source>
+      <auditEntries>
+        <auditEntry>
+          <id>720943</id>
+          <propertyName>Directory mappings.163841.Groups</propertyName>
+          <oldValue>[]</oldValue>
+          <newValue>[jenkins]</newValue>
+        </auditEntry>
+      </auditEntries>
+      <entities>
+        <entity>
+          <id>786454</id>
+          <entityType>APPLICATION</entityType>
+          <entityId>622593</entityId>
+          <entityName>jenkins</entityName>
+          <primary>true</primary>
+        </entity>
+      </entities>
+    </auditLog>
+    <auditLog>
+      <id>688145</id>
+      <timestamp>1649455545498</timestamp>
+      <authorType>USER</authorType>
+      <authorId>196609</authorId>
+      <authorName>admin</authorName>
+      <eventType>APPLICATION_DELETED</eventType>
+      <ipAddress>10.20.142.200</ipAddress>
+      <eventMessage></eventMessage>
+      <source>MANUAL</source>
+      <auditEntries>
+        <auditEntry>
+          <id>720927</id>
+          <propertyName>Remote addresses</propertyName>
+          <oldValue>[34.140.113.49]</oldValue>
+          <newValue>[]</newValue>
+        </auditEntry>
+        <auditEntry>
+          <id>720928</id>
+          <propertyName>Password</propertyName>
+          <oldValue>*****</oldValue>
+          <newValue></newValue>
+        </auditEntry>
+        <auditEntry>
+          <id>720929</id>
+          <propertyName>Name</propertyName>
+          <oldValue>hudson</oldValue>
+          <newValue></newValue>
+        </auditEntry>
+        <auditEntry>
+          <id>720930</id>
+          <propertyName>Type</propertyName>
+          <oldValue>GENERIC_APPLICATION</oldValue>
+          <newValue></newValue>
+        </auditEntry>
+        <auditEntry>
+          <id>720931</id>
+          <propertyName>Attribute: applicationURL</propertyName>
+          <oldValue>https://8080-dumam-crowd2plugin-5w988mk7i9v.ws-eu38.gitpod.io</oldValue>
+          <newValue></newValue>
+        </auditEntry>
+        <auditEntry>
+          <id>720932</id>
+          <propertyName>Attribute: aliasingEnabled</propertyName>
+          <oldValue>true</oldValue>
+          <newValue></newValue>
+        </auditEntry>
+        <auditEntry>
+          <id>720933</id>
+          <propertyName>Attribute: atlassian_sha1_applied</propertyName>
+          <oldValue>true</oldValue>
+          <newValue></newValue>
+        </auditEntry>
+        <auditEntry>
+          <id>720934</id>
+          <propertyName>Active</propertyName>
+          <oldValue>true</oldValue>
+          <newValue></newValue>
+        </auditEntry>
+        <auditEntry>
+          <id>720935</id>
+          <propertyName>Directory mappings.163841.Allow all to authenticate</propertyName>
+          <oldValue>false</oldValue>
+          <newValue></newValue>
+        </auditEntry>
+        <auditEntry>
+          <id>720936</id>
+          <propertyName>Directory mappings.163841.Allowed operations</propertyName>
+          <oldValue>[UPDATE_USER, DELETE_USER, CREATE_ROLE, UPDATE_ROLE, UPDATE_GROUP_ATTRIBUTE, CREATE_GROUP, DELETE_GROUP, DELETE_ROLE, CREATE_USER, UPDATE_ROLE_ATTRIBUTE, UPDATE_USER_ATTRIBUTE, UPDATE_GROUP]</oldValue>
+          <newValue></newValue>
+        </auditEntry>
+        <auditEntry>
+          <id>720937</id>
+          <propertyName>Created Date</propertyName>
+          <oldValue>2022-04-08T21:54:42.922+0000</oldValue>
+          <newValue></newValue>
+        </auditEntry>
+        <auditEntry>
+          <id>720938</id>
+          <propertyName>Description</propertyName>
+          <oldValue>husdon alternative</oldValue>
+          <newValue></newValue>
+        </auditEntry>
+        <auditEntry>
+          <id>720939</id>
+          <propertyName>Directory mappings</propertyName>
+          <oldValue>[163841]</oldValue>
+          <newValue>[]</newValue>
+        </auditEntry>
+        <auditEntry>
+          <id>720940</id>
+          <propertyName>Attribute: aggregateMemberships</propertyName>
+          <oldValue>false</oldValue>
+          <newValue></newValue>
+        </auditEntry>
+        <auditEntry>
+          <id>720941</id>
+          <propertyName>Is permanent</propertyName>
+          <oldValue>false</oldValue>
+          <newValue></newValue>
+        </auditEntry>
+        <auditEntry>
+          <id>720942</id>
+          <propertyName>Attribute: lowerCaseOutput</propertyName>
+          <oldValue>true</oldValue>
+          <newValue></newValue>
+        </auditEntry>
+      </auditEntries>
+      <entities>
+        <entity>
+          <id>786453</id>
+          <entityType>APPLICATION</entityType>
+          <entityId>884737</entityId>
+          <entityName>hudson</entityName>
+          <primary>true</primary>
+        </entity>
+      </entities>
+    </auditLog>
+    <auditLog>
+      <id>688144</id>
+      <timestamp>1649455134808</timestamp>
+      <authorType>USER</authorType>
+      <authorId>196609</authorId>
+      <authorName>admin</authorName>
+      <eventType>APPLICATION_UPDATED</eventType>
+      <ipAddress>10.20.142.200</ipAddress>
+      <eventMessage></eventMessage>
+      <source>MANUAL</source>
+      <auditEntries>
+        <auditEntry>
+          <id>720926</id>
+          <propertyName>Password</propertyName>
+          <oldValue>*****</oldValue>
+          <newValue>*****</newValue>
+        </auditEntry>
+      </auditEntries>
+      <entities>
+        <entity>
+          <id>786452</id>
+          <entityType>APPLICATION</entityType>
+          <entityId>622593</entityId>
+          <entityName>jenkins</entityName>
+          <primary>true</primary>
+        </entity>
+      </entities>
+    </auditLog>
+    <auditLog>
+      <id>688142</id>
+      <timestamp>1649454964549</timestamp>
+      <authorType>USER</authorType>
+      <authorId>196609</authorId>
+      <authorName>admin</authorName>
+      <eventType>APPLICATION_UPDATED</eventType>
+      <ipAddress>10.20.142.200</ipAddress>
+      <eventMessage></eventMessage>
+      <source>MANUAL</source>
+      <auditEntries>
+        <auditEntry>
+          <id>720922</id>
+          <propertyName>Attribute: aggregateMemberships</propertyName>
+          <oldValue></oldValue>
+          <newValue>false</newValue>
+        </auditEntry>
+        <auditEntry>
+          <id>720923</id>
+          <propertyName>Attribute: lowerCaseOutput</propertyName>
+          <oldValue></oldValue>
+          <newValue>true</newValue>
+        </auditEntry>
+        <auditEntry>
+          <id>720924</id>
+          <propertyName>Attribute: aliasingEnabled</propertyName>
+          <oldValue></oldValue>
+          <newValue>true</newValue>
+        </auditEntry>
+      </auditEntries>
+      <entities>
+        <entity>
+          <id>786449</id>
+          <entityType>APPLICATION</entityType>
+          <entityId>884737</entityId>
+          <entityName>hudson</entityName>
+          <primary>true</primary>
+        </entity>
+      </entities>
+    </auditLog>
+    <auditLog>
+      <id>688141</id>
+      <timestamp>1649454882934</timestamp>
+      <authorType>USER</authorType>
+      <authorId>196609</authorId>
+      <authorName>admin</authorName>
+      <eventType>APPLICATION_UPDATED</eventType>
+      <ipAddress>10.20.142.200</ipAddress>
+      <eventMessage></eventMessage>
+      <source>MANUAL</source>
+      <auditEntries>
+        <auditEntry>
+          <id>720919</id>
+          <propertyName>Directory mappings</propertyName>
+          <oldValue>[]</oldValue>
+          <newValue>[163841]</newValue>
+        </auditEntry>
+        <auditEntry>
+          <id>720920</id>
+          <propertyName>Directory mappings.163841.Allowed operations</propertyName>
+          <oldValue></oldValue>
+          <newValue>[UPDATE_USER, DELETE_USER, CREATE_ROLE, UPDATE_ROLE, UPDATE_GROUP_ATTRIBUTE, DELETE_ROLE, CREATE_GROUP, DELETE_GROUP, CREATE_USER, UPDATE_USER_ATTRIBUTE, UPDATE_ROLE_ATTRIBUTE, UPDATE_GROUP]</newValue>
+        </auditEntry>
+        <auditEntry>
+          <id>720921</id>
+          <propertyName>Directory mappings.163841.Allow all to authenticate</propertyName>
+          <oldValue></oldValue>
+          <newValue>false</newValue>
+        </auditEntry>
+      </auditEntries>
+      <entities>
+        <entity>
+          <id>786448</id>
+          <entityType>APPLICATION</entityType>
+          <entityId>884737</entityId>
+          <entityName>hudson</entityName>
+          <primary>true</primary>
+        </entity>
+      </entities>
+    </auditLog>
+    <auditLog>
+      <id>688140</id>
+      <timestamp>1649454882928</timestamp>
+      <authorType>USER</authorType>
+      <authorId>196609</authorId>
+      <authorName>admin</authorName>
+      <eventType>APPLICATION_UPDATED</eventType>
+      <ipAddress>10.20.142.200</ipAddress>
+      <eventMessage></eventMessage>
+      <source>MANUAL</source>
+      <auditEntries>
+        <auditEntry>
+          <id>720918</id>
+          <propertyName>Remote addresses</propertyName>
+          <oldValue>[]</oldValue>
+          <newValue>[34.140.113.49]</newValue>
+        </auditEntry>
+      </auditEntries>
+      <entities>
+        <entity>
+          <id>786447</id>
+          <entityType>APPLICATION</entityType>
+          <entityId>884737</entityId>
+          <entityName>hudson</entityName>
+          <primary>true</primary>
+        </entity>
+      </entities>
+    </auditLog>
+    <auditLog>
+      <id>688139</id>
+      <timestamp>1649454882926</timestamp>
+      <authorType>USER</authorType>
+      <authorId>196609</authorId>
+      <authorName>admin</authorName>
+      <eventType>APPLICATION_CREATED</eventType>
+      <ipAddress>10.20.142.200</ipAddress>
+      <eventMessage></eventMessage>
+      <source>MANUAL</source>
+      <auditEntries>
+        <auditEntry>
+          <id>720909</id>
+          <propertyName>Attribute: applicationURL</propertyName>
+          <oldValue></oldValue>
+          <newValue>https://8080-dumam-crowd2plugin-5w988mk7i9v.ws-eu38.gitpod.io</newValue>
+        </auditEntry>
+        <auditEntry>
+          <id>720910</id>
+          <propertyName>Description</propertyName>
+          <oldValue></oldValue>
+          <newValue>husdon alternative</newValue>
+        </auditEntry>
+        <auditEntry>
+          <id>720911</id>
+          <propertyName>Is permanent</propertyName>
+          <oldValue></oldValue>
+          <newValue>false</newValue>
+        </auditEntry>
+        <auditEntry>
+          <id>720912</id>
+          <propertyName>Created Date</propertyName>
+          <oldValue></oldValue>
+          <newValue>2022-04-08T21:54:42.922+0000</newValue>
+        </auditEntry>
+        <auditEntry>
+          <id>720913</id>
+          <propertyName>Name</propertyName>
+          <oldValue></oldValue>
+          <newValue>hudson</newValue>
+        </auditEntry>
+        <auditEntry>
+          <id>720914</id>
+          <propertyName>Attribute: atlassian_sha1_applied</propertyName>
+          <oldValue></oldValue>
+          <newValue>true</newValue>
+        </auditEntry>
+        <auditEntry>
+          <id>720915</id>
+          <propertyName>Type</propertyName>
+          <oldValue></oldValue>
+          <newValue>GENERIC_APPLICATION</newValue>
+        </auditEntry>
+        <auditEntry>
+          <id>720916</id>
+          <propertyName>Active</propertyName>
+          <oldValue></oldValue>
+          <newValue>true</newValue>
+        </auditEntry>
+        <auditEntry>
+          <id>720917</id>
+          <propertyName>Password</propertyName>
+          <oldValue></oldValue>
+          <newValue>*****</newValue>
+        </auditEntry>
+      </auditEntries>
+      <entities>
+        <entity>
+          <id>786446</id>
+          <entityType>APPLICATION</entityType>
+          <entityId>884737</entityId>
+          <entityName>hudson</entityName>
+          <primary>true</primary>
+        </entity>
+      </entities>
+    </auditLog>
+    <auditLog>
+      <id>688138</id>
+      <timestamp>1649454779717</timestamp>
+      <authorType>USER</authorType>
+      <authorId>196609</authorId>
+      <authorName>admin</authorName>
+      <eventType>DIRECTORY_UPDATED</eventType>
+      <ipAddress>10.20.142.200</ipAddress>
+      <eventMessage></eventMessage>
+      <source>MANUAL</source>
+      <auditEntries>
+        <auditEntry>
+          <id>720908</id>
+          <propertyName>Attribute: autoAddGroups</propertyName>
+          <oldValue></oldValue>
+          <newValue>crowd-administrators|jenkins</newValue>
+        </auditEntry>
+      </auditEntries>
+      <entities>
+        <entity>
+          <id>786445</id>
+          <entityType>DIRECTORY</entityType>
+          <entityId>163841</entityId>
+          <entityName>Atlassian Crowd server</entityName>
+          <primary>true</primary>
+        </entity>
+      </entities>
+    </auditLog>
+    <auditLog>
+      <id>688136</id>
+      <timestamp>1649454413462</timestamp>
+      <authorType>USER</authorType>
+      <authorId>196609</authorId>
+      <authorName>admin</authorName>
+      <eventType>APPLICATION_UPDATED</eventType>
+      <ipAddress>10.20.142.200</ipAddress>
+      <eventMessage></eventMessage>
+      <source>MANUAL</source>
+      <auditEntries>
+        <auditEntry>
+          <id>720906</id>
+          <propertyName>Directory mappings.163841.Allowed operations</propertyName>
+          <oldValue>[UPDATE_USER, DELETE_USER, UPDATE_GROUP_ATTRIBUTE, CREATE_GROUP, DELETE_GROUP, DELETE_ROLE, CREATE_USER, UPDATE_USER_ATTRIBUTE, UPDATE_GROUP]</oldValue>
+          <newValue>[UPDATE_USER, DELETE_USER, UPDATE_GROUP_ATTRIBUTE, CREATE_GROUP, DELETE_GROUP, CREATE_USER, UPDATE_USER_ATTRIBUTE, UPDATE_GROUP]</newValue>
+        </auditEntry>
+      </auditEntries>
+      <entities>
+        <entity>
+          <id>786442</id>
+          <entityType>APPLICATION</entityType>
+          <entityId>622593</entityId>
+          <entityName>jenkins</entityName>
+          <primary>true</primary>
+        </entity>
+      </entities>
+    </auditLog>
+    <auditLog>
+      <id>688135</id>
+      <timestamp>1649454413459</timestamp>
+      <authorType>USER</authorType>
+      <authorId>196609</authorId>
+      <authorName>admin</authorName>
+      <eventType>APPLICATION_UPDATED</eventType>
+      <ipAddress>10.20.142.200</ipAddress>
+      <eventMessage></eventMessage>
+      <source>MANUAL</source>
+      <auditEntries>
+        <auditEntry>
+          <id>720905</id>
+          <propertyName>Directory mappings.163841.Allowed operations</propertyName>
+          <oldValue>[UPDATE_USER, DELETE_USER, UPDATE_GROUP_ATTRIBUTE, CREATE_GROUP, DELETE_GROUP, DELETE_ROLE, CREATE_USER, UPDATE_ROLE_ATTRIBUTE, UPDATE_USER_ATTRIBUTE, UPDATE_GROUP]</oldValue>
+          <newValue>[UPDATE_USER, DELETE_USER, UPDATE_GROUP_ATTRIBUTE, CREATE_GROUP, DELETE_GROUP, DELETE_ROLE, CREATE_USER, UPDATE_USER_ATTRIBUTE, UPDATE_GROUP]</newValue>
+        </auditEntry>
+      </auditEntries>
+      <entities>
+        <entity>
+          <id>786441</id>
+          <entityType>APPLICATION</entityType>
+          <entityId>622593</entityId>
+          <entityName>jenkins</entityName>
+          <primary>true</primary>
+        </entity>
+      </entities>
+    </auditLog>
+    <auditLog>
+      <id>688134</id>
+      <timestamp>1649454413456</timestamp>
+      <authorType>USER</authorType>
+      <authorId>196609</authorId>
+      <authorName>admin</authorName>
+      <eventType>APPLICATION_UPDATED</eventType>
+      <ipAddress>10.20.142.200</ipAddress>
+      <eventMessage></eventMessage>
+      <source>MANUAL</source>
+      <auditEntries>
+        <auditEntry>
+          <id>720904</id>
+          <propertyName>Directory mappings.163841.Allowed operations</propertyName>
+          <oldValue>[UPDATE_USER, DELETE_USER, UPDATE_ROLE, UPDATE_GROUP_ATTRIBUTE, CREATE_GROUP, DELETE_GROUP, DELETE_ROLE, CREATE_USER, UPDATE_ROLE_ATTRIBUTE, UPDATE_USER_ATTRIBUTE, UPDATE_GROUP]</oldValue>
+          <newValue>[UPDATE_USER, DELETE_USER, UPDATE_GROUP_ATTRIBUTE, CREATE_GROUP, DELETE_GROUP, DELETE_ROLE, CREATE_USER, UPDATE_ROLE_ATTRIBUTE, UPDATE_USER_ATTRIBUTE, UPDATE_GROUP]</newValue>
+        </auditEntry>
+      </auditEntries>
+      <entities>
+        <entity>
+          <id>786440</id>
+          <entityType>APPLICATION</entityType>
+          <entityId>622593</entityId>
+          <entityName>jenkins</entityName>
+          <primary>true</primary>
+        </entity>
+      </entities>
+    </auditLog>
+    <auditLog>
+      <id>688133</id>
+      <timestamp>1649454413453</timestamp>
+      <authorType>USER</authorType>
+      <authorId>196609</authorId>
+      <authorName>admin</authorName>
+      <eventType>APPLICATION_UPDATED</eventType>
+      <ipAddress>10.20.142.200</ipAddress>
+      <eventMessage></eventMessage>
+      <source>MANUAL</source>
+      <auditEntries>
+        <auditEntry>
+          <id>720903</id>
+          <propertyName>Directory mappings.163841.Allowed operations</propertyName>
+          <oldValue>[UPDATE_USER, DELETE_USER, CREATE_ROLE, UPDATE_ROLE, UPDATE_GROUP_ATTRIBUTE, CREATE_GROUP, DELETE_GROUP, DELETE_ROLE, CREATE_USER, UPDATE_ROLE_ATTRIBUTE, UPDATE_USER_ATTRIBUTE, UPDATE_GROUP]</oldValue>
+          <newValue>[UPDATE_USER, DELETE_USER, UPDATE_ROLE, UPDATE_GROUP_ATTRIBUTE, CREATE_GROUP, DELETE_GROUP, DELETE_ROLE, CREATE_USER, UPDATE_ROLE_ATTRIBUTE, UPDATE_USER_ATTRIBUTE, UPDATE_GROUP]</newValue>
+        </auditEntry>
+      </auditEntries>
+      <entities>
+        <entity>
+          <id>786439</id>
+          <entityType>APPLICATION</entityType>
+          <entityId>622593</entityId>
+          <entityName>jenkins</entityName>
+          <primary>true</primary>
+        </entity>
+      </entities>
+    </auditLog>
+    <auditLog>
+      <id>688130</id>
+      <timestamp>1649454300309</timestamp>
+      <authorType>USER</authorType>
+      <authorId>196609</authorId>
+      <authorName>admin</authorName>
+      <eventType>APPLICATION_UPDATED</eventType>
+      <ipAddress>10.20.142.200</ipAddress>
+      <eventMessage></eventMessage>
+      <source>MANUAL</source>
+      <auditEntries>
+        <auditEntry>
+          <id>720898</id>
+          <propertyName>Attribute: aggregateMemberships</propertyName>
+          <oldValue></oldValue>
+          <newValue>false</newValue>
+        </auditEntry>
+        <auditEntry>
+          <id>720899</id>
+          <propertyName>Attribute: aliasingEnabled</propertyName>
+          <oldValue></oldValue>
+          <newValue>false</newValue>
+        </auditEntry>
+        <auditEntry>
+          <id>720900</id>
+          <propertyName>Attribute: lowerCaseOutput</propertyName>
+          <oldValue></oldValue>
+          <newValue>false</newValue>
+        </auditEntry>
+        <auditEntry>
+          <id>720901</id>
+          <propertyName>Description</propertyName>
+          <oldValue></oldValue>
+          <newValue>Jenkins Testing Instance</newValue>
+        </auditEntry>
+      </auditEntries>
+      <entities>
+        <entity>
+          <id>786433</id>
+          <entityType>APPLICATION</entityType>
+          <entityId>622593</entityId>
+          <entityName>jenkins</entityName>
+          <primary>true</primary>
+        </entity>
+      </entities>
+    </auditLog>
+    <auditLog>
+      <id>688129</id>
+      <timestamp>1649454167457</timestamp>
+      <authorType>OTHER</authorType>
+      <authorId></authorId>
+      <authorName></authorName>
+      <eventType>RESTORE_FINISHED</eventType>
+      <ipAddress>10.20.142.200</ipAddress>
+      <eventMessage></eventMessage>
+      <source>MANUAL</source>
+      <auditEntries>
+        <auditEntry>
+          <id>720897</id>
+          <propertyName>XML path</propertyName>
+          <oldValue></oldValue>
+          <newValue>/var/atlassian/crowd/crowd_backup.xml</newValue>
+        </auditEntry>
+      </auditEntries>
+      <entities/>
+    </auditLog>
     <auditLog>
       <id>425990</id>
       <timestamp>1649377261581</timestamp>
@@ -1288,8 +2078,8 @@
         <auditEntry>
           <id>98317</id>
           <propertyName>base.url</propertyName>
-          <newValue>http://8095-dumam-crowd2plugin-5w988mk7i9v.ws-eu38.gitpod.io/crowd</newValue>
           <oldValue></oldValue>
+          <newValue>http://8095-dumam-crowd2plugin-5w988mk7i9v.ws-eu38.gitpod.io/crowd</newValue>
         </auditEntry>
       </auditEntries>
       <entities/>
