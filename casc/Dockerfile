@@ -1,11 +1,9 @@
 FROM jenkins/jenkins:2.289.1
 
 # expect a build-time variable
-ARG GITPOD_WORKSPACE_CLUSTER_HOST \
-    HOSTNAME
+ARG JENKINS_SITE_NAME 
 # use the value to set the ENV var default
-ENV GITPOD_WORKSPACE_CLUSTER_HOST=$GITPOD_WORKSPACE_CLUSTER_HOST \
-    HOSTNAME=$HOSTNAME
+ENV JENKINS_SITE_NAME=$JENKINS_SITE_NAME 
 
 # add configuration of jenkins casc to test instance
 # ENV     CASC_JENKINS_CONFIG_DIR="/var/jenkins_home/custom_casc_config"

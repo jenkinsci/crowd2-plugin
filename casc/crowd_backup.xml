@@ -295,7 +295,7 @@
       <attributes>
         <attribute>
           <name>applicationURL</name>
-          <value>https://8080-dumam-crowd2plugin-5w988mk7i9v.ws-eu38.gitpod.io/</value>
+          <value>https://8080-dumam-crowd2plugin-5w988mk7i9v.ws-eu38.gitpod.io</value>
         </attribute>
         <attribute>
           <name>atlassian_sha1_applied</name>
@@ -565,7 +565,7 @@
           <id>458758</id>
           <propertyName>Attribute: applicationURL</propertyName>
           <oldValue></oldValue>
-          <newValue>https://8080-dumam-crowd2plugin-5w988mk7i9v.ws-eu38.gitpod.io/</newValue>
+          <newValue>https://8080-dumam-crowd2plugin-5w988mk7i9v.ws-eu38.gitpod.io</newValue>
         </auditEntry>
         <auditEntry>
           <id>458759</id>
@@ -1288,8 +1288,8 @@
         <auditEntry>
           <id>98317</id>
           <propertyName>base.url</propertyName>
-          <oldValue></oldValue>
           <newValue>http://8095-dumam-crowd2plugin-5w988mk7i9v.ws-eu38.gitpod.io/crowd</newValue>
+          <oldValue></oldValue>
         </auditEntry>
       </auditEntries>
       <entities/>

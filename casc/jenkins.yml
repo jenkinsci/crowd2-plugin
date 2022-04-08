@@ -62,7 +62,7 @@ unclassified:
     storage: "file"
   location:
     adminAddress: "nobody@nowhere"
-    url: "https://8080-${HOSTNAME}.${GITPOD_WORKSPACE_CLUSTER_HOST}/"
+    url: "https://${JENKINS_SITE_NAME}/"
   mailer:
     charset: "UTF-8"
     useSsl: false
