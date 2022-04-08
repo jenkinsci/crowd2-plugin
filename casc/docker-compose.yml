@@ -1,0 +1,75 @@
+---
+version: '3.8'
+services:
+  jenkins:
+    build:
+      context: ../
+      dockerfile: casc/Dockerfile
+      args:
+       - GITPOD_WORKSPACE_CLUSTER_HOST=${GITPOD_WORKSPACE_CLUSTER_HOST}
+       - HOSTNAME=${HOSTNAME}
+    privileged: true
+    user: root
+    ports:
+     - 8080:8080
+     - 50000:50000
+    container_name: jenkins
+    networks:
+      - crowdnet
+
+    volumes:
+     - jenkins_home:/var/jenkins_home
+     - /var/run/docker.sock:/var/run/docker.sock
+
+  crowd:
+    image: blacklabelops/crowd
+    container_name: crowd
+    networks:
+      - crowdnet
+    volumes:
+      - crowddata:/var/atlassian/crowd
+    ports:
+      - '8095:8095'
+    environment:
+      - "CROWD_PROXY_NAME="
+      - "CROWD_PROXY_PORT="
+      - "CROWD_PROXY_SCHEME="
+      - "CROWD_URL=http://localhost:8095/crowd"
+      - "LOGIN_BASE_URL=http://localhost:8095"
+      - "SPLASH_CONTEXT=ROOT"
+      - "CROWD_CONTEXT=crowd"
+      - "CROWDID_CONTEXT=openidserver"
+      - "OPENID_CLIENT_CONTEXT=openidclient"
+      - "DEMO_CONTEXT=demo"
+    labels:
+      com.blacklabelops.description: "Atlassian Crowd"
+      com.blacklabelops.service: "crowd"
+
+  postgresql:
+    image: blacklabelops/postgres
+    hostname: postgresql
+    networks:
+      - crowdnet
+    volumes:
+      - postgresqldata:/var/lib/postgresql/data
+    environment:
+        - 'POSTGRES_DB=crowddb'
+        - 'POSTGRES_USER=crowddb'
+        - 'POSTGRES_PASSWORD=jellyfish'
+    labels:
+      com.blacklabelops.description: "PostgreSQL Database Server"
+      com.blacklabelops.service: "postgresql"
+
+volumes:
+  crowddata:
+    external: false
+  postgresqldata:
+    external: false
+  jenkins_home:
+    external: false
+
+networks:
+  crowdnet:
+    driver: bridge
+
+    
