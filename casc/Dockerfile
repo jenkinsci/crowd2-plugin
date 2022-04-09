@@ -5,6 +5,8 @@ ARG JENKINS_SITE_NAME
 # use the value to set the ENV var default
 ENV JENKINS_SITE_NAME=$JENKINS_SITE_NAME 
 
+COPY    --chown=jenkins:jenkins "casc/jenkins_master.key" "/var/jenkins_home/secrets/master.key" 
+
 # add configuration of jenkins casc to test instance
 ENV     CASC_JENKINS_CONFIG_DIR="/var/jenkins_home/custom_casc_config"
 ENV     CASC_JENKINS_CONFIG="${CASC_JENKINS_CONFIG_DIR}/jenkins.yml"

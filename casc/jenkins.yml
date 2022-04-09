@@ -24,15 +24,15 @@ jenkins:
     crowd:
       applicationName: "jenkins"
       cookieTokenkey: "crowd.token_key"
-      group: "jenkins"
+      group: "jenkins-users"
       httpMaxConnections: "20"
-      httpProxyPassword: "{AQAAABAAAAAQT5B43lEWVkihJ+kO4u40OqJ7yq951tQexa9YCpbH6oU=}"
+      httpProxyPassword: "{AQAAABAAAACAwqTfP1trB4tVhd+/P7IdUbm11vja21OEIMPPPbhEg2YI4iR5dHKMCMfObIisARe4g4RryoDALHnZgXKKImmf5nCjA8VAnkgK4J5OGG4HkUwFYr9wJu8bZiD5oY8E4A4oM0YSI4E8dnCB+8ER6agSJMGCgc4saH0U99WsCjVnyCzvOf7vxSoduhixdjZVmYkn}"
       httpTimeout: "5000"
       nestedGroups: false
-      password: "{AQAAABAAAAAQhYymjJIMhijQ43DNkR2Xpcwgixat+4/m+EwD2IRMYmw=}"
+      password: "{AQAAABAAAAAQRM5yW5CFWukqMKm/FAPQq9X2CfnSHr0C/QUb4SJGvLw=}"
       sessionValidationInterval: 2
       socketTimeout: "20000"
-      url: "https://8095-dumam-crowd2plugin-5w988mk7i9v.ws-eu38.gitpod.io/crowd/"
+      url: "http://crowd:8095/crowd/"
       useProxy: false
       useSSO: false
   slaveAgentPort: 50000
@@ -60,7 +60,7 @@ unclassified:
     storage: "file"
   location:
     adminAddress: "nobody@nowhere"
-    url: "https://8080-dumam-crowd2plugin-5w988mk7i9v.ws-eu38.gitpod.io/"
+    url: "https://${JENKINS_SITE_NAME}"
   mailer:
     charset: "UTF-8"
     useSsl: false

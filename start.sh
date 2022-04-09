@@ -15,9 +15,9 @@ fi
 docker-compose -f casc/docker-compose.yml up -d --remove-orphans
 
 # replace crowd address to current one
-sed -i "s/http:\/\/.*\/crowd/http:\/\/$CROWD_SITE_NAME\/crowd/" "$CROWD_BACKUP_FILE"
+# sed -i "s/http:\/\/.*\/crowd/http:\/\/$CROWD_SITE_NAME\/crowd/" "$CROWD_BACKUP_FILE"
 # replace jenkins address to current one
-sed -i "s/https:\/\/\(\w\|\-\|\.\)\+\//https:\/\/$JENKINS_SITE_NAME/" "$CROWD_BACKUP_FILE"
+# sed -i "s/https:\/\/\(\w\|\-\|\.\)\+\//https:\/\/$JENKINS_SITE_NAME/" "$CROWD_BACKUP_FILE"
 # add crowd backup to instance
 docker cp "$CROWD_BACKUP_FILE" crowd:"/crowd_backup.xml"
 docker exec -it crowd chown -R crowd:crowd /crowd_backup.xml
