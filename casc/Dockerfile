@@ -1,12 +1,15 @@
-FROM jenkins/jenkins:2.289.1
-
-USER jenkins
-
 # expect a build-time variable
-ARG JENKINS_SITE_NAME 
+ARG JAVA_VERSION
+ARG JENKINS_SITE_NAME
+
+FROM jenkins/jenkins:2.289.1-jdk$JAVA_VERSION
+
 # use the value to set the ENV var default
-ENV JENKINS_SITE_NAME=${JENKINS_SITE_NAME}
-ENV JAVA_OPTS="${JAVA_OPTS} -Djenkins.install.runSetupWizard=false"
+ENV JENKINS_SITE_NAME=$JENKINS_SITE_NAME
+ENV JAVA_OPTS="-Djenkins.install.runSetupWizard=false"
+
+# use correct user
+USER jenkins
 
 # add copy all secrets
 COPY    --chown=jenkins:jenkins "casc/jenkins_home" "/var/jenkins_home" 
