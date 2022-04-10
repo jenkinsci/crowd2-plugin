@@ -1,20 +1,20 @@
 /*
  * @(#)CrowdRememberMeServices.java
- * 
+ *
  * The MIT License
- * 
+ *
  * Copyright (C)2011 Thorsten Heit.
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -55,44 +55,43 @@ import static de.theit.jenkins.crowd.ErrorMessages.operationFailed;
 
 /**
  * An implementation of the {@link RememberMeServices} to use SSO with Crowd.
- * 
+ *
  * @author <a href="mailto:theit@gmx.de">Thorsten Heit (theit@gmx.de)</a>
  * @since 06.09.2011
  * @version $Id$
  */
 public class CrowdRememberMeServices implements RememberMeServices {
-	/** Used for logging purposes. */
-	private static final Logger LOG = Logger.getLogger(CrowdRememberMeServices.class.getName());
+    /** Used for logging purposes. */
+    private static final Logger LOG = Logger.getLogger(CrowdRememberMeServices.class.getName());
 
-	/**
-	 * The configuration data necessary for accessing the services on the remote
-	 * Crowd server.
-	 */
-	private CrowdConfigurationService configuration;
+    /**
+     * The configuration data necessary for accessing the services on the remote
+     * Crowd server.
+     */
+    private CrowdConfigurationService configuration;
 
-	/**
-	 * Creates a new instance of this class.
-	 * 
-	 * @param pConfiguration
-	 *            The configuration to access the services on the remote Crowd
-	 *            server. May not be <code>null</code>.
-	 */
-	public CrowdRememberMeServices(CrowdConfigurationService pConfiguration) {
-		this.configuration = pConfiguration;
-	}
+    /**
+     * Creates a new instance of this class.
+     *
+     * @param pConfiguration The configuration to access the services on the remote
+     *                       Crowd server. May not be <code>null</code>.
+     */
+    public CrowdRememberMeServices(CrowdConfigurationService pConfiguration) {
+        this.configuration = pConfiguration;
+    }
 
-	/**
-	 * {@inheritDoc}
-	 * 
-	 * @see org.acegisecurity.ui.rememberme.RememberMeServices#autoLogin(javax.servlet.http.HttpServletRequest,
-	 *      javax.servlet.http.HttpServletResponse)
-	 */
-	@Override
-	public Authentication autoLogin(HttpServletRequest request,
-			HttpServletResponse response) {
-		Authentication result = null;
+    /**
+     * {@inheritDoc}
+     *
+     * @see org.acegisecurity.ui.rememberme.RememberMeServices#autoLogin(javax.servlet.http.HttpServletRequest,
+     *      javax.servlet.http.HttpServletResponse)
+     */
+    @Override
+    public Authentication autoLogin(HttpServletRequest request,
+            HttpServletResponse response) {
+        Authentication result = null;
 
-        if (configuration.isUseSSO()){
+        if (configuration.isUseSSO()) {
             List<ValidationFactor> validationFactors = this.configuration.getValidationFactors(request);
 
             // check whether a SSO token is available
@@ -142,126 +141,125 @@ public class CrowdRememberMeServices implements RememberMeServices {
                 }
             }
         }
-		return result;
-	}
+        return result;
+    }
 
-	/**
-	 * {@inheritDoc}
-	 * 
-	 * @see org.acegisecurity.ui.rememberme.RememberMeServices#loginFail(javax.servlet.http.HttpServletRequest,
-	 *      javax.servlet.http.HttpServletResponse)
-	 */
-	@Override
-	public void loginFail(HttpServletRequest request,
-			HttpServletResponse response) {
-		try {
-			if (LOG.isLoggable(Level.FINE)) {
-				LOG.fine("Login failed");
-			}
-			this.configuration.logout(request, response);
-		} catch (ApplicationPermissionException ex) {
-			LOG.warning(applicationPermission());
-		} catch (InvalidAuthenticationException ex) {
-			LOG.warning(invalidAuthentication());
-		} catch (OperationFailedException ex) {
-			LOG.log(Level.SEVERE, operationFailed(), ex);
-		}
-	}
+    /**
+     * {@inheritDoc}
+     *
+     * @see org.acegisecurity.ui.rememberme.RememberMeServices#loginFail(javax.servlet.http.HttpServletRequest,
+     *      javax.servlet.http.HttpServletResponse)
+     */
+    @Override
+    public void loginFail(HttpServletRequest request,
+            HttpServletResponse response) {
+        try {
+            if (LOG.isLoggable(Level.FINE)) {
+                LOG.fine("Login failed");
+            }
+            this.configuration.logout(request, response);
+        } catch (ApplicationPermissionException ex) {
+            LOG.warning(applicationPermission());
+        } catch (InvalidAuthenticationException ex) {
+            LOG.warning(invalidAuthentication());
+        } catch (OperationFailedException ex) {
+            LOG.log(Level.SEVERE, operationFailed(), ex);
+        }
+    }
 
-	/**
-	 * {@inheritDoc}
-	 * 
-	 * @see org.acegisecurity.ui.rememberme.RememberMeServices#loginSuccess(javax.servlet.http.HttpServletRequest,
-	 *      javax.servlet.http.HttpServletResponse,
-	 *      org.acegisecurity.Authentication)
-	 */
-	@Override
-	public void loginSuccess(HttpServletRequest request,
-                             HttpServletResponse response,
-                             Authentication successfulAuthentication) {
-		if (!(successfulAuthentication instanceof CrowdAuthenticationToken)) {
-			// authentication token doesn't belong to us...
-			return;
-		}
-		CrowdAuthenticationToken crowdAuthenticationToken = (CrowdAuthenticationToken) successfulAuthentication;
+    /**
+     * {@inheritDoc}
+     *
+     * @see org.acegisecurity.ui.rememberme.RememberMeServices#loginSuccess(javax.servlet.http.HttpServletRequest,
+     *      javax.servlet.http.HttpServletResponse,
+     *      org.acegisecurity.Authentication)
+     */
+    @Override
+    public void loginSuccess(HttpServletRequest request,
+            HttpServletResponse response,
+            Authentication successfulAuthentication) {
+        if (!(successfulAuthentication instanceof CrowdAuthenticationToken)) {
+            // authentication token doesn't belong to us...
+            return;
+        }
+        CrowdAuthenticationToken crowdAuthenticationToken = (CrowdAuthenticationToken) successfulAuthentication;
 
-		List<ValidationFactor> validationFactors = this.configuration.getValidationFactors(request);
+        List<ValidationFactor> validationFactors = this.configuration.getValidationFactors(request);
 
-		// check if there's already a SSO token in the authentication object
-		String ssoToken = crowdAuthenticationToken.getSSOToken();
+        // check if there's already a SSO token in the authentication object
+        String ssoToken = crowdAuthenticationToken.getSSOToken();
 
-		try {
-			if (null == ssoToken) {
-				// SSO token not yet available => authenticate the user and
-				// create the SSO token
-				if (LOG.isLoggable(Level.FINE)) {
-					LOG.fine("SSO token not yet available => authenticate user...");
-				}
-				this.configuration.authenticate(request, response, crowdAuthenticationToken.getName(), crowdAuthenticationToken.getCredentials());
+        try {
+            if (null == ssoToken) {
+                // SSO token not yet available => authenticate the user and
+                // create the SSO token
+                if (LOG.isLoggable(Level.FINE)) {
+                    LOG.fine("SSO token not yet available => authenticate user...");
+                }
+                this.configuration.authenticate(request, response, crowdAuthenticationToken.getName(),
+                        crowdAuthenticationToken.getCredentials());
 
-				// user is successfully authenticated
-				// => retrieve the SSO token
-				if (LOG.isLoggable(Level.FINER)) {
-					LOG.finer("Retrieve SSO token...");
-				}
-				ssoToken = this.configuration.getCrowdToken(request);
-			}
+                // user is successfully authenticated
+                // => retrieve the SSO token
+                if (LOG.isLoggable(Level.FINER)) {
+                    LOG.finer("Retrieve SSO token...");
+                }
+                ssoToken = this.configuration.getCrowdToken(request);
+            }
 
-			if (null == ssoToken) {
-				// SSO token could not be retrieved (should normally not happen)
-				// => logout
-				loginFail(request, response);
-				return;
-			}
+            if (null == ssoToken) {
+                // SSO token could not be retrieved (should normally not happen)
+                // => logout
+                loginFail(request, response);
+                return;
+            }
 
-			// validate the SSO authentication
-			if (LOG.isLoggable(Level.FINE)) {
-				LOG.fine("Validate the SSO authentication...");
-			}
-			this.configuration.validateSSOAuthentication(ssoToken, validationFactors);
+            // validate the SSO authentication
+            if (LOG.isLoggable(Level.FINE)) {
+                LOG.fine("Validate the SSO authentication...");
+            }
+            this.configuration.validateSSOAuthentication(ssoToken, validationFactors);
 
-			// alright, we're successfully authenticated via SSO
-			if (LOG.isLoggable(Level.FINE)) {
-				LOG.fine("Successfully authenticated via SSO");
-			}
-		} catch (InvalidTokenException ex) {
-			// LOG.log(Level.INFO, invalidToken(), ex);
-		} catch (ApplicationPermissionException ex) {
-			LOG.warning(applicationPermission());
-		} catch (InvalidAuthenticationException ex) {
-			LOG.warning(invalidAuthentication());
-		} catch (ExpiredCredentialException ex) {
-			LOG.warning(expiredCredentials(crowdAuthenticationToken.getName()));
-		} catch (InactiveAccountException ex) {
-			LOG.warning(accountExpired(crowdAuthenticationToken.getName()));
-		} catch (ApplicationAccessDeniedException ex) {
-			LOG.warning(applicationAccessDenied(crowdAuthenticationToken.getName()));
-		} catch (OperationFailedException ex) {
-			LOG.log(Level.SEVERE, operationFailed(), ex);
-		}
-	}
+            // alright, we're successfully authenticated via SSO
+            if (LOG.isLoggable(Level.FINE)) {
+                LOG.fine("Successfully authenticated via SSO");
+            }
+        } catch (InvalidTokenException ex) {
+            // LOG.log(Level.INFO, invalidToken(), ex);
+        } catch (ApplicationPermissionException ex) {
+            LOG.warning(applicationPermission());
+        } catch (InvalidAuthenticationException ex) {
+            LOG.warning(invalidAuthentication());
+        } catch (ExpiredCredentialException ex) {
+            LOG.warning(expiredCredentials(crowdAuthenticationToken.getName()));
+        } catch (InactiveAccountException ex) {
+            LOG.warning(accountExpired(crowdAuthenticationToken.getName()));
+        } catch (ApplicationAccessDeniedException ex) {
+            LOG.warning(applicationAccessDenied(crowdAuthenticationToken.getName()));
+        } catch (OperationFailedException ex) {
+            LOG.log(Level.SEVERE, operationFailed(), ex);
+        }
+    }
 
-	/**
-	 * Logout the actual user and close the SSO session.
-	 * 
-	 * @param request
-	 *            The servlet request. May not be <code>null</code>.
-	 * @param response
-	 *            The servlet response. May not be <code>null</code>.
-	 */
-	public void logout(HttpServletRequest request, HttpServletResponse response) {
-		try {
-			// logout the user and close the SSO session
-			if (LOG.isLoggable(Level.FINE)) {
-				LOG.fine("Logout user and close SSO session");
-			}
-			this.configuration.logout(request, response);
-		} catch (ApplicationPermissionException ex) {
-			LOG.warning(applicationPermission());
-		} catch (InvalidAuthenticationException ex) {
-			LOG.warning(invalidAuthentication());
-		} catch (OperationFailedException ex) {
-			LOG.log(Level.SEVERE, operationFailed(), ex);
-		}
-	}
+    /**
+     * Logout the actual user and close the SSO session.
+     *
+     * @param request  The servlet request. May not be <code>null</code>.
+     * @param response The servlet response. May not be <code>null</code>.
+     */
+    public void logout(HttpServletRequest request, HttpServletResponse response) {
+        try {
+            // logout the user and close the SSO session
+            if (LOG.isLoggable(Level.FINE)) {
+                LOG.fine("Logout user and close SSO session");
+            }
+            this.configuration.logout(request, response);
+        } catch (ApplicationPermissionException ex) {
+            LOG.warning(applicationPermission());
+        } catch (InvalidAuthenticationException ex) {
+            LOG.warning(invalidAuthentication());
+        } catch (OperationFailedException ex) {
+            LOG.log(Level.SEVERE, operationFailed(), ex);
+        }
+    }
 }

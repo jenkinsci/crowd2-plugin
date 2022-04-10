@@ -1,20 +1,20 @@
 /*
  * @(#)CrowdUserDetailsService.java
- * 
+ *
  * The MIT License
- * 
+ *
  * Copyright (C)2011 Thorsten Heit.
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -52,79 +52,78 @@ import static de.theit.jenkins.crowd.ErrorMessages.userNotValid;
 /**
  * This class provides the service to load a user object from the remote Crowd
  * server.
- * 
+ *
  * @author <a href="mailto:theit@gmx.de">Thorsten Heit (theit@gmx.de)</a>
  * @since 07.09.2011
  * @version $Id$
  */
 public class CrowdUserDetailsService implements UserDetailsService {
-	/** Used for logging purposes. */
-	private static final Logger LOG = Logger
-			.getLogger(CrowdUserDetailsService.class.getName());
+    /** Used for logging purposes. */
+    private static final Logger LOG = Logger
+            .getLogger(CrowdUserDetailsService.class.getName());
 
-	/**
-	 * The configuration data necessary for accessing the services on the remote
-	 * Crowd server.
-	 */
-	private CrowdConfigurationService configuration;
+    /**
+     * The configuration data necessary for accessing the services on the remote
+     * Crowd server.
+     */
+    private CrowdConfigurationService configuration;
 
-	/**
-	 * Creates a new instance of this class.
-	 * 
-	 * @param pConfiguration
-	 *            The configuration to access the services on the remote Crowd
-	 *            server. May not be <code>null</code>.
-	 */
-	public CrowdUserDetailsService(CrowdConfigurationService pConfiguration) {
-		this.configuration = pConfiguration;
-	}
+    /**
+     * Creates a new instance of this class.
+     *
+     * @param pConfiguration The configuration to access the services on the remote
+     *                       Crowd server. May not be <code>null</code>.
+     */
+    public CrowdUserDetailsService(CrowdConfigurationService pConfiguration) {
+        this.configuration = pConfiguration;
+    }
 
-	/**
-	 * {@inheritDoc}
-	 * 
-	 * @see org.acegisecurity.userdetails.UserDetailsService#loadUserByUsername(java.lang.String)
-	 */
-	@Override
-	public UserDetails loadUserByUsername(String username)
-			throws UsernameNotFoundException, DataAccessException {
+    /**
+     * {@inheritDoc}
+     *
+     * @see org.acegisecurity.userdetails.UserDetailsService#loadUserByUsername(java.lang.String)
+     */
+    @Override
+    public UserDetails loadUserByUsername(String username)
+            throws UsernameNotFoundException, DataAccessException {
 
-		// check whether there's at least one active group the user is a member
-		// of
-		if (!this.configuration.isGroupMember(username)) {
-			throw new DataRetrievalFailureException(userNotValid(username,
-					this.configuration.getAllowedGroupNames()));
-		}
-		User user;
-		try {
-			// load the user object from the remote Crowd server
-			if (LOG.isLoggable(Level.FINE)) {
-				LOG.fine("Loading user object from the remote Crowd server...");
-			}
-			user = this.configuration.getUser(username);
-		} catch (UserNotFoundException ex) {
-			if (LOG.isLoggable(Level.INFO)) {
-				LOG.info(userNotFound(username));
-			}
-			throw new UsernameNotFoundException(userNotFound(username), ex);
-		} catch (ApplicationPermissionException ex) {
-			LOG.warning(applicationPermission());
-			throw new DataRetrievalFailureException(applicationPermission(), ex);
-		} catch (InvalidAuthenticationException ex) {
-			LOG.warning(invalidAuthentication());
-			throw new DataRetrievalFailureException(invalidAuthentication(), ex);
-		} catch (OperationFailedException ex) {
-			LOG.log(Level.SEVERE, operationFailed(), ex);
-			throw new DataRetrievalFailureException(operationFailed(), ex);
-		}
+        // check whether there's at least one active group the user is a member
+        // of
+        if (!this.configuration.isGroupMember(username)) {
+            throw new DataRetrievalFailureException(userNotValid(username,
+                    this.configuration.getAllowedGroupNames()));
+        }
+        User user;
+        try {
+            // load the user object from the remote Crowd server
+            if (LOG.isLoggable(Level.FINE)) {
+                LOG.fine("Loading user object from the remote Crowd server...");
+            }
+            user = this.configuration.getUser(username);
+        } catch (UserNotFoundException ex) {
+            if (LOG.isLoggable(Level.INFO)) {
+                LOG.info(userNotFound(username));
+            }
+            throw new UsernameNotFoundException(userNotFound(username), ex);
+        } catch (ApplicationPermissionException ex) {
+            LOG.warning(applicationPermission());
+            throw new DataRetrievalFailureException(applicationPermission(), ex);
+        } catch (InvalidAuthenticationException ex) {
+            LOG.warning(invalidAuthentication());
+            throw new DataRetrievalFailureException(invalidAuthentication(), ex);
+        } catch (OperationFailedException ex) {
+            LOG.log(Level.SEVERE, operationFailed(), ex);
+            throw new DataRetrievalFailureException(operationFailed(), ex);
+        }
 
-		// create the list of granted authorities
-		List<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>();
-		// add the "authenticated" authority to the list of granted
-		// authorities...
-		authorities.add(SecurityRealm.AUTHENTICATED_AUTHORITY);
-		// ..and all authorities retrieved from the Crowd server
-		authorities.addAll(this.configuration.getAuthoritiesForUser(username));
+        // create the list of granted authorities
+        List<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>();
+        // add the "authenticated" authority to the list of granted
+        // authorities...
+        authorities.add(SecurityRealm.AUTHENTICATED_AUTHORITY);
+        // ..and all authorities retrieved from the Crowd server
+        authorities.addAll(this.configuration.getAuthoritiesForUser(username));
 
-		return new CrowdUser(user, authorities);
-	}
+        return new CrowdUser(user, authorities);
+    }
 }

@@ -1,20 +1,20 @@
 /*
  * @(#)CrowdAuthenticationToken.java
- * 
+ *
  * The MIT License
- * 
+ *
  * Copyright (C)2011 Thorsten Heit.
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -36,104 +36,100 @@ import org.apache.commons.lang.StringUtils;
 /**
  * This class represents an authentication token that is created after a user
  * was successfully authenticated against the remote Crowd server.
- * 
+ *
  * @author <a href="mailto:theit@gmx.de">Thorsten Heit (theit@gmx.de)</a>
  * @since 07.09.2011
  * @version $Id$
  */
 public class CrowdAuthenticationToken extends AbstractAuthenticationToken {
-	/** For serialization. */
-	private static final long serialVersionUID = 7685110934682676618L;
+    /** For serialization. */
+    private static final long serialVersionUID = 7685110934682676618L;
 
-	/** The SSO token. */
-	private String credentials;
+    /** The SSO token. */
+    private String credentials;
 
-	/** The authenticated Crowd user. */
-	private UserDetails principal;
+    /** The authenticated Crowd user. */
+    private UserDetails principal;
 
-	/** The Crowd SSO token after a successful login. */
-	private String ssoToken;
+    /** The Crowd SSO token after a successful login. */
+    private String ssoToken;
 
-	/**
-	 * Creates a new authorization token.
-	 * 
-	 * @param pPrincipal
-	 *            The name of the authenticated Crowd user. May not be
-	 *            <code>null</code>.
-	 * @param pCredentials
-	 *            The credentials. Normally the users password. May only be
-	 *            <code>null</code> when the SSO token is given.
-	 * @param authorities
-	 *            The list of granted authorities for the user. May not be
-	 *            <code>null</code>.
-	 * @param pSsoToken
-	 *            The Crowd SSO token. May be <code>null</code> if the token is
-	 *            not (yet) available.
-	 */
-	public CrowdAuthenticationToken(String pPrincipal, String pCredentials,
-			List<GrantedAuthority> authorities, String pSsoToken) {
-		super(authorities.toArray(new GrantedAuthority[authorities.size()]));
-		this.principal =  Jenkins.getInstance().getSecurityRealm().loadUserByUsername(pPrincipal);
-		this.credentials = pCredentials;
-		this.ssoToken = pSsoToken;
-		super.setAuthenticated(true);
-	}
+    /**
+     * Creates a new authorization token.
+     *
+     * @param pPrincipal   The name of the authenticated Crowd user. May not be
+     *                     <code>null</code>.
+     * @param pCredentials The credentials. Normally the users password. May only be
+     *                     <code>null</code> when the SSO token is given.
+     * @param authorities  The list of granted authorities for the user. May not be
+     *                     <code>null</code>.
+     * @param pSsoToken    The Crowd SSO token. May be <code>null</code> if the
+     *                     token is not (yet) available.
+     */
+    public CrowdAuthenticationToken(String pPrincipal, String pCredentials,
+            List<GrantedAuthority> authorities, String pSsoToken) {
+        super(authorities.toArray(new GrantedAuthority[authorities.size()]));
+        this.principal = Jenkins.getInstance().getSecurityRealm().loadUserByUsername(pPrincipal);
+        this.credentials = pCredentials;
+        this.ssoToken = pSsoToken;
+        super.setAuthenticated(true);
+    }
 
-	/**
-	 * {@inheritDoc}
-	 * 
-	 * @see org.acegisecurity.Authentication#getCredentials()
-	 */
-	@Override
-	public String getCredentials() {
-		return this.credentials;
-	}
+    /**
+     * {@inheritDoc}
+     *
+     * @see org.acegisecurity.Authentication#getCredentials()
+     */
+    @Override
+    public String getCredentials() {
+        return this.credentials;
+    }
 
-	/**
-	 * {@inheritDoc}
-	 * 
-	 * @see org.acegisecurity.Authentication#getPrincipal()
-	 */
-	@Override
-	public UserDetails getPrincipal() {
-		return this.principal;
-	}
+    /**
+     * {@inheritDoc}
+     *
+     * @see org.acegisecurity.Authentication#getPrincipal()
+     */
+    @Override
+    public UserDetails getPrincipal() {
+        return this.principal;
+    }
 
-	/**
-	 * Returns the SSO token.
-	 * 
-	 * @return The SSO token. <code>null</code> if the token is not (yet)
-	 *         available.
-	 */
-	public String getSSOToken() {
-		return this.ssoToken;
-	}
+    /**
+     * Returns the SSO token.
+     *
+     * @return The SSO token. <code>null</code> if the token is not (yet)
+     *         available.
+     */
+    public String getSSOToken() {
+        return this.ssoToken;
+    }
 
-	/**
-	 * {@inheritDoc}
-	 * 
-	 * @see org.acegisecurity.providers.AbstractAuthenticationToken#getName()
-	 */
-	@Override
-	public String getName() {
-	return super.getName();
-	/*
-		if (null == this.displayName) {
-			return super.getName();
-		}
-		// append the user Id stored in getName() at the end of the display name
-		return this.displayName + " (" + super.getName() + ')';
-		*/
-	}
-	
-	
-	 public  static void updateUserInfo(com.atlassian.crowd.model.user.User user) {
-	    final String displayName = user == null ? null :  user.getDisplayName();
-        if(StringUtils.isNotBlank(displayName)){
+    /**
+     * {@inheritDoc}
+     *
+     * @see org.acegisecurity.providers.AbstractAuthenticationToken#getName()
+     */
+    @Override
+    public String getName() {
+        return super.getName();
+        /*
+         * if (null == this.displayName) {
+         * return super.getName();
+         * }
+         * // append the user Id stored in getName() at the end of the display name
+         * return this.displayName + " (" + super.getName() + ')';
+         */
+    }
+
+    public static void updateUserInfo(com.atlassian.crowd.model.user.User user) {
+        final String displayName = user == null ? null : user.getDisplayName();
+        if (StringUtils.isNotBlank(displayName)) {
             final String username = user.getName();
-            getJenkinsUser(username).setFullName(displayName + " (" + username+ ')');
-        }	
-	 }
+            getJenkinsUser(username).setFullName(displayName + " (" + username + ')');
+        }
+    }
+
     /**
      * Gets the corresponding {@link hudson.model.User} object.
      */

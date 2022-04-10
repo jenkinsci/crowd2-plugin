@@ -1,20 +1,20 @@
 /*
  * @(#)CrowdConfigurationService.java
- * 
+ *
  * The MIT License
- * 
+ *
  * Copyright (C)2011 Thorsten Heit.
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -88,10 +88,10 @@ public class CrowdConfigurationService {
 
     /**
      * Classloader problem with Java 11 and jaxb
-     * 
+     *
      */
-	//TODO remove it if a better solutions is found without classloader hack
-	//@Issue("JENKINS-59301")
+    // TODO remove it if a better solutions is found without classloader hack
+    // @Issue("JENKINS-59301")
     private static final boolean IS_MIN_JAVA_11 = SystemUtils.JAVA_VERSION_FLOAT >= 11.0f;
 
     /**
@@ -157,37 +157,39 @@ public class CrowdConfigurationService {
     /**
      * Creates a new Crowd configuration object.
      *
-     * @param url The Crowd URL
-     * @param applicationName The Crowd application name
-     * @param password The Crowd application password
+     * @param url                       The Crowd URL
+     * @param applicationName           The Crowd application name
+     * @param password                  The Crowd application password
      * @param sessionValidationInterval The session validation interval
-     * @param useSSO Specifies if SSO should be enabled
-     * @param cookieDomain The cookie domain
-     * @param cookieTokenkey The cookie token key
-     * @param useProxy the Specifies if a proxy should be used
-     * @param httpProxyHost The http proxy host
-     * @param httpProxyPort The http proxy port
-     * @param httpProxyUsername The http proxy username
-     * @param httpProxyPassword The http proxy password
-     * @param socketTimeout The socket timeout
-     * @param httpTimeout The http timeout
-     * @param httpMaxConnections The http max connections
-     * @param useCache The use cache
-     * @param cacheSize the cache size
-     * @param cacheTTL The cache TTL
-     * @param pGroupNames   The group names to use when authenticating Crowd users. May
-     *                      not be <code>null</code>.
-     * @param pNestedGroups Specifies whether nested groups should be used when validating
-     *                      users against a group name.
+     * @param useSSO                    Specifies if SSO should be enabled
+     * @param cookieDomain              The cookie domain
+     * @param cookieTokenkey            The cookie token key
+     * @param useProxy                  the Specifies if a proxy should be used
+     * @param httpProxyHost             The http proxy host
+     * @param httpProxyPort             The http proxy port
+     * @param httpProxyUsername         The http proxy username
+     * @param httpProxyPassword         The http proxy password
+     * @param socketTimeout             The socket timeout
+     * @param httpTimeout               The http timeout
+     * @param httpMaxConnections        The http max connections
+     * @param useCache                  The use cache
+     * @param cacheSize                 the cache size
+     * @param cacheTTL                  The cache TTL
+     * @param pGroupNames               The group names to use when authenticating
+     *                                  Crowd users. May
+     *                                  not be <code>null</code>.
+     * @param pNestedGroups             Specifies whether nested groups should be
+     *                                  used when validating
+     *                                  users against a group name.
      */
     public CrowdConfigurationService(String url, String applicationName, Secret password,
-                                     int sessionValidationInterval, boolean useSSO,
-                                     String cookieDomain, String cookieTokenkey, Boolean useProxy,
-                                     String httpProxyHost, String httpProxyPort, String httpProxyUsername,
-                                     Secret httpProxyPassword, String socketTimeout,
-                                     String httpTimeout, String httpMaxConnections,
-                                     boolean useCache, Integer cacheSize, Integer cacheTTL,
-                                     String pGroupNames, boolean pNestedGroups) {
+            int sessionValidationInterval, boolean useSSO,
+            String cookieDomain, String cookieTokenkey, Boolean useProxy,
+            String httpProxyHost, String httpProxyPort, String httpProxyUsername,
+            Secret httpProxyPassword, String socketTimeout,
+            String httpTimeout, String httpMaxConnections,
+            boolean useCache, Integer cacheSize, Integer cacheTTL,
+            String pGroupNames, boolean pNestedGroups) {
 
         if (LOG.isLoggable(Level.INFO)) {
             LOG.info("Groups given for Crowd configuration service: " + pGroupNames);
@@ -231,11 +233,11 @@ public class CrowdConfigurationService {
      * Checks whether the user is a member of one of the Crowd groups whose
      * members are allowed to login.
      *
-     * @param username The name of the user to check. May not be <code>null</code> or
-     *                 empty.
+     * @param username The name of the user to check. May not be <code>null</code>
+     *                 or empty.
      * @return <code>true</code> if and only if the group exists, is active and
-     * the user is either a direct group member or, if nested groups may
-     * be used, a nested group member. <code>false</code> else.
+     *         the user is either a direct group member or, if nested groups may
+     *         be used, a nested group member. <code>false</code> else.
      */
     public boolean isGroupMember(String username) {
         if (username == null) {
@@ -300,13 +302,17 @@ public class CrowdConfigurationService {
      * @param groupName The name of the group to check. May not be <code>null</code>
      *                  or empty.
      * @return <code>true</code> if and only if the group name is not empty,
-     * does exist on the remote Crowd server and is active.
-     * <code>false</code> else.
-     * @throws InvalidAuthenticationException If the application and password are not valid.
-     * @throws ApplicationPermissionException If the application is not permitted to perform the requested
-     *                                        operation on the server
-     * @throws OperationFailedException       If the operation has failed for any other reason, including
-     *                                        invalid arguments and the operation not being supported on
+     *         does exist on the remote Crowd server and is active.
+     *         <code>false</code> else.
+     * @throws InvalidAuthenticationException If the application and password are
+     *                                        not valid.
+     * @throws ApplicationPermissionException If the application is not permitted to
+     *                                        perform the requested operation on the
+     *                                        server
+     * @throws OperationFailedException       If the operation has failed for any
+     *                                        other reason, including
+     *                                        invalid arguments and the operation
+     *                                        not being supported on
      *                                        the server.
      */
     public boolean isGroupActive(String groupName)
@@ -337,7 +343,7 @@ public class CrowdConfigurationService {
      *
      * @param username The name of the user. May not be <code>null</code>.
      * @return The list of all groups that the user is a member of. Always
-     * non-null.
+     *         non-null.
      */
     public Collection<GrantedAuthority> getAuthoritiesForUser(String username) {
         // Load the entry from cache
@@ -369,8 +375,8 @@ public class CrowdConfigurationService {
                     });
             HashSet<String> groupNames = new HashSet<>();
 
-            // retrieve the names of all groups the user is a directly or indirectly member of
-            // if this configuration setting is active/enabled
+            // retrieve the names of all groups the user is a directly or indirectly member
+            // of if this configuration setting is active/enabled
             if (this.nestedGroups) {
                 try {
                     int index = 0;
@@ -461,7 +467,8 @@ public class CrowdConfigurationService {
     }
 
     public User authenticateUser(String login, String password) throws UserNotFoundException, InactiveAccountException,
-            ExpiredCredentialException, ApplicationPermissionException, InvalidAuthenticationException, OperationFailedException {
+            ExpiredCredentialException, ApplicationPermissionException, InvalidAuthenticationException,
+            OperationFailedException {
         if (LOG.isLoggable(Level.FINEST)) {
             LOG.finest("CrowdClient.authenticateUser()");
         }
@@ -471,17 +478,18 @@ public class CrowdConfigurationService {
             currentThread = Thread.currentThread();
             orgContextClassLoader = currentThread.getContextClassLoader();
             currentThread.setContextClassLoader(CrowdConfigurationService.class.getClassLoader());
-        } 
+        }
         try {
-        	return crowdClient.authenticateUser(login, password);
-		} finally {
-		    if (currentThread != null) {
-		        currentThread.setContextClassLoader(orgContextClassLoader);
-		    }
-		}
+            return crowdClient.authenticateUser(login, password);
+        } finally {
+            if (currentThread != null) {
+                currentThread.setContextClassLoader(orgContextClassLoader);
+            }
+        }
     }
 
-    public User getUser(String username) throws UserNotFoundException, OperationFailedException, ApplicationPermissionException, InvalidAuthenticationException {
+    public User getUser(String username) throws UserNotFoundException, OperationFailedException,
+            ApplicationPermissionException, InvalidAuthenticationException {
         // Load the entry from cache
         User cachedRep;
         if (useCache) {
@@ -512,12 +520,12 @@ public class CrowdConfigurationService {
                 currentThread.setContextClassLoader(CrowdConfigurationService.class.getClassLoader());
             }
             try {
-            	retval = crowdClient.getUser(username);
-	        } finally {
-			    if (currentThread != null) {
-			        currentThread.setContextClassLoader(orgContextClassLoader);
-			    }
-			}
+                retval = crowdClient.getUser(username);
+            } finally {
+                if (currentThread != null) {
+                    currentThread.setContextClassLoader(orgContextClassLoader);
+                }
+            }
         }
         // Let's save the entry in the cache if necessary
         if (useCache && cachedRep == null && retval != null) {
@@ -531,7 +539,8 @@ public class CrowdConfigurationService {
         return retval;
     }
 
-    public Group getGroup(String name) throws GroupNotFoundException, OperationFailedException, InvalidAuthenticationException, ApplicationPermissionException {
+    public Group getGroup(String name) throws GroupNotFoundException, OperationFailedException,
+            InvalidAuthenticationException, ApplicationPermissionException {
         // Load the entry from cache
         Group cachedRep;
         if (useCache) {
@@ -562,12 +571,12 @@ public class CrowdConfigurationService {
                 currentThread.setContextClassLoader(CrowdConfigurationService.class.getClassLoader());
             }
             try {
-            	retval = crowdClient.getGroup(name);
-	        } finally {
-			    if (currentThread != null) {
-			        currentThread.setContextClassLoader(orgContextClassLoader);
-			    }
-			}
+                retval = crowdClient.getGroup(name);
+            } finally {
+                if (currentThread != null) {
+                    currentThread.setContextClassLoader(orgContextClassLoader);
+                }
+            }
         }
         // Let's save the entry in the cache if necessary
         if (useCache && cachedRep == null && retval != null) {
@@ -582,7 +591,8 @@ public class CrowdConfigurationService {
     }
 
     public List<Group> getGroupsForNestedUser(String username, int start, int size)
-            throws OperationFailedException, InvalidAuthenticationException, ApplicationPermissionException, UserNotFoundException {
+            throws OperationFailedException, InvalidAuthenticationException, ApplicationPermissionException,
+            UserNotFoundException {
         if (LOG.isLoggable(Level.FINEST)) {
             LOG.finest("CrowdClient.getGroupsForNestedUser()");
         }
@@ -594,15 +604,16 @@ public class CrowdConfigurationService {
             currentThread.setContextClassLoader(CrowdConfigurationService.class.getClassLoader());
         }
         try {
-        	return crowdClient.getGroupsForNestedUser(username, start, size);
+            return crowdClient.getGroupsForNestedUser(username, start, size);
         } finally {
-		    if (currentThread != null) {
-		        currentThread.setContextClassLoader(orgContextClassLoader);
-		    }
-		}
+            if (currentThread != null) {
+                currentThread.setContextClassLoader(orgContextClassLoader);
+            }
+        }
     }
 
-    public List<Group> getGroupsForUser(String username, int start, int size) throws OperationFailedException, InvalidAuthenticationException, ApplicationPermissionException, UserNotFoundException {
+    public List<Group> getGroupsForUser(String username, int start, int size) throws OperationFailedException,
+            InvalidAuthenticationException, ApplicationPermissionException, UserNotFoundException {
         if (LOG.isLoggable(Level.FINEST)) {
             LOG.finest("CrowdClient.getGroupsForUser()");
         }
@@ -614,12 +625,12 @@ public class CrowdConfigurationService {
             currentThread.setContextClassLoader(CrowdConfigurationService.class.getClassLoader());
         }
         try {
-        	return crowdClient.getGroupsForUser(username, start, size);
-	    } finally {
-		    if (currentThread != null) {
-		        currentThread.setContextClassLoader(orgContextClassLoader);
-		    }
-		}
+            return crowdClient.getGroupsForUser(username, start, size);
+        } finally {
+            if (currentThread != null) {
+                currentThread.setContextClassLoader(orgContextClassLoader);
+            }
+        }
     }
 
     public boolean isUserDirectGroupMember(String username, String groupname)
@@ -635,12 +646,12 @@ public class CrowdConfigurationService {
             currentThread.setContextClassLoader(CrowdConfigurationService.class.getClassLoader());
         }
         try {
-        	return crowdClient.isUserDirectGroupMember(username, groupname);
-	    } finally {
-		    if (currentThread != null) {
-		        currentThread.setContextClassLoader(orgContextClassLoader);
-		    }
-		}
+            return crowdClient.isUserDirectGroupMember(username, groupname);
+        } finally {
+            if (currentThread != null) {
+                currentThread.setContextClassLoader(orgContextClassLoader);
+            }
+        }
     }
 
     public boolean isUserNestedGroupMember(String username, String groupname)
@@ -656,16 +667,17 @@ public class CrowdConfigurationService {
             currentThread.setContextClassLoader(CrowdConfigurationService.class.getClassLoader());
         }
         try {
-        	return crowdClient.isUserNestedGroupMember(username, groupname);
-	    } finally {
-		    if (currentThread != null) {
-		        currentThread.setContextClassLoader(orgContextClassLoader);
-		    }
-		}
+            return crowdClient.isUserNestedGroupMember(username, groupname);
+        } finally {
+            if (currentThread != null) {
+                currentThread.setContextClassLoader(orgContextClassLoader);
+            }
+        }
     }
 
     public void validateSSOAuthentication(String token, List<ValidationFactor> list)
-            throws OperationFailedException, InvalidAuthenticationException, ApplicationPermissionException, InvalidTokenException {
+            throws OperationFailedException, InvalidAuthenticationException, ApplicationPermissionException,
+            InvalidTokenException {
         if (LOG.isLoggable(Level.FINEST)) {
             LOG.finest("CrowdClient.validateSSOAuthentication()");
         }
@@ -677,15 +689,16 @@ public class CrowdConfigurationService {
             currentThread.setContextClassLoader(CrowdConfigurationService.class.getClassLoader());
         }
         try {
-        	crowdClient.validateSSOAuthentication(token, list);
-	    } finally {
-		    if (currentThread != null) {
-		        currentThread.setContextClassLoader(orgContextClassLoader);
-		    }
-		}
+            crowdClient.validateSSOAuthentication(token, list);
+        } finally {
+            if (currentThread != null) {
+                currentThread.setContextClassLoader(orgContextClassLoader);
+            }
+        }
     }
 
-    public User findUserFromSSOToken(String token) throws OperationFailedException, InvalidAuthenticationException, ApplicationPermissionException, InvalidTokenException {
+    public User findUserFromSSOToken(String token) throws OperationFailedException, InvalidAuthenticationException,
+            ApplicationPermissionException, InvalidTokenException {
         // Load the entry from cache
         User cachedRep;
         if (useCache) {
@@ -716,12 +729,12 @@ public class CrowdConfigurationService {
                 currentThread.setContextClassLoader(CrowdConfigurationService.class.getClassLoader());
             }
             try {
-	            retval = crowdClient.findUserFromSSOToken(token);
-		    } finally {
-			    if (currentThread != null) {
-			        currentThread.setContextClassLoader(orgContextClassLoader);
-			    }
-			}
+                retval = crowdClient.findUserFromSSOToken(token);
+            } finally {
+                if (currentThread != null) {
+                    currentThread.setContextClassLoader(orgContextClassLoader);
+                }
+            }
         }
         // Let's save the entry in the cache if necessary
         if (useCache && cachedRep == null && retval != null) {
@@ -747,15 +760,16 @@ public class CrowdConfigurationService {
             currentThread.setContextClassLoader(CrowdConfigurationService.class.getClassLoader());
         }
         try {
-	        crowdClient.shutdown();
-	    } finally {
-		    if (currentThread != null) {
-		        currentThread.setContextClassLoader(orgContextClassLoader);
-		    }
-		}
+            crowdClient.shutdown();
+        } finally {
+            if (currentThread != null) {
+                currentThread.setContextClassLoader(orgContextClassLoader);
+            }
+        }
     }
 
-    public void testConnection() throws OperationFailedException, InvalidAuthenticationException, ApplicationPermissionException {
+    public void testConnection()
+            throws OperationFailedException, InvalidAuthenticationException, ApplicationPermissionException {
         ClassLoader orgContextClassLoader = null;
         Thread currentThread = null;
         if (IS_MIN_JAVA_11) {
@@ -767,12 +781,12 @@ public class CrowdConfigurationService {
             LOG.finest("CrowdClient.testConnection()");
         }
         try {
-        	crowdClient.testConnection();
-	    } finally {
-		    if (currentThread != null) {
-		        currentThread.setContextClassLoader(orgContextClassLoader);
-		    }
-		}
+            crowdClient.testConnection();
+        } finally {
+            if (currentThread != null) {
+                currentThread.setContextClassLoader(orgContextClassLoader);
+            }
+        }
     }
 
     public String getCrowdToken(HttpServletRequest httpServletRequest) {
@@ -802,17 +816,20 @@ public class CrowdConfigurationService {
             currentThread.setContextClassLoader(CrowdConfigurationService.class.getClassLoader());
         }
         try {
-        	crowdHttpAuthenticator.logout(httpServletRequest, httpServletResponse);
-	    } finally {
-	        if (currentThread != null) {
-	            currentThread.setContextClassLoader(orgContextClassLoader);
-	        }
-	    }
+            crowdHttpAuthenticator.logout(httpServletRequest, httpServletResponse);
+        } finally {
+            if (currentThread != null) {
+                currentThread.setContextClassLoader(orgContextClassLoader);
+            }
+        }
     }
 
-    public User authenticate(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, String name,
-            String credentials) throws ApplicationPermissionException, InvalidAuthenticationException, OperationFailedException,
-            ApplicationAccessDeniedException, ExpiredCredentialException, InactiveAccountException, InvalidTokenException {
+    public User authenticate(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse,
+            String name,
+            String credentials)
+            throws ApplicationPermissionException, InvalidAuthenticationException, OperationFailedException,
+            ApplicationAccessDeniedException, ExpiredCredentialException, InactiveAccountException,
+            InvalidTokenException {
         if (LOG.isLoggable(Level.FINEST)) {
             LOG.finest("CrowdHttpAuthenticator.authenticate()");
         }
@@ -824,12 +841,12 @@ public class CrowdConfigurationService {
             currentThread.setContextClassLoader(CrowdConfigurationService.class.getClassLoader());
         }
         try {
-        	return crowdHttpAuthenticator.authenticate(httpServletRequest, httpServletResponse, name, credentials);
-	    } finally {
-	        if (currentThread != null) {
-	            currentThread.setContextClassLoader(orgContextClassLoader);
-	        }
-	    }
+            return crowdHttpAuthenticator.authenticate(httpServletRequest, httpServletResponse, name, credentials);
+        } finally {
+            if (currentThread != null) {
+                currentThread.setContextClassLoader(orgContextClassLoader);
+            }
+        }
     }
 
     public boolean isAuthenticated(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse)
@@ -845,29 +862,34 @@ public class CrowdConfigurationService {
             currentThread.setContextClassLoader(CrowdConfigurationService.class.getClassLoader());
         }
         try {
-        	return crowdHttpAuthenticator.isAuthenticated(httpServletRequest, httpServletResponse);
+            return crowdHttpAuthenticator.isAuthenticated(httpServletRequest, httpServletResponse);
         } finally {
-	        if (currentThread != null) {
-	            currentThread.setContextClassLoader(orgContextClassLoader);
-	        }
+            if (currentThread != null) {
+                currentThread.setContextClassLoader(orgContextClassLoader);
+            }
         }
     }
 
     /**
      * Checks whether the user is a member of the given Crowd group.
      *
-     * @param username The name of the user to check. May not be <code>null</code> or
+     * @param username The name of the user to check. May not be <code>null</code>
+     *                 or
      *                 empty.
      * @param group    The name of the group to check the user against. May not be
      *                 <code>null</code>.
      * @return <code>true</code> if and only if the group exists, is active and
-     * the user is either a direct group member or, if nested groups may
-     * be used, a nested group member. <code>false</code> else.
-     * @throws ApplicationPermissionException If the application is not permitted to perform the requested
+     *         the user is either a direct group member or, if nested groups may
+     *         be used, a nested group member. <code>false</code> else.
+     * @throws ApplicationPermissionException If the application is not permitted to
+     *                                        perform the requested
      *                                        operation on the server.
-     * @throws InvalidAuthenticationException If the application and password are not valid.
-     * @throws OperationFailedException       If the operation has failed for any other reason, including
-     *                                        invalid arguments and the operation not being supported on
+     * @throws InvalidAuthenticationException If the application and password are
+     *                                        not valid.
+     * @throws OperationFailedException       If the operation has failed for any
+     *                                        other reason, including
+     *                                        invalid arguments and the operation
+     *                                        not being supported on
      *                                        the server.
      */
     private boolean isGroupMember(String username, String group)
@@ -899,12 +921,13 @@ public class CrowdConfigurationService {
     }
 
     private Properties getProperties(String url, String applicationName, String password,
-                                     int sessionValidationInterval, boolean useSSO,
-                                     String cookieDomain, String cookieTokenkey, Boolean useProxy,
-                                     String httpProxyHost, String httpProxyPort, String httpProxyUsername,
-                                     String httpProxyPassword, String socketTimeout,
-                                     String httpTimeout, String httpMaxConnections) {
-        // for https://docs.atlassian.com/crowd/2.7.1/com/atlassian/crowd/service/client/ClientPropertiesImpl.html
+            int sessionValidationInterval, boolean useSSO,
+            String cookieDomain, String cookieTokenkey, Boolean useProxy,
+            String httpProxyHost, String httpProxyPort, String httpProxyUsername,
+            String httpProxyPassword, String socketTimeout,
+            String httpTimeout, String httpMaxConnections) {
+        // for
+        // https://docs.atlassian.com/crowd/2.7.1/com/atlassian/crowd/service/client/ClientPropertiesImpl.html
         Properties props = new Properties();
 
         String crowdUrl = url;
@@ -917,7 +940,7 @@ public class CrowdConfigurationService {
         props.setProperty("application.login.url", crowdUrl + "console/");
         props.setProperty("crowd.server.url", crowdUrl + "services/");
         props.setProperty("session.validationinterval", String.valueOf(sessionValidationInterval));
-        //TODO move other values to jenkins web configuration
+        // TODO move other values to jenkins web configuration
         props.setProperty("session.isauthenticated", "session.isauthenticated");
         props.setProperty("session.tokenkey", "session.tokenkey");
         props.setProperty("session.lastvalidation", "session.lastvalidation");
@@ -969,16 +992,17 @@ public class CrowdConfigurationService {
     }
 
     /**
-     * While we could use Guava's CacheBuilder the method signature changes make using it problematic.
-     * Safer to roll our own and ensure compatibility across as wide a range of Jenkins versions as possible.
+     * While we could use Guava's CacheBuilder the method signature changes make
+     * using it problematic. Safer to roll our own and ensure compatibility across
+     * as wide a range of Jenkins versions as possible.
      *
      * @param <K> Key type
      * @param <V> Cache entry type
      */
     private static class CacheMap<K, V> extends LinkedHashMap<K, CacheEntry<V>> {
 
-		private static final long serialVersionUID = 1L;
-		private final int cacheSize;
+        private static final long serialVersionUID = 1L;
+        private final int cacheSize;
 
         public CacheMap(int cacheSize) {
             super(cacheSize + 1); // prevent realloc when hitting cache size limit
