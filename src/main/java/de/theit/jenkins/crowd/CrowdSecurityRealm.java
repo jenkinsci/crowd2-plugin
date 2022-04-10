@@ -337,7 +337,7 @@ public class CrowdSecurityRealm extends AbstractPasswordBasedSecurityRealm {
 	 * @see hudson.security.SecurityRealm#doLogout(org.kohsuke.stapler.StaplerRequest,
 	 *      org.kohsuke.stapler.StaplerResponse)
 	 */
-	@Override
+	@Override @POST
 	public void doLogout(StaplerRequest req, StaplerResponse rsp)
 			throws IOException, ServletException {
 		SecurityRealm realm = Jenkins.getInstance().getSecurityRealm();
@@ -510,6 +510,7 @@ public class CrowdSecurityRealm extends AbstractPasswordBasedSecurityRealm {
 		 * @return Indicates the outcome of the validation. This is sent to the
 		 *         browser.
 		 */
+		@POST
 		public FormValidation doCheckUrl(@QueryParameter final String url) {
 			if (!Jenkins.getInstance().hasPermission(Jenkins.ADMINISTER)) {
 				return FormValidation.ok();
@@ -531,6 +532,7 @@ public class CrowdSecurityRealm extends AbstractPasswordBasedSecurityRealm {
 		 * @return Indicates the outcome of the validation. This is sent to the
 		 *         browser.
 		 */
+		@POST
 		public FormValidation doCheckApplicationName(
 				@QueryParameter final String applicationName) {
 			if (!Jenkins.getInstance().hasPermission(Jenkins.ADMINISTER)) {
@@ -553,6 +555,7 @@ public class CrowdSecurityRealm extends AbstractPasswordBasedSecurityRealm {
 		 * @return Indicates the outcome of the validation. This is sent to the
 		 *         browser.
 		 */
+		@POST
 		public FormValidation doCheckPassword(
 				@QueryParameter final String password) {
 			if (!Jenkins.getInstance().hasPermission(Jenkins.ADMINISTER)) {
@@ -575,6 +578,7 @@ public class CrowdSecurityRealm extends AbstractPasswordBasedSecurityRealm {
 		 * @return Indicates the outcome of the validation. This is sent to the
 		 *         browser.
 		 */
+		@POST
 		public FormValidation doCheckSessionValidationInterval(
 				@QueryParameter final String sessionValidationInterval) {
 			if (!Jenkins.getInstance().hasPermission(Jenkins.ADMINISTER)) {
