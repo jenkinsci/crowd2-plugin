@@ -45,5 +45,3 @@ volumes:
 networks:
   crowdnet:
     driver: bridge
-
-    

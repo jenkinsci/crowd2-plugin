@@ -13,7 +13,7 @@ This plugin has been tested with Jenkins 1.431 and Crowd 2.3.x, but was
 built using Jenkins core 1.398 so it should work with Jenkins \>= 1.398.
 
 This plugin uses Crowd REST APIs for connecting to Crowd and therefore
-requires Crowd \>= 2.1  
+requires Crowd \>= 2.1
 (see <http://developer.atlassian.com/display/CROWDDEV/Crowd+REST+APIs>).
 If you have an older Crowd server, use the older "Crowd Plugin" instead.
 
@@ -95,7 +95,7 @@ then upload the resulting .hpi file (target/crowd2-VERSION.hpi) like described i
 
 ### Versioning
 
-We use [SemVer](http://semver.org/) for versioning (starting from version 2.0.0). For the versions available, see the [tags on this repository](https://github.com/pingunaut/crowd2-plugin/tags). 
+We use [SemVer](http://semver.org/) for versioning (starting from version 2.0.0). For the versions available, see the [tags on this repository](https://github.com/pingunaut/crowd2-plugin/tags).
 
 ### Authors
 
@@ -167,5 +167,3 @@ The following changes and improvements are planned for the following releases
 * [ ] Pickup changes from the refactoring branch
 * [ ] Bump crowd rest client version
 * [ ] Work on the open JIRA issues
-
-

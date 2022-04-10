@@ -9,7 +9,7 @@
     [one](https://jenkins.io/security/advisory/2018-09-25/#SECURITY-1067),
     [two](https://jenkins.io/security/advisory/2018-09-25/#SECURITY-1068)
 
-## Version 2.0.0 (Jul 23, 2018) 
+## Version 2.0.0 (Jul 23, 2018)
 
 Fixed Bugs
 
@@ -111,3 +111,4 @@ Fixed the following bugs:
 ## Version 1.0 (Sep 23, 2011)
 
 -   Initial release
+-   

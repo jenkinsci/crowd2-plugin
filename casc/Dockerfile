@@ -12,7 +12,7 @@ ENV JAVA_OPTS="-Djenkins.install.runSetupWizard=false"
 USER jenkins
 
 # add copy all secrets
-COPY    --chown=jenkins:jenkins "casc/jenkins_home" "/var/jenkins_home" 
+COPY    --chown=jenkins:jenkins "casc/jenkins_home" "/var/jenkins_home"
 
 # add configuration of jenkins casc to test instance
 ENV     CASC_JENKINS_CONFIG_DIR="/var/jenkins_home/custom_casc_config"
