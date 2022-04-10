@@ -20,6 +20,6 @@ docker-compose -f casc/docker-compose.yml up -d --remove-orphans
 # sed -i "s/https:\/\/\(\w\|\-\|\.\)\+\//https:\/\/$JENKINS_SITE_NAME/" "$CROWD_BACKUP_FILE"
 # add crowd backup to instance
 docker cp "$CROWD_BACKUP_FILE" crowd:"/crowd_backup.xml"
-docker exec -it crowd chown -R crowd:crowd /crowd_backup.xml
+docker exec -it crowd chown -R crowd:crowd "/crowd_backup.xml"
 
 echo "Now please setup database according to your preferences"

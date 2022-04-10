@@ -1,11 +1,15 @@
 FROM jenkins/jenkins:2.289.1
 
+USER jenkins
+
 # expect a build-time variable
 ARG JENKINS_SITE_NAME 
 # use the value to set the ENV var default
-ENV JENKINS_SITE_NAME=$JENKINS_SITE_NAME 
+ENV JENKINS_SITE_NAME=${JENKINS_SITE_NAME}
+ENV JAVA_OPTS="${JAVA_OPTS} -Djenkins.install.runSetupWizard=false"
 
-COPY    --chown=jenkins:jenkins "casc/jenkins_master.key" "/var/jenkins_home/secrets/master.key" 
+# add copy all secrets
+COPY    --chown=jenkins:jenkins "casc/jenkins_home" "/var/jenkins_home" 
 
 # add configuration of jenkins casc to test instance
 ENV     CASC_JENKINS_CONFIG_DIR="/var/jenkins_home/custom_casc_config"

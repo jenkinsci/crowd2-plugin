@@ -26,10 +26,10 @@ jenkins:
       cookieTokenkey: "crowd.token_key"
       group: "jenkins-users"
       httpMaxConnections: "20"
-      httpProxyPassword: "{AQAAABAAAACAwqTfP1trB4tVhd+/P7IdUbm11vja21OEIMPPPbhEg2YI4iR5dHKMCMfObIisARe4g4RryoDALHnZgXKKImmf5nCjA8VAnkgK4J5OGG4HkUwFYr9wJu8bZiD5oY8E4A4oM0YSI4E8dnCB+8ER6agSJMGCgc4saH0U99WsCjVnyCzvOf7vxSoduhixdjZVmYkn}"
+      httpProxyPassword: "{AQAAABAAAAHQ3feRdppPDJ5eUf7MR2YMM/rAgQ/WJf6cHHnJN1N1Z5iEcePNzUNU1QAY5fVmkRnDkJpyATnomWx0LzzowAEzomJHusaiET+l9w9yjUNWyz99kT5pAHPgCdbh8V2NXa/xrqm3fa/gOHLk5xLgKMkXrDzkxFzF5TknbUFIxGksm0oolchwJw3ZINQUm1rgadAebZKcpxhW9ecr7hIgu9d1JNXIeVU6bmfSH3zrkKogd9q9denPfL81qrcvUzJiU1fWZ1RsaJAWBqV/uJNbyzIMJVeIfGxMxHJd06c2z1Q4bst7lqJpMsTpVdQNICht6YKk5SlLzGn27BQBtL0TKYcldeCusBe0TBKhZnE9h9mHcyrZrEUYaKwEYjp7QrQHdh7vuAK4lyl44TafIUacO8GI98U7G8LKZrPCSzbkOojQGAzQ3Fx9zeVbOnqnULCbi6D/Q2VUCjzkeUQ5vFTeMNdPJv8iIe14DpNMihKEoQQR4Yrby3ox+ArtHB041tiKdKUjWGGBoFls2R83BabEcs06lrMl9spNYh0CCkapf+WKQGtXV57VJsObUkxp3oaRhJEaacVejJWPmBj+kPne7o0sXp2+vUx/mjbuoPEcP42miTyJUfuaN9jth0k8meB9O0oy}"
       httpTimeout: "5000"
       nestedGroups: false
-      password: "{AQAAABAAAAAQRM5yW5CFWukqMKm/FAPQq9X2CfnSHr0C/QUb4SJGvLw=}"
+      password: "{AQAAABAAAAAQul+TMRoMo++Mpy9tbvswVYZAxyT5B4NPs5mU6ynIt6E=}"
       sessionValidationInterval: 2
       socketTimeout: "20000"
       url: "http://crowd:8095/crowd/"
