@@ -6,10 +6,13 @@ export CROWD_SITE_NAME="8095-${GITPOD_SITE}"
 export JENKINS_URL="https://$JENKINS_SITE_NAME/"
 export CROWD_BACKUP_FILE="./casc/crowd_backup.xml"
 
+export JAVA_VERSION=
+
 docker-compose -f casc/docker-compose.yml pull
 
 # create new img 
 if [ $# -gt 0 ]; then
+    export JAVA_VERSION=$1
     docker-compose -f casc/docker-compose.yml build
 fi
 
