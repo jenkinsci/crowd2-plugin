@@ -6,6 +6,11 @@ To begin work with this plugin you should be able to lunch crowd and jenkins ins
 In main dir of this repo there is an `./start.sh` script which will help you with this.
 For now it basing on gitpod environment, but it could be tweaked quite a bit.
 
+### Build img
+
+If you pass to `start.sh` java version number as argument you can build img with different java version.
+Possible values: [8, 11, 17]
+
 ## Crowd
 
 Script prepared two environments. One is our crowd instance.
