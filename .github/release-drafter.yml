@@ -1,0 +1,3 @@
+_extends: .github
+tag-template: crowd2-$NEXT_MINOR_VERSION
+name-template: Crowd 2 Plugin $NEXT_MINOR_VERSION

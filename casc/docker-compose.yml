@@ -1,0 +1,49 @@
+---
+version: '3.8'
+services:
+  jenkins:
+    build:
+      context: ../
+      dockerfile: casc/Dockerfile
+      args:
+       - JENKINS_SITE_NAME=${JENKINS_SITE_NAME}
+       - JAVA_VERSION=${JAVA_VERSION}
+    privileged: true
+    user: root
+    ports:
+     - 8080:8080
+     - 50000:50000
+    container_name: jenkins
+    networks:
+      - crowdnet
+
+    volumes:
+     - jenkins_home:/var/jenkins_home
+     - /var/run/docker.sock:/var/run/docker.sock
+
+  crowd:
+    image: blacklabelops/crowd
+    container_name: crowd
+    networks:
+      - crowdnet
+    volumes:
+      - crowddata:/var/atlassian/crowd
+    ports:
+      - '8095:8095'
+    environment:
+      - "SPLASH_CONTEXT=ROOT"
+      - "CROWD_CONTEXT=crowd"
+
+volumes:
+  crowddata:
+    external: false
+  postgresqldata:
+    external: false
+  jenkins_home:
+    external: false
+
+networks:
+  crowdnet:
+    driver: bridge
+
+    
