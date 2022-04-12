@@ -1014,4 +1014,35 @@ public class CrowdConfigurationService {
             return size() > cacheSize || eldest.getValue() == null || !eldest.getValue().isValid();
         }
     }
+
+    private <T> T getValidValueFromCache(String key, CacheMap<String, T> cacheObj) {
+        if (!useCache || cacheObj == null) {
+            return null;
+        }
+
+        final CacheEntry<T> cached;
+        synchronized (this) {
+            cached = cacheObj.get(key);
+        }
+
+        if (cached != null && cached.isValid()) {
+            return cached.getValue();
+        } else {
+            return null;
+        }
+    }
+
+    private <T> void setValueToCache(String key, T value, CacheMap<String, T> cacheObj) {
+        // Let's save the entry in the cache if necessary
+        if (!useCache || value == null) {
+            return;
+        }
+
+        synchronized (this) {
+            if (cacheObj == null) {
+                cacheObj = new CacheMap<>(cacheSize);
+            }
+            cacheObj.put(key, new CacheEntry<>(cacheTTL, value));
+        }
+    }
 }
