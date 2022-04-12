@@ -144,15 +144,15 @@ public class CrowdConfigurationService {
 
     private final Integer cacheTTL;
 
-    private transient Map<String, CacheEntry<Boolean>> isGroupMemberCache = null;
+    private transient CacheMap<String, Boolean> isGroupMemberCache = null;
 
-    private transient Map<String, CacheEntry<User>> userFromSSOTokenCache = null;
+    private transient CacheMap<String, User> userFromSSOTokenCache = null;
 
-    private transient Map<String, CacheEntry<User>> userCache = null;
+    private transient CacheMap<String, User> userCache = null;
 
-    private transient Map<String, CacheEntry<Group>> groupCache = null;
+    private transient CacheMap<String, Group> groupCache = null;
 
-    private transient Map<String, CacheEntry<Collection<GrantedAuthority>>> authoritiesForUserCache = null;
+    private transient CacheMap<String, Collection<GrantedAuthority>> authoritiesForUserCache = null;
 
     /**
      * Creates a new Crowd configuration object.
