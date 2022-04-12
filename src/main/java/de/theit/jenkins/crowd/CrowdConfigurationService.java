@@ -282,16 +282,10 @@ public class CrowdConfigurationService {
                 LOG.log(Level.SEVERE, operationFailed(), ex);
                 retval = null;
             }
-        }
-        // Let's save the entry in the cache if necessary
-        if (useCache && cachedRep == null && retval != null) {
-            synchronized (this) {
-                if (isGroupMemberCache == null) {
-                    isGroupMemberCache = new CacheMap<>(cacheSize);
-                }
-                isGroupMemberCache.put(username, new CacheEntry<>(cacheTTL, retval));
-            }
-        }
+        // If correct object was returned save it to cache
+        // checking if key is present is redundant
+        setValueToCache(username, retval, isGroupMemberCache);
+
         return Boolean.TRUE.equals(retval);
     }
 
@@ -453,16 +447,11 @@ public class CrowdConfigurationService {
             for (String str : groupNames) {
                 authorities.add(new GrantedAuthorityImpl(str));
             }
-        }
-        // Let's save the entry in the cache if necessary
-        if (useCache && cachedRep == null && authorities != null) {
-            synchronized (this) {
-                if (authoritiesForUserCache == null) {
-                    authoritiesForUserCache = new CacheMap<>(cacheSize);
-                }
-                authoritiesForUserCache.put(username, new CacheEntry<>(cacheTTL, authorities));
-            }
-        }
+
+        // If correct object was returned save it to cache
+        // checking if key is present is redundant
+        setValueToCache(username, authorities, authoritiesForUserCache);
+
         return authorities;
     }
 
@@ -526,16 +515,11 @@ public class CrowdConfigurationService {
                     currentThread.setContextClassLoader(orgContextClassLoader);
                 }
             }
-        }
-        // Let's save the entry in the cache if necessary
-        if (useCache && cachedRep == null && retval != null) {
-            synchronized (this) {
-                if (userCache == null) {
-                    userCache = new CacheMap<>(cacheSize);
-                }
-                userCache.put(username, new CacheEntry<>(cacheTTL, retval));
-            }
-        }
+
+        // If correct object was returned save it to cache
+        // checking if key is present is redundant
+        setValueToCache(username, retval, userCache);
+
         return retval;
     }
 
@@ -577,16 +561,11 @@ public class CrowdConfigurationService {
                     currentThread.setContextClassLoader(orgContextClassLoader);
                 }
             }
-        }
-        // Let's save the entry in the cache if necessary
-        if (useCache && cachedRep == null && retval != null) {
-            synchronized (this) {
-                if (groupCache == null) {
-                    groupCache = new CacheMap<>(cacheSize);
-                }
-                groupCache.put(name, new CacheEntry<>(cacheTTL, retval));
-            }
-        }
+
+        // If correct object was returned save it to cache
+        // checking if key is present is redundant
+        setValueToCache(name, retval, groupCache);
+
         return retval;
     }
 
@@ -735,16 +714,11 @@ public class CrowdConfigurationService {
                     currentThread.setContextClassLoader(orgContextClassLoader);
                 }
             }
-        }
-        // Let's save the entry in the cache if necessary
-        if (useCache && cachedRep == null && retval != null) {
-            synchronized (this) {
-                if (userFromSSOTokenCache == null) {
-                    userFromSSOTokenCache = new CacheMap<>(cacheSize);
-                }
-                userFromSSOTokenCache.put(token, new CacheEntry<>(cacheTTL, retval));
-            }
-        }
+
+        // If correct object was returned save it to cache
+        // checking if key is present is redundant
+        setValueToCache(token, retval, userFromSSOTokenCache);
+
         return retval;
     }
 
