@@ -26,10 +26,10 @@ jenkins:
       cookieTokenkey: "crowd.token_key"
       group: "jenkins-users"
       httpMaxConnections: "20"
-      httpProxyPassword: "{AQAAABAAAAHQ3feRdppPDJ5eUf7MR2YMM/rAgQ/WJf6cHHnJN1N1Z5iEcePNzUNU1QAY5fVmkRnDkJpyATnomWx0LzzowAEzomJHusaiET+l9w9yjUNWyz99kT5pAHPgCdbh8V2NXa/xrqm3fa/gOHLk5xLgKMkXrDzkxFzF5TknbUFIxGksm0oolchwJw3ZINQUm1rgadAebZKcpxhW9ecr7hIgu9d1JNXIeVU6bmfSH3zrkKogd9q9denPfL81qrcvUzJiU1fWZ1RsaJAWBqV/uJNbyzIMJVeIfGxMxHJd06c2z1Q4bst7lqJpMsTpVdQNICht6YKk5SlLzGn27BQBtL0TKYcldeCusBe0TBKhZnE9h9mHcyrZrEUYaKwEYjp7QrQHdh7vuAK4lyl44TafIUacO8GI98U7G8LKZrPCSzbkOojQGAzQ3Fx9zeVbOnqnULCbi6D/Q2VUCjzkeUQ5vFTeMNdPJv8iIe14DpNMihKEoQQR4Yrby3ox+ArtHB041tiKdKUjWGGBoFls2R83BabEcs06lrMl9spNYh0CCkapf+WKQGtXV57VJsObUkxp3oaRhJEaacVejJWPmBj+kPne7o0sXp2+vUx/mjbuoPEcP42miTyJUfuaN9jth0k8meB9O0oy}"
+      httpProxyPassword: "{AQAAABAAAAKQyaypPNLWDsf81k9mzYnn1y8SaRqlL0r0lsYHnVZbjagmPepj0SyldTxZqDtT6B8DK22yNYLv0hhzjuJyzj6Pnwldc8A3ov1//CgUgd/aUJh9bDtFBgUAm3uVP7Q2XUQ8GgMJlf4KASlP6WtUSNyYSJNmNduamm/hBGiIK1cUsPlIbFRCWmxnpLHOmWdcFPKLbVT9OfEVI31pbErpwCyp3UQRFLv7NL5nG4pY1xrKuPNGX/WHgGOojL6XdUm5dQZny3CBCXJ8bHyFMivCpbXCAd31AhnstmNrNNHwFCxVgU4O3UHbEBXrw/dFPpyNT/JOSuSTyXIwZmEaTHj0DAv5V6vy8EedrbHAIVa07bW7lFNoCdiNdz0NqpP4ehJx13gv+6XGAgbM22FFUz6xxQj0m1C/oX4ET9KczVCacbAyYsdlTugYQOQnEIyqqM0OYEpkxFdnBGrdYM/1Kh2V0/qXf6uLrzp0i4UD3S281OesyGlFLac7L52PwXwutbVasG9Evrm/+H/+ccOB5GV9YT9EZi3rwzbpnOBnTKUS2wNpvtsR5SK3cMg2MGVivtr3t/K1rb6zOKqWzi0ODf0sSUkJKal4qWaWnG8LYZBoalyj0XDxOaE/B3B7fI0HPn8F097TSBHBKnjRQL8OYOdXcq72bs1ItKIBpP6EG096biZNrKRIn/QlF3cdkf+pL1fVE9U+gag4kpRx8rLNd9h1FcXXkhOXO5AxqrhsVjGp2mF0YVoF6E1Uq6JECzok8kMGzv5G6gmFGjdKniCf2ATWGwIMNe2ISo2hYz5PO1CFP/3euCoDlcm7pV2y96YD/gMXqw5foMQNUCO53hnK+BIBrQKfLBaZsISJmObNh2Q9P9ChayN3O8BHHVR65U6DO/2JOCSv}"
       httpTimeout: "5000"
       nestedGroups: false
-      password: "{AQAAABAAAAAQul+TMRoMo++Mpy9tbvswVYZAxyT5B4NPs5mU6ynIt6E=}"
+      password: "{AQAAABAAAAAQ+ZLoqf+drRYb4sDv6GMg9qlPnnyP4l1okQQ00ifYNPk=}"
       sessionValidationInterval: 2
       socketTimeout: "20000"
       url: "http://crowd:8095/crowd/"
