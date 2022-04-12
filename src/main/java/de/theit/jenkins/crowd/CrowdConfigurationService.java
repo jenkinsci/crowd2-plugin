@@ -615,10 +615,11 @@ public class CrowdConfigurationService {
     public void validateSSOAuthentication(String token, List<ValidationFactor> list) throws OperationFailedException, InvalidAuthenticationException, ApplicationPermissionException, InvalidTokenException {
         // Load the entry from cache
         // if it's located in cache this means it was already validated
-        Boolean retval = getValidValueFromCache(token, userFromSSOTokenCache);
+        Boolean retval = getValidValueFromCache(token, validationCache);
         if (retval != null) {
             return;
         }
+
         if (LOG.isLoggable(Level.FINEST)) {
             LOG.finest("CrowdClient.validateSSOAuthentication()");
         }
@@ -636,7 +637,7 @@ public class CrowdConfigurationService {
                 currentThread.setContextClassLoader(orgContextClassLoader);
             }
         }
-      
+
         // Successful validation call means token is valid
         setValueToCache(token, retval, validationCache);
     }
