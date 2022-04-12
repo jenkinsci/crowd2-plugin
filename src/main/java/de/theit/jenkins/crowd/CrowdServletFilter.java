@@ -159,6 +159,8 @@ public class CrowdServletFilter implements Filter {
                 // reset remember-me cookie
                 Cookie cookie = new Cookie(
                         ACEGI_SECURITY_HASHED_REMEMBER_ME_COOKIE_KEY, "");
+                cookie.setHttpOnly(true);
+                cookie.setSecure(true);
                 cookie.setPath(req.getContextPath().length() > 0 ? req
                         .getContextPath() : "/");
                 res.addCookie(cookie);
