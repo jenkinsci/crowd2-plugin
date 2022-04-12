@@ -144,15 +144,15 @@ public class CrowdConfigurationService {
 
     private final Integer cacheTTL;
 
-    private transient Map<String, CacheEntry<Boolean>> isGroupMemberCache = null;
+    private transient CacheMap<String, Boolean> isGroupMemberCache = null;
 
-    private transient Map<String, CacheEntry<User>> userFromSSOTokenCache = null;
+    private transient CacheMap<String, User> userFromSSOTokenCache = null;
 
-    private transient Map<String, CacheEntry<User>> userCache = null;
+    private transient CacheMap<String, User> userCache = null;
 
-    private transient Map<String, CacheEntry<Group>> groupCache = null;
+    private transient CacheMap<String, Group> groupCache = null;
 
-    private transient Map<String, CacheEntry<Collection<GrantedAuthority>>> authoritiesForUserCache = null;
+    private transient CacheMap<String, Collection<GrantedAuthority>> authoritiesForUserCache = null;
 
     /**
      * Creates a new Crowd configuration object.
@@ -246,52 +246,36 @@ public class CrowdConfigurationService {
         if (allowedGroupNames.isEmpty()) {
             return true;
         }
-        // Load the entry from cache
-        Boolean cachedRep;
-        if (useCache) {
-            final CacheEntry<Boolean> cached;
-            synchronized (this) {
-                cached = isGroupMemberCache != null ? isGroupMemberCache.get(username) : null;
-            }
-            if (cached != null && cached.isValid()) {
-                cachedRep = cached.getValue();
-            } else {
-                cachedRep = null;
-            }
-        } else {
-            cachedRep = null;
+
+        // Load the entry from cache if it's valid return it
+        Boolean retval = getValidValueFromCache(username, isGroupMemberCache);
+        if (retval != null) {
+            return retval;
         }
-        Boolean retval = false;
-        if (cachedRep != null) {
-            retval = cachedRep;
-        } else {
-            try {
-                for (String group : this.allowedGroupNames) {
-                    retval = isGroupMember(username, group);
-                    if (retval) {
-                        break;
-                    }
+
+        // no entry was found try to get one
+        try {
+            for (String group : this.allowedGroupNames) {
+                retval = isGroupMember(username, group);
+                if (retval) {
+                    break;
                 }
-            } catch (ApplicationPermissionException ex) {
-                LOG.warning(applicationPermission());
-                retval = null;
-            } catch (InvalidAuthenticationException ex) {
-                LOG.warning(invalidAuthentication());
-                retval = null;
-            } catch (OperationFailedException ex) {
-                LOG.log(Level.SEVERE, operationFailed(), ex);
-                retval = null;
             }
+        } catch (ApplicationPermissionException ex) {
+            LOG.warning(applicationPermission());
+            retval = null;
+        } catch (InvalidAuthenticationException ex) {
+            LOG.warning(invalidAuthentication());
+            retval = null;
+        } catch (OperationFailedException ex) {
+            LOG.log(Level.SEVERE, operationFailed(), ex);
+            retval = null;
         }
-        // Let's save the entry in the cache if necessary
-        if (useCache && cachedRep == null && retval != null) {
-            synchronized (this) {
-                if (isGroupMemberCache == null) {
-                    isGroupMemberCache = new CacheMap<>(cacheSize);
-                }
-                isGroupMemberCache.put(username, new CacheEntry<>(cacheTTL, retval));
-            }
-        }
+
+        // If correct object was returned save it to cache
+        // checking if key is present is redundant
+        setValueToCache(username, retval, isGroupMemberCache);
+
         return Boolean.TRUE.equals(retval);
     }
 
@@ -346,123 +330,110 @@ public class CrowdConfigurationService {
      *         non-null.
      */
     public Collection<GrantedAuthority> getAuthoritiesForUser(String username) {
-        // Load the entry from cache
-        Collection<GrantedAuthority> cachedRep;
-        if (useCache) {
-            final CacheEntry<Collection<GrantedAuthority>> cached;
-            synchronized (this) {
-                cached = authoritiesForUserCache != null ? authoritiesForUserCache.get(username) : null;
-            }
-            if (cached != null && cached.isValid()) {
-                cachedRep = cached.getValue();
-            } else {
-                cachedRep = null;
+        if (username == null) {
+            return null; // prevent NPE
+        }
+
+        // Load the entry from cache if it's valid return it
+        Collection<GrantedAuthority> authorities = getValidValueFromCache(username, authoritiesForUserCache);
+        if (authorities != null) {
+            return authorities;
+        }
+
+        // no cache entry was found try to get one
+        authorities = new TreeSet<>(
+                new Comparator<GrantedAuthority>() {
+                    @Override
+                    public int compare(GrantedAuthority ga1,
+                            GrantedAuthority ga2) {
+                        return ga1.getAuthority().compareTo(ga2.getAuthority());
+                    }
+                });
+        HashSet<String> groupNames = new HashSet<>();
+
+        // retrieve the names of all groups the user is a directly or indirectly member
+        // of if this configuration setting is active/enabled
+        if (this.nestedGroups) {
+            try {
+                int index = 0;
+                if (LOG.isLoggable(Level.FINE)) {
+                    LOG.fine("Retrieve list of groups with nested membership for user '"
+                            + username + "'...");
+                }
+                while (true) {
+                    if (LOG.isLoggable(Level.FINEST)) {
+                        LOG.finest("Fetching groups [" + index + "..."
+                                + (index + MAX_GROUPS - 1) + "]...");
+                    }
+                    List<Group> groups = getGroupsForNestedUser(username, index, MAX_GROUPS);
+                    if (null == groups || groups.isEmpty()) {
+                        break;
+                    }
+                    for (Group group : groups) {
+                        if (group.isActive()) {
+                            groupNames.add(group.getName());
+                        }
+                    }
+                    index += MAX_GROUPS;
+                }
+            } catch (UserNotFoundException ex) {
+                if (LOG.isLoggable(Level.INFO)) {
+                    LOG.info(userNotFound(username));
+                }
+            } catch (InvalidAuthenticationException ex) {
+                LOG.warning(invalidAuthentication());
+            } catch (ApplicationPermissionException ex) {
+                LOG.warning(applicationPermission());
+            } catch (OperationFailedException ex) {
+                LOG.log(Level.SEVERE, operationFailed(), ex);
             }
         } else {
-            cachedRep = null;
-        }
-        Collection<GrantedAuthority> authorities;
-        if (cachedRep != null) {
-            authorities = cachedRep;
-        } else {
-            authorities = new TreeSet<>(
-                    new Comparator<GrantedAuthority>() {
-                        @Override
-                        public int compare(GrantedAuthority ga1,
-                                GrantedAuthority ga2) {
-                            return ga1.getAuthority().compareTo(ga2.getAuthority());
+            // retrieve the names of all groups the user is a direct member of
+            try {
+                int index = 0;
+                if (LOG.isLoggable(Level.FINE)) {
+                    LOG.fine("Retrieve list of groups with direct membership for user '"
+                            + username + "'...");
+                }
+                while (true) {
+                    if (LOG.isLoggable(Level.FINEST)) {
+                        LOG.finest("Fetching groups [" + index + "..."
+                                + (index + MAX_GROUPS - 1) + "]...");
+                    }
+                    List<Group> groups = getGroupsForUser(
+                            username, index, MAX_GROUPS);
+                    if (null == groups || groups.isEmpty()) {
+                        break;
+                    }
+                    for (Group group : groups) {
+                        if (group.isActive()) {
+                            groupNames.add(group.getName());
                         }
-                    });
-            HashSet<String> groupNames = new HashSet<>();
+                    }
+                    index += MAX_GROUPS;
+                }
+            } catch (UserNotFoundException ex) {
+                if (LOG.isLoggable(Level.INFO)) {
+                    LOG.info(userNotFound(username));
+                }
+            } catch (InvalidAuthenticationException ex) {
+                LOG.warning(invalidAuthentication());
+            } catch (ApplicationPermissionException ex) {
+                LOG.warning(applicationPermission());
+            } catch (OperationFailedException ex) {
+                LOG.log(Level.SEVERE, operationFailed(), ex);
+            }
+        }
 
-            // retrieve the names of all groups the user is a directly or indirectly member
-            // of if this configuration setting is active/enabled
-            if (this.nestedGroups) {
-                try {
-                    int index = 0;
-                    if (LOG.isLoggable(Level.FINE)) {
-                        LOG.fine("Retrieve list of groups with nested membership for user '"
-                                + username + "'...");
-                    }
-                    while (true) {
-                        if (LOG.isLoggable(Level.FINEST)) {
-                            LOG.finest("Fetching groups [" + index + "..."
-                                    + (index + MAX_GROUPS - 1) + "]...");
-                        }
-                        List<Group> groups = getGroupsForNestedUser(username, index, MAX_GROUPS);
-                        if (null == groups || groups.isEmpty()) {
-                            break;
-                        }
-                        for (Group group : groups) {
-                            if (group.isActive()) {
-                                groupNames.add(group.getName());
-                            }
-                        }
-                        index += MAX_GROUPS;
-                    }
-                } catch (UserNotFoundException ex) {
-                    if (LOG.isLoggable(Level.INFO)) {
-                        LOG.info(userNotFound(username));
-                    }
-                } catch (InvalidAuthenticationException ex) {
-                    LOG.warning(invalidAuthentication());
-                } catch (ApplicationPermissionException ex) {
-                    LOG.warning(applicationPermission());
-                } catch (OperationFailedException ex) {
-                    LOG.log(Level.SEVERE, operationFailed(), ex);
-                }
-            } else {
-                // retrieve the names of all groups the user is a direct member of
-                try {
-                    int index = 0;
-                    if (LOG.isLoggable(Level.FINE)) {
-                        LOG.fine("Retrieve list of groups with direct membership for user '"
-                                + username + "'...");
-                    }
-                    while (true) {
-                        if (LOG.isLoggable(Level.FINEST)) {
-                            LOG.finest("Fetching groups [" + index + "..."
-                                    + (index + MAX_GROUPS - 1) + "]...");
-                        }
-                        List<Group> groups = getGroupsForUser(
-                                username, index, MAX_GROUPS);
-                        if (null == groups || groups.isEmpty()) {
-                            break;
-                        }
-                        for (Group group : groups) {
-                            if (group.isActive()) {
-                                groupNames.add(group.getName());
-                            }
-                        }
-                        index += MAX_GROUPS;
-                    }
-                } catch (UserNotFoundException ex) {
-                    if (LOG.isLoggable(Level.INFO)) {
-                        LOG.info(userNotFound(username));
-                    }
-                } catch (InvalidAuthenticationException ex) {
-                    LOG.warning(invalidAuthentication());
-                } catch (ApplicationPermissionException ex) {
-                    LOG.warning(applicationPermission());
-                } catch (OperationFailedException ex) {
-                    LOG.log(Level.SEVERE, operationFailed(), ex);
-                }
-            }
+        // now create the list of authorities
+        for (String str : groupNames) {
+            authorities.add(new GrantedAuthorityImpl(str));
+        }
 
-            // now create the list of authorities
-            for (String str : groupNames) {
-                authorities.add(new GrantedAuthorityImpl(str));
-            }
-        }
-        // Let's save the entry in the cache if necessary
-        if (useCache && cachedRep == null && authorities != null) {
-            synchronized (this) {
-                if (authoritiesForUserCache == null) {
-                    authoritiesForUserCache = new CacheMap<>(cacheSize);
-                }
-                authoritiesForUserCache.put(username, new CacheEntry<>(cacheTTL, authorities));
-            }
-        }
+        // If correct object was returned save it to cache
+        // checking if key is present is redundant
+        setValueToCache(username, authorities, authoritiesForUserCache);
+
         return authorities;
     }
 
@@ -490,103 +461,67 @@ public class CrowdConfigurationService {
 
     public User getUser(String username) throws UserNotFoundException, OperationFailedException,
             ApplicationPermissionException, InvalidAuthenticationException {
-        // Load the entry from cache
-        User cachedRep;
-        if (useCache) {
-            final CacheEntry<User> cached;
-            synchronized (this) {
-                cached = userCache != null ? userCache.get(username) : null;
-            }
-            if (cached != null && cached.isValid()) {
-                cachedRep = cached.getValue();
-            } else {
-                cachedRep = null;
-            }
-        } else {
-            cachedRep = null;
+        // Load the entry from cache if it's valid return it
+        User retval = getValidValueFromCache(username, userCache);
+        if (retval != null) {
+            return retval;
         }
-        User retval;
-        if (cachedRep != null) {
-            retval = cachedRep;
-        } else {
-            if (LOG.isLoggable(Level.FINEST)) {
-                LOG.finest("CrowdClient.getUser()");
-            }
-            ClassLoader orgContextClassLoader = null;
-            Thread currentThread = null;
-            if (IS_MIN_JAVA_11) {
-                currentThread = Thread.currentThread();
-                orgContextClassLoader = currentThread.getContextClassLoader();
-                currentThread.setContextClassLoader(CrowdConfigurationService.class.getClassLoader());
-            }
-            try {
-                retval = crowdClient.getUser(username);
-            } finally {
-                if (currentThread != null) {
-                    currentThread.setContextClassLoader(orgContextClassLoader);
-                }
+
+        if (LOG.isLoggable(Level.FINEST)) {
+            LOG.finest("CrowdClient.getUser()");
+        }
+        ClassLoader orgContextClassLoader = null;
+        Thread currentThread = null;
+        if (IS_MIN_JAVA_11) {
+            currentThread = Thread.currentThread();
+            orgContextClassLoader = currentThread.getContextClassLoader();
+            currentThread.setContextClassLoader(CrowdConfigurationService.class.getClassLoader());
+        }
+        try {
+            retval = crowdClient.getUser(username);
+        } finally {
+            if (currentThread != null) {
+                currentThread.setContextClassLoader(orgContextClassLoader);
             }
         }
-        // Let's save the entry in the cache if necessary
-        if (useCache && cachedRep == null && retval != null) {
-            synchronized (this) {
-                if (userCache == null) {
-                    userCache = new CacheMap<>(cacheSize);
-                }
-                userCache.put(username, new CacheEntry<>(cacheTTL, retval));
-            }
-        }
+
+        // If correct object was returned save it to cache
+        // checking if key is present is redundant
+        setValueToCache(username, retval, userCache);
+
         return retval;
     }
 
     public Group getGroup(String name) throws GroupNotFoundException, OperationFailedException,
             InvalidAuthenticationException, ApplicationPermissionException {
-        // Load the entry from cache
-        Group cachedRep;
-        if (useCache) {
-            final CacheEntry<Group> cached;
-            synchronized (this) {
-                cached = groupCache != null ? groupCache.get(name) : null;
-            }
-            if (cached != null && cached.isValid()) {
-                cachedRep = cached.getValue();
-            } else {
-                cachedRep = null;
-            }
-        } else {
-            cachedRep = null;
+        // Load the entry from cache if it's valid return it
+        Group retval = getValidValueFromCache(name, groupCache);
+        if (retval != null) {
+            return retval;
         }
-        Group retval;
-        if (cachedRep != null) {
-            retval = cachedRep;
-        } else {
-            if (LOG.isLoggable(Level.FINEST)) {
-                LOG.finest("CrowdClient.getGroup()");
-            }
-            ClassLoader orgContextClassLoader = null;
-            Thread currentThread = null;
-            if (IS_MIN_JAVA_11) {
-                currentThread = Thread.currentThread();
-                orgContextClassLoader = currentThread.getContextClassLoader();
-                currentThread.setContextClassLoader(CrowdConfigurationService.class.getClassLoader());
-            }
-            try {
-                retval = crowdClient.getGroup(name);
-            } finally {
-                if (currentThread != null) {
-                    currentThread.setContextClassLoader(orgContextClassLoader);
-                }
+
+        if (LOG.isLoggable(Level.FINEST)) {
+            LOG.finest("CrowdClient.getGroup()");
+        }
+        ClassLoader orgContextClassLoader = null;
+        Thread currentThread = null;
+        if (IS_MIN_JAVA_11) {
+            currentThread = Thread.currentThread();
+            orgContextClassLoader = currentThread.getContextClassLoader();
+            currentThread.setContextClassLoader(CrowdConfigurationService.class.getClassLoader());
+        }
+        try {
+            retval = crowdClient.getGroup(name);
+        } finally {
+            if (currentThread != null) {
+                currentThread.setContextClassLoader(orgContextClassLoader);
             }
         }
-        // Let's save the entry in the cache if necessary
-        if (useCache && cachedRep == null && retval != null) {
-            synchronized (this) {
-                if (groupCache == null) {
-                    groupCache = new CacheMap<>(cacheSize);
-                }
-                groupCache.put(name, new CacheEntry<>(cacheTTL, retval));
-            }
-        }
+
+        // If correct object was returned save it to cache
+        // checking if key is present is redundant
+        setValueToCache(name, retval, groupCache);
+
         return retval;
     }
 
@@ -699,52 +634,34 @@ public class CrowdConfigurationService {
 
     public User findUserFromSSOToken(String token) throws OperationFailedException, InvalidAuthenticationException,
             ApplicationPermissionException, InvalidTokenException {
-        // Load the entry from cache
-        User cachedRep;
-        if (useCache) {
-            final CacheEntry<User> cached;
-            synchronized (this) {
-                cached = userFromSSOTokenCache != null ? userFromSSOTokenCache.get(token) : null;
-            }
-            if (cached != null && cached.isValid()) {
-                cachedRep = cached.getValue();
-            } else {
-                cachedRep = null;
-            }
-        } else {
-            cachedRep = null;
+        // Load the entry from cache if it's valid return it
+        User retval = getValidValueFromCache(token, userFromSSOTokenCache);
+        if (retval != null) {
+            return retval;
         }
-        User retval;
-        if (cachedRep != null) {
-            retval = cachedRep;
-        } else {
-            if (LOG.isLoggable(Level.FINEST)) {
-                LOG.finest("CrowdClient.findUserFromSSOToken()");
-            }
-            ClassLoader orgContextClassLoader = null;
-            Thread currentThread = null;
-            if (IS_MIN_JAVA_11) {
-                currentThread = Thread.currentThread();
-                orgContextClassLoader = currentThread.getContextClassLoader();
-                currentThread.setContextClassLoader(CrowdConfigurationService.class.getClassLoader());
-            }
-            try {
-                retval = crowdClient.findUserFromSSOToken(token);
-            } finally {
-                if (currentThread != null) {
-                    currentThread.setContextClassLoader(orgContextClassLoader);
-                }
+
+        if (LOG.isLoggable(Level.FINEST)) {
+            LOG.finest("CrowdClient.findUserFromSSOToken()");
+        }
+        ClassLoader orgContextClassLoader = null;
+        Thread currentThread = null;
+        if (IS_MIN_JAVA_11) {
+            currentThread = Thread.currentThread();
+            orgContextClassLoader = currentThread.getContextClassLoader();
+            currentThread.setContextClassLoader(CrowdConfigurationService.class.getClassLoader());
+        }
+        try {
+            retval = crowdClient.findUserFromSSOToken(token);
+        } finally {
+            if (currentThread != null) {
+                currentThread.setContextClassLoader(orgContextClassLoader);
             }
         }
-        // Let's save the entry in the cache if necessary
-        if (useCache && cachedRep == null && retval != null) {
-            synchronized (this) {
-                if (userFromSSOTokenCache == null) {
-                    userFromSSOTokenCache = new CacheMap<>(cacheSize);
-                }
-                userFromSSOTokenCache.put(token, new CacheEntry<>(cacheTTL, retval));
-            }
-        }
+
+        // If correct object was returned save it to cache
+        // checking if key is present is redundant
+        setValueToCache(token, retval, userFromSSOTokenCache);
+
         return retval;
     }
 
@@ -1012,6 +929,37 @@ public class CrowdConfigurationService {
         @Override
         protected boolean removeEldestEntry(Map.Entry<K, CacheEntry<V>> eldest) {
             return size() > cacheSize || eldest.getValue() == null || !eldest.getValue().isValid();
+        }
+    }
+
+    private <T> T getValidValueFromCache(String key, CacheMap<String, T> cacheObj) {
+        if (!useCache || cacheObj == null) {
+            return null;
+        }
+
+        final CacheEntry<T> cached;
+        synchronized (this) {
+            cached = cacheObj.get(key);
+        }
+
+        if (cached != null && cached.isValid()) {
+            return cached.getValue();
+        } else {
+            return null;
+        }
+    }
+
+    private <T> void setValueToCache(String key, T value, CacheMap<String, T> cacheObj) {
+        // Let's save the entry in the cache if necessary
+        if (!useCache || value == null) {
+            return;
+        }
+
+        synchronized (this) {
+            if (cacheObj == null) {
+                cacheObj = new CacheMap<>(cacheSize);
+            }
+            cacheObj.put(key, new CacheEntry<>(cacheTTL, value));
         }
     }
 }
