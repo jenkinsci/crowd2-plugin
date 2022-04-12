@@ -4,7 +4,7 @@
     <parent>
         <groupId>org.jenkins-ci.plugins</groupId>
         <artifactId>plugin</artifactId>
-        <version>4.39</version>
+        <version>4.40</version>
     </parent>
 
     <artifactId>crowd2</artifactId>
@@ -50,10 +50,10 @@
     </contributors>
 
     <properties>
-        <revision>2.1.1</revision>
+        <revision>2.1.2</revision>
         <changelist>-SNAPSHOT</changelist>
         <gitHubRepo>jenkinsci/crowd2-plugin</gitHubRepo>
-        <jenkins.version>2.289.1</jenkins.version>
+        <jenkins.version>2.303.1</jenkins.version>
         <crowd-integration-client-rest.version>2.8.8</crowd-integration-client-rest.version>
         <java.level>8</java.level>
         <findbugs.failOnError>false</findbugs.failOnError>
@@ -155,7 +155,7 @@
 
             <dependency>
                 <groupId>io.jenkins.tools.bom</groupId>
-                <artifactId>bom-2.289.x</artifactId>
+                <artifactId>bom-2.303.x</artifactId>
                 <version>1246.va_b_50630c1d19</version>
                 <scope>import</scope>
                 <type>pom</type>
