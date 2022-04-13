@@ -353,76 +353,45 @@ public class CrowdConfigurationService {
 
         // retrieve the names of all groups the user is a directly or indirectly member
         // of if this configuration setting is active/enabled
-        if (this.nestedGroups) {
-            try {
-                int index = 0;
-                if (LOG.isLoggable(Level.FINE)) {
-                    LOG.fine("Retrieve list of groups with nested membership for user '"
-                            + username + "'...");
-                }
-                while (true) {
-                    if (LOG.isLoggable(Level.FINEST)) {
-                        LOG.finest("Fetching groups [" + index + "..."
-                                + (index + MAX_GROUPS - 1) + "]...");
-                    }
-                    List<Group> groups = getGroupsForNestedUser(username, index, MAX_GROUPS);
-                    if (null == groups || groups.isEmpty()) {
-                        break;
-                    }
-                    for (Group group : groups) {
-                        if (group.isActive()) {
-                            groupNames.add(group.getName());
-                        }
-                    }
-                    index += MAX_GROUPS;
-                }
-            } catch (UserNotFoundException ex) {
-                if (LOG.isLoggable(Level.INFO)) {
-                    LOG.info(userNotFound(username));
-                }
-            } catch (InvalidAuthenticationException ex) {
-                LOG.warning(invalidAuthentication());
-            } catch (ApplicationPermissionException ex) {
-                LOG.warning(applicationPermission());
-            } catch (OperationFailedException ex) {
-                LOG.log(Level.SEVERE, operationFailed(), ex);
+        try {
+            int index = 0;
+            String membership = this.nestedGroups ? "nested" : "direct";
+            if (LOG.isLoggable(Level.FINE)) {
+                LOG.fine("Retrieve list of groups with " + membership + " membership for user '" + username + "'...");
             }
-        } else {
-            // retrieve the names of all groups the user is a direct member of
-            try {
-                int index = 0;
-                if (LOG.isLoggable(Level.FINE)) {
-                    LOG.fine("Retrieve list of groups with direct membership for user '"
-                            + username + "'...");
+            while (true) {
+                if (LOG.isLoggable(Level.FINEST)) {
+                    LOG.finest("Fetching groups [" + index + "..."
+                            + (index + MAX_GROUPS - 1) + "]...");
                 }
-                while (true) {
-                    if (LOG.isLoggable(Level.FINEST)) {
-                        LOG.finest("Fetching groups [" + index + "..."
-                                + (index + MAX_GROUPS - 1) + "]...");
-                    }
-                    List<Group> groups = getGroupsForUser(
-                            username, index, MAX_GROUPS);
-                    if (null == groups || groups.isEmpty()) {
-                        break;
-                    }
-                    for (Group group : groups) {
-                        if (group.isActive()) {
-                            groupNames.add(group.getName());
-                        }
-                    }
-                    index += MAX_GROUPS;
+
+                List<Group> groups;
+                if (this.nestedGroups) {
+                    groups = getGroupsForNestedUser(username, index, MAX_GROUPS);
+                } else {
+                    groups = getGroupsForUser(username, index, MAX_GROUPS);
                 }
-            } catch (UserNotFoundException ex) {
-                if (LOG.isLoggable(Level.INFO)) {
-                    LOG.info(userNotFound(username));
+
+                if (null == groups || groups.isEmpty()) {
+                    break;
                 }
-            } catch (InvalidAuthenticationException ex) {
-                LOG.warning(invalidAuthentication());
-            } catch (ApplicationPermissionException ex) {
-                LOG.warning(applicationPermission());
-            } catch (OperationFailedException ex) {
-                LOG.log(Level.SEVERE, operationFailed(), ex);
+                for (Group group : groups) {
+                    if (group.isActive()) {
+                        groupNames.add(group.getName());
+                    }
+                }
+                index += MAX_GROUPS;
             }
+        } catch (UserNotFoundException ex) {
+            if (LOG.isLoggable(Level.INFO)) {
+                LOG.info(userNotFound(username));
+            }
+        } catch (InvalidAuthenticationException ex) {
+            LOG.warning(invalidAuthentication());
+        } catch (ApplicationPermissionException ex) {
+            LOG.warning(applicationPermission());
+        } catch (OperationFailedException ex) {
+            LOG.log(Level.SEVERE, operationFailed(), ex);
         }
 
         // now create the list of authorities
