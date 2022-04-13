@@ -27,13 +27,13 @@ public class CrowdUserTest {
     @Test
     public void testCrowdUser() {
 
-        Assertions.assertThat("user1").isEqualTo(dummy.getUsername());
-        Assertions.assertThat("fooGroup").isEqualTo(dummy.getAuthorities()[0].getAuthority());
+        Assertions.assertThat(dummy.getUsername()).isEqualTo("user1");
+        Assertions.assertThat(dummy.getAuthorities()[0].getAuthority()).isEqualTo("fooGroup");
     }
 
     @Test
     public void testGetAuthorities() {
-        Assertions.assertThat("fooGroup").isEqualTo(dummy.getAuthorities()[0].getAuthority());
+        Assertions.assertThat(dummy.getAuthorities()[0].getAuthority()).isEqualTo("fooGroup");
     }
 
     @Test
@@ -43,7 +43,7 @@ public class CrowdUserTest {
 
     @Test
     public void testGetUsername() {
-        Assertions.assertThat("user1").isEqualTo(dummy.getUsername());
+        Assertions.assertThat(dummy.getUsername()).isEqualTo("user1");
     }
 
     @Test
@@ -77,7 +77,7 @@ public class CrowdUserTest {
 
     @Test
     public void testGetEmailAddress() {
-        Assertions.assertThat("foo@bar.baz").isEqualTo(dummy.getEmailAddress());
+        Assertions.assertThat(dummy.getEmailAddress()).isEqualTo("foo@bar.baz");
     }
 
 }

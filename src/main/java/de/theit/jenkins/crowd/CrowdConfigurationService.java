@@ -331,7 +331,7 @@ public class CrowdConfigurationService {
      */
     public Collection<GrantedAuthority> getAuthoritiesForUser(String username) {
         if (username == null) {
-            return null; // prevent NPE
+            return Collection.class.; // prevent NPE
         }
 
         // Load the entry from cache if it's valid return it
