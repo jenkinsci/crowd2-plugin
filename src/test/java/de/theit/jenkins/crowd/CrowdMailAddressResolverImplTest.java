@@ -14,12 +14,12 @@ public class CrowdMailAddressResolverImplTest {
         User user = Mockito.mock(User.class);
         Mockito.when(user.getId()).thenReturn("Foo Bar (baz)");
         String userIdFromDisplayName1 = res.getUserIdFromDisplayName(user);
-        Assertions.assertThat("baz").isEqualTo(userIdFromDisplayName1);
+        Assertions.assertThat(userIdFromDisplayName1).isEqualTo("baz");
 
         // should also work with arbitrary brackets in the username
         Mockito.when(user.getId()).thenReturn("Foo) (Bar) :) (zap)");
         String userIdFromDisplayName2 = res.getUserIdFromDisplayName(user);
-        Assertions.assertThat("zap").isEqualTo(userIdFromDisplayName2);
+        Assertions.assertThat(userIdFromDisplayName2).isEqualTo("zap");
     }
 
     @Test
@@ -48,7 +48,7 @@ public class CrowdMailAddressResolverImplTest {
         User user = Mockito.mock(User.class);
         Mockito.when(user.getId()).thenReturn("Firstname Lastname (foo)");
 
-        Assertions.assertThat("foo@bar.baz").isEqualTo(res.findMailAddressFor(user));
+        Assertions.assertThat(res.findMailAddressFor(user)).isEqualTo("foo@bar.baz");
     }
 
 }

@@ -113,13 +113,6 @@ public class CrowdAuthenticationToken extends AbstractAuthenticationToken {
     @Override
     public String getName() {
         return super.getName();
-        /*
-         * if (null == this.displayName) {
-         * return super.getName();
-         * }
-         * // append the user Id stored in getName() at the end of the display name
-         * return this.displayName + " (" + super.getName() + ')';
-         */
     }
 
     public static void updateUserInfo(com.atlassian.crowd.model.user.User user) {
