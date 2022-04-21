@@ -30,15 +30,15 @@ import com.atlassian.crowd.exception.InvalidAuthenticationException;
 import com.atlassian.crowd.exception.OperationFailedException;
 import com.atlassian.crowd.exception.UserNotFoundException;
 import com.atlassian.crowd.model.user.User;
+
 import hudson.security.SecurityRealm;
-import org.acegisecurity.GrantedAuthority;
-import org.acegisecurity.userdetails.UserDetails;
-import org.acegisecurity.userdetails.UserDetailsService;
-import org.acegisecurity.userdetails.UsernameNotFoundException;
-import org.springframework.dao.DataAccessException;
-import org.springframework.dao.DataRetrievalFailureException;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -81,17 +81,16 @@ public class CrowdUserDetailsService implements UserDetailsService {
     /**
      * {@inheritDoc}
      *
-     * @see org.acegisecurity.userdetails.UserDetailsService#loadUserByUsername(java.lang.String)
+     * @see org.springframework.security.core.userdetails.UserDetailsService#loadUserByUsername(java.lang.String)
      */
     @Override
     public UserDetails loadUserByUsername(String username)
-            throws UsernameNotFoundException, DataAccessException {
+            throws UsernameNotFoundException {
 
         // check whether there's at least one active group the user is a member
         // of
         if (!this.configuration.isGroupMember(username)) {
-            throw new DataRetrievalFailureException(userNotValid(username,
-                    this.configuration.getAllowedGroupNames()));
+            throw new UsernameNotFoundException(userNotValid(username, this.configuration.getAllowedGroupNames()));
         }
         User user;
         try {
@@ -107,20 +106,20 @@ public class CrowdUserDetailsService implements UserDetailsService {
             throw new UsernameNotFoundException(userNotFound(username), ex);
         } catch (ApplicationPermissionException ex) {
             LOG.warning(applicationPermission());
-            throw new DataRetrievalFailureException(applicationPermission(), ex);
+            throw new UsernameNotFoundException(applicationPermission(), ex);
         } catch (InvalidAuthenticationException ex) {
             LOG.warning(invalidAuthentication());
-            throw new DataRetrievalFailureException(invalidAuthentication(), ex);
+            throw new UsernameNotFoundException(invalidAuthentication(), ex);
         } catch (OperationFailedException ex) {
             LOG.log(Level.SEVERE, operationFailed(), ex);
-            throw new DataRetrievalFailureException(operationFailed(), ex);
+            throw new UsernameNotFoundException(operationFailed(), ex);
         }
 
         // create the list of granted authorities
         List<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>();
         // add the "authenticated" authority to the list of granted
         // authorities...
-        authorities.add(SecurityRealm.AUTHENTICATED_AUTHORITY);
+        authorities.add(SecurityRealm.AUTHENTICATED_AUTHORITY2);
         // ..and all authorities retrieved from the Crowd server
         authorities.addAll(this.configuration.getAuthoritiesForUser(username));
 
