@@ -28,9 +28,9 @@ package de.theit.jenkins.crowd;
 import java.util.List;
 
 import jenkins.model.Jenkins;
-import org.acegisecurity.GrantedAuthority;
-import org.acegisecurity.providers.AbstractAuthenticationToken;
-import org.acegisecurity.userdetails.UserDetails;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.authentication.AbstractAuthenticationToken;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.apache.commons.lang.StringUtils;
 
 /**
@@ -68,8 +68,8 @@ public class CrowdAuthenticationToken extends AbstractAuthenticationToken {
      */
     public CrowdAuthenticationToken(String pPrincipal, String pCredentials,
             List<GrantedAuthority> authorities, String pSsoToken) {
-        super(authorities.toArray(new GrantedAuthority[authorities.size()]));
-        this.principal = Jenkins.get().getSecurityRealm().loadUserByUsername(pPrincipal);
+        super(authorities);
+        this.principal = Jenkins.get().getSecurityRealm().loadUserByUsername2(pPrincipal);
         this.credentials = pCredentials;
         this.ssoToken = pSsoToken;
         super.setAuthenticated(true);
@@ -78,7 +78,7 @@ public class CrowdAuthenticationToken extends AbstractAuthenticationToken {
     /**
      * {@inheritDoc}
      *
-     * @see org.acegisecurity.Authentication#getCredentials()
+     * @see org.springframework.security.core.Authentication#getCredentials()
      */
     @Override
     public String getCredentials() {
@@ -88,7 +88,7 @@ public class CrowdAuthenticationToken extends AbstractAuthenticationToken {
     /**
      * {@inheritDoc}
      *
-     * @see org.acegisecurity.Authentication#getPrincipal()
+     * @see org.springframework.security.core.Authentication#getPrincipal()
      */
     @Override
     public UserDetails getPrincipal() {
@@ -108,7 +108,7 @@ public class CrowdAuthenticationToken extends AbstractAuthenticationToken {
     /**
      * {@inheritDoc}
      *
-     * @see org.acegisecurity.providers.AbstractAuthenticationToken#getName()
+     * @see org.springframework.security.authentication.AbstractAuthenticationToken#getName()
      */
     @Override
     public String getName() {
@@ -127,6 +127,6 @@ public class CrowdAuthenticationToken extends AbstractAuthenticationToken {
      * Gets the corresponding {@link hudson.model.User} object.
      */
     private static hudson.model.User getJenkinsUser(String username) {
-        return hudson.model.User.get(username);
+        return hudson.model.User.getById(username, false);
     }
 }
