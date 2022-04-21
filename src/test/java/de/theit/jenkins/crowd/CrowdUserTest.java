@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.acegisecurity.GrantedAuthority;
-import org.acegisecurity.GrantedAuthorityImpl;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 import com.atlassian.crowd.model.user.ImmutableUser;
 import org.assertj.core.api.Assertions;
@@ -20,7 +20,7 @@ public class CrowdUserTest {
     public void setUp() {
         ImmutableUser u = new ImmutableUser(0, "user1", "foo user 1", "foo@bar.baz", false, null, null, null);
         List<GrantedAuthority> authorities = new ArrayList<>();
-        authorities.add(new GrantedAuthorityImpl("fooGroup"));
+        authorities.add(new SimpleGrantedAuthority("fooGroup"));
         dummy = new CrowdUser(u, authorities);
     }
 
@@ -28,12 +28,12 @@ public class CrowdUserTest {
     public void testCrowdUser() {
 
         Assertions.assertThat(dummy.getUsername()).isEqualTo("user1");
-        Assertions.assertThat(dummy.getAuthorities()[0].getAuthority()).isEqualTo("fooGroup");
+        Assertions.assertThat(dummy.getAuthorities().iterator().next().getAuthority()).isEqualTo("fooGroup");
     }
 
     @Test
     public void testGetAuthorities() {
-        Assertions.assertThat(dummy.getAuthorities()[0].getAuthority()).isEqualTo("fooGroup");
+        Assertions.assertThat(dummy.getAuthorities().iterator().next().getAuthority()).isEqualTo("fooGroup");
     }
 
     @Test

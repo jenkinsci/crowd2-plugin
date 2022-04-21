@@ -25,10 +25,11 @@
  */
 package de.theit.jenkins.crowd;
 
+import java.util.Collection;
 import java.util.List;
 
-import org.acegisecurity.GrantedAuthority;
-import org.acegisecurity.userdetails.UserDetails;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import com.atlassian.crowd.model.user.User;
 
@@ -41,7 +42,7 @@ import com.atlassian.crowd.model.user.User;
  * @version $Id$
  */
 public class CrowdUser implements UserDetails {
-    /** Necessary for serialisation. */
+    /** Necessary for serialization. */
     private static final long serialVersionUID = -907996070755427899L;
 
     /** Stores the granted authorities. */
@@ -68,9 +69,8 @@ public class CrowdUser implements UserDetails {
      * @see org.acegisecurity.userdetails.UserDetails#getAuthorities()
      */
     @Override
-    public GrantedAuthority[] getAuthorities() {
-        return this.grantedAuthorities
-                .toArray(new GrantedAuthority[this.grantedAuthorities.size()]);
+    public Collection<GrantedAuthority> getAuthorities() {
+        return this.grantedAuthorities;
     }
 
     /**
