@@ -33,15 +33,15 @@ import com.atlassian.crowd.exception.OperationFailedException;
 import com.atlassian.crowd.exception.UserNotFoundException;
 import com.atlassian.crowd.model.user.User;
 import hudson.security.SecurityRealm;
-import org.acegisecurity.AccountExpiredException;
-import org.acegisecurity.Authentication;
-import org.acegisecurity.AuthenticationException;
-import org.acegisecurity.AuthenticationManager;
-import org.acegisecurity.AuthenticationServiceException;
-import org.acegisecurity.BadCredentialsException;
-import org.acegisecurity.CredentialsExpiredException;
-import org.acegisecurity.GrantedAuthority;
-import org.acegisecurity.InsufficientAuthenticationException;
+import org.springframework.security.authentication.AccountExpiredException;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.AuthenticationServiceException;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.CredentialsExpiredException;
+import org.springframework.security.authentication.InsufficientAuthenticationException;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.GrantedAuthority;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -87,7 +87,7 @@ public class CrowdAuthenticationManager implements AuthenticationManager {
     /**
      * {@inheritDoc}
      *
-     * @see org.acegisecurity.AuthenticationManager#authenticate(org.acegisecurity.Authentication)
+     * @see org.springframework.security.authentication.AuthenticationManager#authenticate(org.springframework.security.core.Authentication)
      */
     @Override
     public Authentication authenticate(Authentication authentication)
@@ -156,7 +156,7 @@ public class CrowdAuthenticationManager implements AuthenticationManager {
 
         // add the "authenticated" authority to the list of granted
         // authorities...
-        authorities.add(SecurityRealm.AUTHENTICATED_AUTHORITY);
+        authorities.add(SecurityRealm.AUTHENTICATED_AUTHORITY2);
         // ..and finally all authorities retrieved from the Crowd server
         authorities.addAll(this.configuration.getAuthoritiesForUser(username));
 
