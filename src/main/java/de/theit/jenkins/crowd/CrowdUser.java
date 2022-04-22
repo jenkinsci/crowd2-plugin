@@ -25,11 +25,17 @@
  */
 package de.theit.jenkins.crowd;
 
+import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+
+import hudson.tasks.Mailer;
+import hudson.tasks.Mailer.UserProperty;
 
 import com.atlassian.crowd.model.user.User;
 
@@ -42,6 +48,8 @@ import com.atlassian.crowd.model.user.User;
  * @version $Id$
  */
 public class CrowdUser implements UserDetails {
+    private static final Logger LOGGER = Logger.getLogger(CrowdUser.class.getName());
+
     /** Necessary for serialization. */
     private static final long serialVersionUID = -907996070755427899L;
 
@@ -140,5 +148,27 @@ public class CrowdUser implements UserDetails {
      */
     public String getEmailAddress() {
         return this.user.getEmailAddress();
+    }
+
+
+    /**
+     * Use the information to update the {@link hudson.model.User} object.
+     *
+     * @return this
+     */
+    public UserDetails updateUserInfo() {
+        hudson.model.User u = hudson.model.User.getById(this.getUsername(), false);
+        if (u != null) {
+            UserProperty existing = u.getProperty(UserProperty.class);
+            if (existing == null || !existing.hasExplicitlyConfiguredAddress()) {
+                try {
+                    u.addProperty(new Mailer.UserProperty(getEmailAddress()));
+                } catch (IOException e) {
+                    LOGGER.log(Level.WARNING, "Failed to associate the e-mail address", e);
+                }
+            }
+        }
+
+        return this;
     }
 }
