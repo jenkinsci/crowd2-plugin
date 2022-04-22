@@ -463,18 +463,16 @@ public class CrowdSecurityRealm extends AbstractPasswordBasedSecurityRealm {
         }
     }
 
-
     /**
      * {@inheritDoc}
      *
-     * @see hudson.security.AbstractPasswordBasedSecurityRealm#authenticate(java.lang.String,
+     * @see hudson.security.AbstractPasswordBasedSecurityRealm#authenticate2(java.lang.String,
      *      java.lang.String)
-     * This function maybe broken due to need of introducing breaking changes for its dependencies
+     *
      */
     @Override
-    @Deprecated
-    protected org.acegisecurity.userdetails.UserDetails authenticate(String pUsername, String pPassword)
-            throws org.acegisecurity.AuthenticationException {
+    protected UserDetails authenticate2(String pUsername, String pPassword)
+            throws AuthenticationException {
         // ensure that the group is available, active and that the user
         // is a member of it
         if (!this.configuration.isGroupMember(pUsername)) {
@@ -525,7 +523,7 @@ public class CrowdSecurityRealm extends AbstractPasswordBasedSecurityRealm {
         // ..and all authorities retrieved from the Crowd server
         authorities.addAll(this.configuration.getAuthoritiesForUser(pUsername));
 
-        return (org.acegisecurity.userdetails.UserDetails)(new CrowdUser(user, authorities));
+        return new CrowdUser(user, authorities);
     }
 
     /**
