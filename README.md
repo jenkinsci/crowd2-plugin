@@ -160,7 +160,7 @@ The following changes and improvements are planned for the following releases
 
 ### 2.3.0
 
-* [ ] Update to latest libs
+* [x] Update to latest libs
 
 ### 3.x.x
 

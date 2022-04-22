@@ -28,14 +28,15 @@ package de.theit.jenkins.crowd;
 import hudson.Extension;
 import hudson.model.User;
 import hudson.security.SecurityRealm;
+import hudson.security.UserMayOrMayNotExistException2;
 import hudson.tasks.MailAddressResolver;
 import jenkins.model.Jenkins;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.acegisecurity.userdetails.UsernameNotFoundException;
-import org.springframework.dao.DataAccessException;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+
 
 /**
  * This class resolves email addresses via lookup in Crowd.
@@ -61,21 +62,17 @@ public class CrowdMailAddressResolverImpl extends MailAddressResolver {
 
         if (realm instanceof CrowdSecurityRealm) {
             try {
-                String userId = getUserIdFromDisplayName(u);
+                String userId = u.getId();
 
                 if (LOG.isLoggable(Level.FINE)) {
                     LOG.fine("Looking up mail address for user: " + userId);
                 }
-                CrowdUser details = (CrowdUser) realm.loadUserByUsername(userId);
+                CrowdUser details = (CrowdUser) realm.loadUserByUsername2(userId);
                 mail = details.getEmailAddress();
+            } catch (UserMayOrMayNotExistException2  ex) {
+                LOG.log(Level.SEVERE, "User do not exist, unable to look up email address", ex);
             } catch (UsernameNotFoundException ex) {
-                if (LOG.isLoggable(Level.INFO)) {
-                    LOG.info("Failed to look up email address in Crowd");
-                }
-            } catch (DataAccessException ex) {
-                LOG.log(Level.SEVERE,
-                        "Access exception trying to look up email address in Crowd",
-                        ex);
+                LOG.info("Failed to look up email address in Crowd");
             }
         }
 
@@ -95,7 +92,7 @@ public class CrowdMailAddressResolverImpl extends MailAddressResolver {
      * @return the user id from display name
      */
     String getUserIdFromDisplayName(User user) {
-        String userId = user.getId();
+        String userId = user.getDisplayName();
         int pos = userId.lastIndexOf('(');
         if (pos > 0) {
             int pos2 = userId.indexOf(')', pos + 1);

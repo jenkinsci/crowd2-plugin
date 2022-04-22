@@ -25,10 +25,11 @@
  */
 package de.theit.jenkins.crowd;
 
+import java.util.Collection;
 import java.util.List;
 
-import org.acegisecurity.GrantedAuthority;
-import org.acegisecurity.userdetails.UserDetails;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import com.atlassian.crowd.model.user.User;
 
@@ -41,7 +42,7 @@ import com.atlassian.crowd.model.user.User;
  * @version $Id$
  */
 public class CrowdUser implements UserDetails {
-    /** Necessary for serialisation. */
+    /** Necessary for serialization. */
     private static final long serialVersionUID = -907996070755427899L;
 
     /** Stores the granted authorities. */
@@ -65,18 +66,17 @@ public class CrowdUser implements UserDetails {
     /**
      * {@inheritDoc}
      *
-     * @see org.acegisecurity.userdetails.UserDetails#getAuthorities()
+     * @see org.springframework.security.core.userdetails.UserDetails#getAuthorities()
      */
     @Override
-    public GrantedAuthority[] getAuthorities() {
-        return this.grantedAuthorities
-                .toArray(new GrantedAuthority[this.grantedAuthorities.size()]);
+    public Collection<GrantedAuthority> getAuthorities() {
+        return this.grantedAuthorities;
     }
 
     /**
      * {@inheritDoc}
      *
-     * @see org.acegisecurity.userdetails.UserDetails#getPassword()
+     * @see org.springframework.security.core.userdetails.UserDetails#getPassword()
      */
     @Override
     public String getPassword() {
@@ -86,7 +86,7 @@ public class CrowdUser implements UserDetails {
     /**
      * {@inheritDoc}
      *
-     * @see org.acegisecurity.userdetails.UserDetails#getUsername()
+     * @see org.springframework.security.core.userdetails.UserDetails#getUsername()
      */
     @Override
     public String getUsername() {
@@ -96,7 +96,7 @@ public class CrowdUser implements UserDetails {
     /**
      * {@inheritDoc}
      *
-     * @see org.acegisecurity.userdetails.UserDetails#isAccountNonExpired()
+     * @see org.springframework.security.core.userdetails.UserDetails#isAccountNonExpired()
      */
     @Override
     public boolean isAccountNonExpired() {
@@ -106,7 +106,7 @@ public class CrowdUser implements UserDetails {
     /**
      * {@inheritDoc}
      *
-     * @see org.acegisecurity.userdetails.UserDetails#isAccountNonLocked()
+     * @see org.springframework.security.core.userdetails.UserDetails#isAccountNonLocked()
      */
     @Override
     public boolean isAccountNonLocked() {
@@ -116,7 +116,7 @@ public class CrowdUser implements UserDetails {
     /**
      * {@inheritDoc}
      *
-     * @see org.acegisecurity.userdetails.UserDetails#isCredentialsNonExpired()
+     * @see org.springframework.security.core.userdetails.UserDetails#isCredentialsNonExpired()
      */
     @Override
     public boolean isCredentialsNonExpired() {
@@ -126,7 +126,7 @@ public class CrowdUser implements UserDetails {
     /**
      * {@inheritDoc}
      *
-     * @see org.acegisecurity.userdetails.UserDetails#isEnabled()
+     * @see org.springframework.security.core.userdetails.UserDetails#isEnabled()
      */
     @Override
     public boolean isEnabled() {

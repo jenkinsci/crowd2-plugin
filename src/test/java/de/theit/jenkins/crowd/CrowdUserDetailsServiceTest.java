@@ -1,10 +1,9 @@
 package de.theit.jenkins.crowd;
 
-import org.acegisecurity.userdetails.UsernameNotFoundException;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.assertj.core.api.Assertions;
 import org.junit.Test;
 import org.mockito.Mockito;
-import org.springframework.dao.DataRetrievalFailureException;
 
 import com.atlassian.crowd.exception.ApplicationPermissionException;
 import com.atlassian.crowd.exception.InvalidAuthenticationException;
@@ -17,8 +16,7 @@ public class CrowdUserDetailsServiceTest {
     public void testCrowdUserDetailsService() {
         CrowdConfigurationService config = Mockito.mock(CrowdConfigurationService.class);
         CrowdUserDetailsService s = new CrowdUserDetailsService(config);
-        Assertions.assertThatThrownBy(() -> s.loadUserByUsername("foo"))
-                .isInstanceOf(DataRetrievalFailureException.class);
+        Assertions.assertThatThrownBy(() -> s.loadUserByUsername("foo")).isInstanceOf(UsernameNotFoundException.class);
 
     }
 
@@ -49,7 +47,7 @@ public class CrowdUserDetailsServiceTest {
         Mockito.when(config.isGroupMember("foo")).thenReturn(Boolean.TRUE);
         Mockito.when(config.getUser("foo")).thenThrow(ApplicationPermissionException.class);
         Assertions.assertThatThrownBy(() -> s.loadUserByUsername("foo"))
-                .isInstanceOf(DataRetrievalFailureException.class);
+                .isInstanceOf(UsernameNotFoundException.class);
     }
 
     @Test
@@ -60,7 +58,7 @@ public class CrowdUserDetailsServiceTest {
         Mockito.when(config.isGroupMember("foo")).thenReturn(Boolean.TRUE);
         Mockito.when(config.getUser("foo")).thenThrow(InvalidAuthenticationException.class);
         Assertions.assertThatThrownBy(() -> s.loadUserByUsername("foo"))
-                .isInstanceOf(DataRetrievalFailureException.class);
+                .isInstanceOf(UsernameNotFoundException.class);
     }
 
     @Test
@@ -70,7 +68,6 @@ public class CrowdUserDetailsServiceTest {
         CrowdUserDetailsService s = new CrowdUserDetailsService(config);
         Mockito.when(config.isGroupMember("foo")).thenReturn(Boolean.TRUE);
         Mockito.when(config.getUser("foo")).thenThrow(OperationFailedException.class);
-        Assertions.assertThatThrownBy(() -> s.loadUserByUsername("foo"))
-                .isInstanceOf(DataRetrievalFailureException.class);
+        Assertions.assertThatThrownBy(() -> s.loadUserByUsername("foo")).isInstanceOf(UsernameNotFoundException.class);
     }
 }

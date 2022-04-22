@@ -26,10 +26,11 @@
 package de.theit.jenkins.crowd;
 
 import com.atlassian.crowd.exception.OperationFailedException;
-import org.acegisecurity.Authentication;
-import org.acegisecurity.context.SecurityContext;
-import org.acegisecurity.context.SecurityContextHolder;
-import org.acegisecurity.ui.rememberme.RememberMeServices;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.authentication.RememberMeServices;
+
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -46,7 +47,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import static de.theit.jenkins.crowd.ErrorMessages.operationFailed;
-import static org.acegisecurity.ui.rememberme.TokenBasedRememberMeServices.ACEGI_SECURITY_HASHED_REMEMBER_ME_COOKIE_KEY;
+import static org.springframework.security.web.authentication.rememberme.TokenBasedRememberMeServices.SPRING_SECURITY_REMEMBER_ME_COOKIE_KEY;
 
 /**
  * This class realizes a servlet filter that checks on each request the status
@@ -99,8 +100,8 @@ public class CrowdServletFilter implements Filter {
         this.configuration = pConfiguration;
         this.defaultFilter = pDefaultFilter;
 
-        if (this.securityRealm.getSecurityComponents().rememberMe instanceof CrowdRememberMeServices) {
-            this.rememberMe = (CrowdRememberMeServices) this.securityRealm.getSecurityComponents().rememberMe;
+        if (this.securityRealm.getSecurityComponents().rememberMe2 instanceof CrowdRememberMeServices) {
+            this.rememberMe = (CrowdRememberMeServices) this.securityRealm.getSecurityComponents().rememberMe2;
         }
     }
 
@@ -141,6 +142,7 @@ public class CrowdServletFilter implements Filter {
                 if (LOG.isLoggable(Level.FINE)) {
                     LOG.fine("User is not logged in (anymore) via Crowd => logout user");
                 }
+
                 SecurityContext sc = SecurityContextHolder.getContext();
                 sc.setAuthentication(null);
                 // close the SSO session
@@ -157,8 +159,7 @@ public class CrowdServletFilter implements Filter {
                 SecurityContextHolder.clearContext();
 
                 // reset remember-me cookie
-                Cookie cookie = new Cookie(
-                        ACEGI_SECURITY_HASHED_REMEMBER_ME_COOKIE_KEY, "");
+                Cookie cookie = new Cookie(SPRING_SECURITY_REMEMBER_ME_COOKIE_KEY, "");
                 cookie.setHttpOnly(true);
                 cookie.setSecure(true);
                 cookie.setPath(req.getContextPath().length() > 0 ? req
@@ -175,11 +176,10 @@ public class CrowdServletFilter implements Filter {
                         if (LOG.isLoggable(Level.FINE)) {
                             LOG.fine("User is logged in via Crowd, but no authentication token available; trying auto-login...");
                         }
-                        Authentication auth = this.rememberMe.autoLogin(req,
-                                res);
+                        Authentication auth = this.rememberMe.autoLogin(req, res);
                         if (null != auth) {
                             if (LOG.isLoggable(Level.FINE)) {
-                                LOG.fine("User sucessfully logged in");
+                                LOG.fine("User successfully logged in");
                             }
                             sc.setAuthentication(auth);
                         }

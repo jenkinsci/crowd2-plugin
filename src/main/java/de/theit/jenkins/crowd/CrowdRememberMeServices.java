@@ -35,9 +35,9 @@ import com.atlassian.crowd.exception.OperationFailedException;
 import com.atlassian.crowd.model.authentication.ValidationFactor;
 import com.atlassian.crowd.model.user.User;
 import hudson.security.SecurityRealm;
-import org.acegisecurity.Authentication;
-import org.acegisecurity.GrantedAuthority;
-import org.acegisecurity.ui.rememberme.RememberMeServices;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.web.authentication.RememberMeServices;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -83,7 +83,7 @@ public class CrowdRememberMeServices implements RememberMeServices {
     /**
      * {@inheritDoc}
      *
-     * @see org.acegisecurity.ui.rememberme.RememberMeServices#autoLogin(javax.servlet.http.HttpServletRequest,
+     * @see org.springframework.security.web.authentication.RememberMeServices#autoLogin(javax.servlet.http.HttpServletRequest,
      *      javax.servlet.http.HttpServletResponse)
      */
     @Override
@@ -126,7 +126,7 @@ public class CrowdRememberMeServices implements RememberMeServices {
                         // => create the user object and finalize the auto-login
                         // process
                         List<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>();
-                        authorities.add(SecurityRealm.AUTHENTICATED_AUTHORITY);
+                        authorities.add(SecurityRealm.AUTHENTICATED_AUTHORITY2);
                         authorities.addAll(this.configuration.getAuthoritiesForUser(user.getName()));
                         result = new CrowdAuthenticationToken(user.getName(), null, authorities, ssoToken);
                     }
@@ -147,7 +147,7 @@ public class CrowdRememberMeServices implements RememberMeServices {
     /**
      * {@inheritDoc}
      *
-     * @see org.acegisecurity.ui.rememberme.RememberMeServices#loginFail(javax.servlet.http.HttpServletRequest,
+     * @see org.springframework.security.web.authentication.RememberMeServices#loginFail(javax.servlet.http.HttpServletRequest,
      *      javax.servlet.http.HttpServletResponse)
      */
     @Override
@@ -170,9 +170,9 @@ public class CrowdRememberMeServices implements RememberMeServices {
     /**
      * {@inheritDoc}
      *
-     * @see org.acegisecurity.ui.rememberme.RememberMeServices#loginSuccess(javax.servlet.http.HttpServletRequest,
+     * @see org.springframework.security.web.authentication.RememberMeServices#loginSuccess(javax.servlet.http.HttpServletRequest,
      *      javax.servlet.http.HttpServletResponse,
-     *      org.acegisecurity.Authentication)
+     *      org.springframework.security.core.Authentication)
      */
     @Override
     public void loginSuccess(HttpServletRequest request,
