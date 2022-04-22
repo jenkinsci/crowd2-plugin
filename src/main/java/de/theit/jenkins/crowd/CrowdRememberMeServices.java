@@ -172,7 +172,7 @@ public class CrowdRememberMeServices implements RememberMeServices {
      *
      * @see org.springframework.security.web.authentication.RememberMeServices#loginSuccess(javax.servlet.http.HttpServletRequest,
      *      javax.servlet.http.HttpServletResponse,
-     *      org.acegisecurity.Authentication)
+     *      org.springframework.security.core.Authentication)
      */
     @Override
     public void loginSuccess(HttpServletRequest request,

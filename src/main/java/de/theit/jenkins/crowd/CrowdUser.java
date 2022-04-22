@@ -66,7 +66,7 @@ public class CrowdUser implements UserDetails {
     /**
      * {@inheritDoc}
      *
-     * @see org.acegisecurity.userdetails.UserDetails#getAuthorities()
+     * @see org.springframework.security.core.userdetails.UserDetails#getAuthorities()
      */
     @Override
     public Collection<GrantedAuthority> getAuthorities() {
@@ -76,7 +76,7 @@ public class CrowdUser implements UserDetails {
     /**
      * {@inheritDoc}
      *
-     * @see org.acegisecurity.userdetails.UserDetails#getPassword()
+     * @see org.springframework.security.core.userdetails.UserDetails#getPassword()
      */
     @Override
     public String getPassword() {
@@ -86,7 +86,7 @@ public class CrowdUser implements UserDetails {
     /**
      * {@inheritDoc}
      *
-     * @see org.acegisecurity.userdetails.UserDetails#getUsername()
+     * @see org.springframework.security.core.userdetails.UserDetails#getUsername()
      */
     @Override
     public String getUsername() {
@@ -96,7 +96,7 @@ public class CrowdUser implements UserDetails {
     /**
      * {@inheritDoc}
      *
-     * @see org.acegisecurity.userdetails.UserDetails#isAccountNonExpired()
+     * @see org.springframework.security.core.userdetails.UserDetails#isAccountNonExpired()
      */
     @Override
     public boolean isAccountNonExpired() {
@@ -106,7 +106,7 @@ public class CrowdUser implements UserDetails {
     /**
      * {@inheritDoc}
      *
-     * @see org.acegisecurity.userdetails.UserDetails#isAccountNonLocked()
+     * @see org.springframework.security.core.userdetails.UserDetails#isAccountNonLocked()
      */
     @Override
     public boolean isAccountNonLocked() {
@@ -116,7 +116,7 @@ public class CrowdUser implements UserDetails {
     /**
      * {@inheritDoc}
      *
-     * @see org.acegisecurity.userdetails.UserDetails#isCredentialsNonExpired()
+     * @see org.springframework.security.core.userdetails.UserDetails#isCredentialsNonExpired()
      */
     @Override
     public boolean isCredentialsNonExpired() {
@@ -126,7 +126,7 @@ public class CrowdUser implements UserDetails {
     /**
      * {@inheritDoc}
      *
-     * @see org.acegisecurity.userdetails.UserDetails#isEnabled()
+     * @see org.springframework.security.core.userdetails.UserDetails#isEnabled()
      */
     @Override
     public boolean isEnabled() {
