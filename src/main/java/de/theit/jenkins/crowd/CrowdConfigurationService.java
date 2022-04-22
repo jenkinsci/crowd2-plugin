@@ -47,8 +47,8 @@ import java.util.logging.Logger;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.acegisecurity.GrantedAuthority;
-import org.acegisecurity.GrantedAuthorityImpl;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.apache.commons.lang.SystemUtils;
 
 import com.atlassian.crowd.exception.ApplicationAccessDeniedException;
@@ -396,7 +396,7 @@ public class CrowdConfigurationService {
 
         // now create the list of authorities
         for (String str : groupNames) {
-            authorities.add(new GrantedAuthorityImpl(str));
+            authorities.add(new SimpleGrantedAuthority(str));
         }
 
         // If correct object was returned save it to cache
@@ -748,7 +748,7 @@ public class CrowdConfigurationService {
             currentThread.setContextClassLoader(CrowdConfigurationService.class.getClassLoader());
         }
         try {
-            return crowdHttpAuthenticator.isAuthenticated(httpServletRequest, httpServletResponse);
+            return crowdHttpAuthenticator.checkAuthenticated(httpServletRequest, httpServletResponse).isAuthenticated();
         } finally {
             if (currentThread != null) {
                 currentThread.setContextClassLoader(orgContextClassLoader);
