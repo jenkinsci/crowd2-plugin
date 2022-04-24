@@ -147,7 +147,7 @@ public class CrowdSecurityRealm extends AbstractPasswordBasedSecurityRealm {
      * The configuration data necessary for accessing the services on the remote
      * Crowd server.
      */
-    transient private CrowdConfigurationService configuration;
+    private transient CrowdConfigurationService configuration;
 
     /**
      * Default constructor. Fields in config.jelly must match the parameter
@@ -326,7 +326,7 @@ public class CrowdSecurityRealm extends AbstractPasswordBasedSecurityRealm {
     /**
      * {@inheritDoc}
      *
-     * @see hudson.security.SecurityRealm#createSecurityComponents()
+     * @see hudson.security.AbstractPasswordBasedSecurityRealm#createSecurityComponents()
      */
     @Override
     public SecurityComponents createSecurityComponents() {
@@ -390,6 +390,7 @@ public class CrowdSecurityRealm extends AbstractPasswordBasedSecurityRealm {
     /**
      * {@inheritDoc}
      *
+     * @deprecated use {@link #loadUserByUsername2}
      * @see hudson.security.AbstractPasswordBasedSecurityRealm#loadUserByUsername(java.lang.String)
      */
     @Override
@@ -400,10 +401,15 @@ public class CrowdSecurityRealm extends AbstractPasswordBasedSecurityRealm {
         return getSecurityComponents().userDetails.loadUserByUsername(username);
     }
 
+    // TODO: Implement missing loadGroupByGroupname2
     /**
+     * {@inheritDoc}
+     *
      * @deprecated use {@link #loadGroupByGroupname2}
      * @since 1.549
+     * @see hudson.security.SecurityRealm#loadGroupByGroupname(java.lang.String)
      */
+    @Override
     @Deprecated
     public GroupDetails loadGroupByGroupname(String groupname, boolean fetchMembers) throws org.acegisecurity.userdetails.UsernameNotFoundException, org.springframework.dao.DataAccessException {
         try {
@@ -426,7 +432,8 @@ public class CrowdSecurityRealm extends AbstractPasswordBasedSecurityRealm {
     /**
      * {@inheritDoc}
      *
-     * @see hudson.security.SecurityRealm#loadGroupByGroupname(java.lang.String)
+     * @deprecated use {@link #loadGroupByGroupname2}
+     * @see hudson.security.AbstractPasswordBasedSecurityRealm#loadGroupByGroupname(java.lang.String)
      */
     @Override
     @Deprecated
@@ -466,8 +473,7 @@ public class CrowdSecurityRealm extends AbstractPasswordBasedSecurityRealm {
     /**
      * {@inheritDoc}
      *
-     * @see hudson.security.AbstractPasswordBasedSecurityRealm#authenticate2(java.lang.String,
-     *      java.lang.String)
+     * @see hudson.security.AbstractPasswordBasedSecurityRealm#authenticate2(java.lang.String, java.lang.String)
      *
      */
     @Override
@@ -516,7 +522,7 @@ public class CrowdSecurityRealm extends AbstractPasswordBasedSecurityRealm {
         }
 
         // create the list of granted authorities
-        List<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>();
+        List<GrantedAuthority> authorities = new ArrayList<>();
         // add the "authenticated" authority to the list of granted
         // authorities...
         authorities.add(SecurityRealm.AUTHENTICATED_AUTHORITY2);
@@ -672,7 +678,6 @@ public class CrowdSecurityRealm extends AbstractPasswordBasedSecurityRealm {
                 @QueryParameter String httpProxyPassword, @QueryParameter String socketTimeout,
                 @QueryParameter String httpTimeout, @QueryParameter String httpMaxConnections) {
 
-            // Logger log = Logger.getLogger(getClass().getName());
             Jenkins.get().checkPermission(Jenkins.ADMINISTER);
             CrowdConfigurationService tConfiguration = new CrowdConfigurationService(
                     url, applicationName, Secret.fromString(password), sessionValidationInterval,

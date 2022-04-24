@@ -115,7 +115,6 @@ public class CrowdAuthenticationManager implements AuthenticationManager {
                     username, this.configuration.getAllowedGroupNames()));
         }
 
-        // String displayName = null;
         try {
             // authenticate user
             if (LOG.isLoggable(Level.FINE)) {
@@ -124,7 +123,6 @@ public class CrowdAuthenticationManager implements AuthenticationManager {
             User user = this.configuration.authenticateUser(
                     username, password);
             CrowdAuthenticationToken.updateUserInfo(user);
-            // displayName = user.getDisplayName();
         } catch (UserNotFoundException ex) {
             if (LOG.isLoggable(Level.INFO)) {
                 LOG.info(userNotFound(username));
@@ -152,7 +150,7 @@ public class CrowdAuthenticationManager implements AuthenticationManager {
 
         // user successfully authenticated
         // => retrieve the list of groups the user is a member of
-        List<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>();
+        List<GrantedAuthority> authorities = new ArrayList<>();
 
         // add the "authenticated" authority to the list of granted
         // authorities...

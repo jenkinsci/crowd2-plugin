@@ -115,7 +115,7 @@ public class CrowdUserDetailsService implements UserDetailsService {
         }
 
         // create the list of granted authorities
-        List<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>();
+        List<GrantedAuthority> authorities = new ArrayList<>();
         // add the "authenticated" authority to the list of granted
         // authorities...
         authorities.add(SecurityRealm.AUTHENTICATED_AUTHORITY2);

@@ -105,16 +105,6 @@ public class CrowdAuthenticationToken extends AbstractAuthenticationToken {
         return this.ssoToken;
     }
 
-    /**
-     * {@inheritDoc}
-     *
-     * @see org.springframework.security.authentication.AbstractAuthenticationToken#getName()
-     */
-    @Override
-    public String getName() {
-        return super.getName();
-    }
-
     public static void updateUserInfo(com.atlassian.crowd.model.user.User user) {
         final String displayName = user == null ? null : user.getDisplayName();
         if (StringUtils.isNotBlank(displayName)) {
