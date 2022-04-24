@@ -221,7 +221,7 @@ public class CrowdConfigurationService {
                 this.tokenHelper);
     }
 
-    public ArrayList<String> getAllowedGroupNames() {
+    public List<String> getAllowedGroupNames() {
         return allowedGroupNames;
     }
 
