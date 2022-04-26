@@ -444,9 +444,7 @@ public class CrowdSecurityRealm extends AbstractPasswordBasedSecurityRealm {
             org.springframework.dao.DataAccessException {
         try {
             // load the user object from the remote Crowd server
-            if (LOG.isLoggable(Level.FINER)) {
-                LOG.finer("Trying to load group: " + groupname);
-            }
+            LOG.log(Level.FINER, "Trying to load group: " + groupname);
             final Group crowdGroup = this.configuration.getGroup(groupname);
 
             return new GroupDetails() {
@@ -456,15 +454,13 @@ public class CrowdSecurityRealm extends AbstractPasswordBasedSecurityRealm {
                 }
             };
         } catch (GroupNotFoundException ex) {
-            if (LOG.isLoggable(Level.INFO)) {
-                LOG.info(groupNotFound(groupname));
-            }
+            LOG.log(Level.INFO, groupNotFound(groupname));
             throw new org.springframework.dao.DataAccessException(groupNotFound(groupname), ex);
         } catch (ApplicationPermissionException ex) {
-            LOG.warning(applicationPermission());
+            LOG.log(Level.WARNING, applicationPermission());
             throw new org.springframework.dao.DataAccessException(applicationPermission(), ex);
         } catch (InvalidAuthenticationException ex) {
-            LOG.warning(invalidAuthentication());
+            LOG.log(Level.WARNING, invalidAuthentication());
             throw new org.springframework.dao.DataAccessException(invalidAuthentication(), ex);
         } catch (OperationFailedException ex) {
             LOG.log(Level.SEVERE, operationFailed(), ex);
@@ -492,31 +488,25 @@ public class CrowdSecurityRealm extends AbstractPasswordBasedSecurityRealm {
 
         try {
             // authenticate user
-            if (LOG.isLoggable(Level.FINE)) {
-                LOG.fine("Authenticate user '"
-                        + pUsername
-                        + "' using password '"
-                        + (null != pPassword ? "<available>'"
-                                : "<not specified>'"));
-            }
+            LOG.log(Level.FINE, "Authenticate user '" + pUsername + "' using password '"
+                    + (null != pPassword ? "<available>'" : "<not specified>'"));
+
             user = this.configuration.authenticateUser(pUsername, pPassword);
         } catch (UserNotFoundException ex) {
-            if (LOG.isLoggable(Level.INFO)) {
-                LOG.info(userNotFound(pUsername));
-            }
+            LOG.log(Level.INFO, userNotFound(pUsername));
             throw new BadCredentialsException(userNotFound(pUsername), ex);
         } catch (ExpiredCredentialException ex) {
-            LOG.warning(expiredCredentials(pUsername));
+            LOG.log(Level.WARNING, expiredCredentials(pUsername));
             throw new BadCredentialsException(expiredCredentials(pUsername), ex);
         } catch (InactiveAccountException ex) {
-            LOG.warning(accountExpired(pUsername));
+            LOG.log(Level.WARNING, accountExpired(pUsername));
             throw new AccountExpiredException(accountExpired(pUsername), ex);
         } catch (ApplicationPermissionException ex) {
-            LOG.warning(applicationPermission());
+            LOG.log(Level.WARNING, applicationPermission());
             throw new AuthenticationServiceException(applicationPermission(),
                     ex);
         } catch (InvalidAuthenticationException ex) {
-            LOG.warning(invalidAuthentication());
+            LOG.log(Level.WARNING, invalidAuthentication());
             throw new AuthenticationServiceException(invalidAuthentication(),
                     ex);
         } catch (OperationFailedException ex) {

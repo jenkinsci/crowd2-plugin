@@ -94,20 +94,16 @@ public class CrowdUserDetailsService implements UserDetailsService {
 
         try {
             // load the user object from the remote Crowd server
-            if (LOG.isLoggable(Level.FINE)) {
-                LOG.fine("Loading user object from the remote Crowd server...");
-            }
+            LOG.log(Level.FINE, "Loading user object from the remote Crowd server...");
             user = this.configuration.getUser(username);
         } catch (UserNotFoundException ex) {
-            if (LOG.isLoggable(Level.INFO)) {
-                LOG.info(userNotFound(username));
-            }
+            LOG.log(Level.INFO, userNotFound(username));
             throw new UsernameNotFoundException(userNotFound(username), ex);
         } catch (ApplicationPermissionException ex) {
-            LOG.warning(applicationPermission());
+            LOG.log(Level.WARNING, applicationPermission());
             throw new UsernameNotFoundException(applicationPermission(), ex);
         } catch (InvalidAuthenticationException ex) {
-            LOG.warning(invalidAuthentication());
+            LOG.log(Level.WARNING, invalidAuthentication());
             throw new UsernameNotFoundException(invalidAuthentication(), ex);
         } catch (OperationFailedException ex) {
             LOG.log(Level.SEVERE, operationFailed(), ex);
