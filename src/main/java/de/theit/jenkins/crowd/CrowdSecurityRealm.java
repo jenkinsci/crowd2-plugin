@@ -476,8 +476,9 @@ public class CrowdSecurityRealm extends AbstractPasswordBasedSecurityRealm {
      *
      */
     @Override
-    protected UserDetails authenticate2(String pUsername, String pPassword)
-            throws AuthenticationException {
+    protected UserDetails authenticate2(String pUsername, String pPassword) throws AuthenticationException {
+        User user;
+
         // ensure that the group is available, active and that the user
         // is a member of it
         if (!this.configuration.isGroupMember(pUsername)) {
@@ -485,7 +486,6 @@ public class CrowdSecurityRealm extends AbstractPasswordBasedSecurityRealm {
                     userNotValid(pUsername, this.configuration.getAllowedGroupNames()));
         }
 
-        User user;
         try {
             // authenticate user
             LOG.log(Level.FINE, "Authenticate user '" + pUsername + "' using password '"
