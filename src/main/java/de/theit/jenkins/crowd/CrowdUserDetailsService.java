@@ -122,6 +122,6 @@ public class CrowdUserDetailsService implements UserDetailsService {
         // ..and all authorities retrieved from the Crowd server
         authorities.addAll(this.configuration.getAuthoritiesForUser(username));
 
-        return new CrowdUser(user, authorities).updateUserInfo();
+        return new CrowdUser(user, authorities);
     }
 }
