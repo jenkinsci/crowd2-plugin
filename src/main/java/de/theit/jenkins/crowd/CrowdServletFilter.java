@@ -139,9 +139,7 @@ public class CrowdServletFilter implements Filter {
             }
 
             if (!isValidated) {
-                if (LOG.isLoggable(Level.FINE)) {
-                    LOG.fine("User is not logged in (anymore) via Crowd => logout user");
-                }
+                LOG.log(Level.FINE, "User is not logged in (anymore) via Crowd => logout user");
 
                 SecurityContext sc = SecurityContextHolder.getContext();
                 sc.setAuthentication(null);
@@ -173,14 +171,11 @@ public class CrowdServletFilter implements Filter {
                     // authentication token available
                     // => try to auto-login the user
                     if (null != this.rememberMe) {
-                        if (LOG.isLoggable(Level.FINE)) {
-                            LOG.fine("User is logged in via Crowd, but no authentication token available; trying auto-login...");
-                        }
+                        LOG.log(Level.FINE, "User is logged in via Crowd, but no authentication token available; trying auto-login...");
+
                         Authentication auth = this.rememberMe.autoLogin(req, res);
                         if (null != auth) {
-                            if (LOG.isLoggable(Level.FINE)) {
-                                LOG.fine("User successfully logged in");
-                            }
+                            LOG.log(Level.FINE, "User successfully logged in");
                             sc.setAuthentication(auth);
                         }
                     }

@@ -96,13 +96,10 @@ public class CrowdAuthenticationManager implements AuthenticationManager {
 
         // checking whether there's already a SSO token
         if (null == authentication.getCredentials()
-                && authentication instanceof CrowdAuthenticationToken
-                && null != ((CrowdAuthenticationToken) authentication)
-                        .getSSOToken()) {
+                 && authentication instanceof CrowdAuthenticationToken
+                 && null != ((CrowdAuthenticationToken) authentication).getSSOToken()) {
             // SSO token available => user already authenticated
-            if (LOG.isLoggable(Level.FINER)) {
-                LOG.finer("User '" + username + "' already authenticated");
-            }
+            LOG.log(Level.FINER, "User '" + username + "' already authenticated");
             return authentication;
         }
 
@@ -117,32 +114,24 @@ public class CrowdAuthenticationManager implements AuthenticationManager {
 
         try {
             // authenticate user
-            if (LOG.isLoggable(Level.FINE)) {
-                LOG.fine("Authenticating user: " + username);
-            }
-            User user = this.configuration.authenticateUser(
-                    username, password);
+            LOG.log(Level.FINE, "Authenticating user: " + username);
+            User user = this.configuration.authenticateUser(username, password);
             CrowdAuthenticationToken.updateUserInfo(user);
         } catch (UserNotFoundException ex) {
-            if (LOG.isLoggable(Level.INFO)) {
-                LOG.info(userNotFound(username));
-            }
+            LOG.log(Level.INFO, userNotFound(username));
             throw new BadCredentialsException(userNotFound(username), ex);
         } catch (ExpiredCredentialException ex) {
-            LOG.warning(expiredCredentials(username));
-            throw new CredentialsExpiredException(expiredCredentials(username),
-                    ex);
+            LOG.log(Level.WARNING, expiredCredentials(username));
+            throw new CredentialsExpiredException(expiredCredentials(username), ex);
         } catch (InactiveAccountException ex) {
-            LOG.warning(accountExpired(username));
+            LOG.log(Level.WARNING, accountExpired(username));
             throw new AccountExpiredException(accountExpired(username), ex);
         } catch (ApplicationPermissionException ex) {
-            LOG.warning(applicationPermission());
-            throw new AuthenticationServiceException(applicationPermission(),
-                    ex);
+            LOG.log(Level.WARNING, applicationPermission());
+            throw new AuthenticationServiceException(applicationPermission(), ex);
         } catch (InvalidAuthenticationException ex) {
-            LOG.warning(invalidAuthentication());
-            throw new AuthenticationServiceException(invalidAuthentication(),
-                    ex);
+            LOG.log(Level.WARNING, invalidAuthentication());
+            throw new AuthenticationServiceException(invalidAuthentication(), ex);
         } catch (OperationFailedException ex) {
             LOG.log(Level.SEVERE, operationFailed(), ex);
             throw new AuthenticationServiceException(operationFailed(), ex);
@@ -159,11 +148,7 @@ public class CrowdAuthenticationManager implements AuthenticationManager {
         authorities.addAll(this.configuration.getAuthoritiesForUser(username));
 
         // user successfully authenticated => create authentication token
-        if (LOG.isLoggable(Level.FINE)) {
-            LOG.fine("User successfully authenticated; creating authentication token");
-        }
-
+        LOG.log(Level.FINE, "User successfully authenticated; creating authentication token");
         return new CrowdAuthenticationToken(username, password, authorities, null);
     }
-
 }

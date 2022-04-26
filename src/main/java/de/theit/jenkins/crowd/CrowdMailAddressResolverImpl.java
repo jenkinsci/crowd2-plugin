@@ -63,16 +63,13 @@ public class CrowdMailAddressResolverImpl extends MailAddressResolver {
         if (realm instanceof CrowdSecurityRealm) {
             try {
                 String userId = u.getId();
-
-                if (LOG.isLoggable(Level.FINE)) {
-                    LOG.fine("Looking up mail address for user: " + userId);
-                }
+                LOG.log(Level.FINE, "Looking up mail address for user: " + userId);
                 CrowdUser details = (CrowdUser) realm.loadUserByUsername2(userId);
                 mail = details.getEmailAddress();
             } catch (UserMayOrMayNotExistException2  ex) {
                 LOG.log(Level.SEVERE, "User do not exist, unable to look up email address", ex);
             } catch (UsernameNotFoundException ex) {
-                LOG.info("Failed to look up email address in Crowd");
+                LOG.log(Level.INFO, "Failed to look up email address in Crowd");
             }
         }
 
