@@ -83,15 +83,15 @@ public class CrowdUserDetailsService implements UserDetailsService {
      * @see org.springframework.security.core.userdetails.UserDetailsService#loadUserByUsername(java.lang.String)
      */
     @Override
-    public UserDetails loadUserByUsername(String username)
-            throws UsernameNotFoundException {
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 
-        // check whether there's at least one active group the user is a member
-        // of
+        User user;
+
+        // check whether there's at least one active group the user is a member of
         if (!this.configuration.isGroupMember(username)) {
             throw new UsernameNotFoundException(userNotValid(username, this.configuration.getAllowedGroupNames()));
         }
-        User user;
+
         try {
             // load the user object from the remote Crowd server
             if (LOG.isLoggable(Level.FINE)) {

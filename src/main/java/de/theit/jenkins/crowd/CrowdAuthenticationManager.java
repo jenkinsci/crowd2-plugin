@@ -92,6 +92,10 @@ public class CrowdAuthenticationManager implements AuthenticationManager {
     @Override
     public Authentication authenticate(Authentication authentication)
             throws AuthenticationException {
+        if (authentication == null) {
+            return null;
+        }
+
         String username = authentication.getPrincipal().toString();
 
         // checking whether there's already a SSO token
@@ -111,8 +115,8 @@ public class CrowdAuthenticationManager implements AuthenticationManager {
         // ensure that the group is available, active and that the user
         // is a member of it
         if (!this.configuration.isGroupMember(username)) {
-            throw new InsufficientAuthenticationException(userNotValid(
-                    username, this.configuration.getAllowedGroupNames()));
+            throw new InsufficientAuthenticationException(
+                    userNotValid(username, this.configuration.getAllowedGroupNames()));
         }
 
         try {
@@ -120,8 +124,8 @@ public class CrowdAuthenticationManager implements AuthenticationManager {
             if (LOG.isLoggable(Level.FINE)) {
                 LOG.fine("Authenticating user: " + username);
             }
-            User user = this.configuration.authenticateUser(
-                    username, password);
+
+            User user = this.configuration.authenticateUser(username, password);
             CrowdAuthenticationToken.updateUserInfo(user);
         } catch (UserNotFoundException ex) {
             if (LOG.isLoggable(Level.INFO)) {

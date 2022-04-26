@@ -411,7 +411,9 @@ public class CrowdSecurityRealm extends AbstractPasswordBasedSecurityRealm {
      */
     @Override
     @Deprecated
-    public GroupDetails loadGroupByGroupname(String groupname, boolean fetchMembers) throws org.acegisecurity.userdetails.UsernameNotFoundException, org.springframework.dao.DataAccessException {
+    public GroupDetails loadGroupByGroupname(String groupname, boolean fetchMembers)
+            throws org.acegisecurity.userdetails.UsernameNotFoundException,
+            org.springframework.dao.DataAccessException {
         try {
             return loadGroupByGroupname2(groupname, fetchMembers);
         } catch (AuthenticationException x) {
@@ -473,20 +475,21 @@ public class CrowdSecurityRealm extends AbstractPasswordBasedSecurityRealm {
     /**
      * {@inheritDoc}
      *
-     * @see hudson.security.AbstractPasswordBasedSecurityRealm#authenticate2(java.lang.String, java.lang.String)
+     * @see hudson.security.AbstractPasswordBasedSecurityRealm#authenticate2(java.lang.String,
+     *      java.lang.String)
      *
      */
     @Override
-    protected UserDetails authenticate2(String pUsername, String pPassword)
-            throws AuthenticationException {
+    protected UserDetails authenticate2(String pUsername, String pPassword) throws AuthenticationException {
+        User user;
+
         // ensure that the group is available, active and that the user
         // is a member of it
         if (!this.configuration.isGroupMember(pUsername)) {
-            throw new InsufficientAuthenticationException(userNotValid(
-                    pUsername, this.configuration.getAllowedGroupNames()));
+            throw new InsufficientAuthenticationException(
+                    userNotValid(pUsername, this.configuration.getAllowedGroupNames()));
         }
 
-        User user;
         try {
             // authenticate user
             if (LOG.isLoggable(Level.FINE)) {
