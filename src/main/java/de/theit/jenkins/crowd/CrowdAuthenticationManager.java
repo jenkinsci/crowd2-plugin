@@ -103,7 +103,7 @@ public class CrowdAuthenticationManager implements AuthenticationManager {
                  && authentication instanceof CrowdAuthenticationToken
                  && null != ((CrowdAuthenticationToken) authentication).getSSOToken()) {
             // SSO token available => user already authenticated
-            LOG.log(Level.FINER, "User '" + username + "' already authenticated");
+            LOG.log(Level.FINER, "User '{0}' already authenticated", username);
             return authentication;
         }
 
@@ -118,7 +118,7 @@ public class CrowdAuthenticationManager implements AuthenticationManager {
 
         try {
             // authenticate user
-            LOG.log(Level.FINE, "Authenticating user: " + username);
+            LOG.log(Level.FINE, "Authenticating user: {0}", username);
             User user = this.configuration.authenticateUser(username, password);
             CrowdAuthenticationToken.updateUserInfo(user);
         } catch (UserNotFoundException ex) {

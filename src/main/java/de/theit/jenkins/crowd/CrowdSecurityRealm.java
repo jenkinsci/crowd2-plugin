@@ -444,7 +444,7 @@ public class CrowdSecurityRealm extends AbstractPasswordBasedSecurityRealm {
             org.springframework.dao.DataAccessException {
         try {
             // load the user object from the remote Crowd server
-            LOG.log(Level.FINER, "Trying to load group: " + groupname);
+            LOG.log(Level.FINER, "Trying to load group: {0}", groupname);
             final Group crowdGroup = this.configuration.getGroup(groupname);
 
             return new GroupDetails() {
@@ -488,9 +488,7 @@ public class CrowdSecurityRealm extends AbstractPasswordBasedSecurityRealm {
 
         try {
             // authenticate user
-            LOG.log(Level.FINE, "Authenticate user '" + pUsername + "' using password '"
-                    + (null != pPassword ? "<available>'" : "<not specified>'"));
-
+            LOG.log(Level.FINE, "Authenticate user '{0}' using password {1}", new Object[]{pUsername, null != pPassword ? "'<available>'" : "'<not specified>'"});
             user = this.configuration.authenticateUser(pUsername, pPassword);
         } catch (UserNotFoundException ex) {
             LOG.log(Level.INFO, userNotFound(pUsername));

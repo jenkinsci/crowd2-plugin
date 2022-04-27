@@ -49,7 +49,7 @@ import org.apache.commons.lang.StringUtils;
  * @version $Id$
  */
 public class CrowdAuthenticationToken extends AbstractAuthenticationToken {
-    private static final Logger LOGGER = Logger.getLogger(CrowdUser.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(CrowdAuthenticationToken.class.getName());
 
     /** For serialization. */
     private static final long serialVersionUID = 7685110934682676618L;

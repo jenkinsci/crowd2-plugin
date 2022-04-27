@@ -191,13 +191,13 @@ public class CrowdConfigurationService {
             boolean useCache, Integer cacheSize, Integer cacheTTL,
             String pGroupNames, boolean pNestedGroups) {
 
-        LOG.log(Level.INFO, "Groups given for Crowd configuration service: " + pGroupNames);
+        LOG.log(Level.INFO, "Groups given for Crowd configuration service: {0}", pGroupNames);
 
         this.allowedGroupNames = new ArrayList<>();
         for (String group : pGroupNames.split(",")) {
             group = group.trim();
             if (group.length() > 0) {
-                LOG.log(Level.FINE, "-> adding allowed group name: " + group);
+                LOG.log(Level.FINE, "-> adding allowed group name: {0}", group);
                 this.allowedGroupNames.add(group);
             }
         }
@@ -302,7 +302,7 @@ public class CrowdConfigurationService {
         boolean retval = false;
 
         try {
-            LOG.log(Level.FINE, "Checking whether group is active: " + groupName);
+            LOG.log(Level.FINE, "Checking whether group is active: {0}", groupName);
             Group group = getGroup(groupName);
             if (null != group) {
                 retval = group.isActive();
@@ -349,10 +349,12 @@ public class CrowdConfigurationService {
         try {
             int index = 0;
             String membership = this.nestedGroups ? "nested" : "direct";
-            LOG.log(Level.FINE, "Retrieve list of groups with " + membership + " membership for user '" + username + "'...");
+            LOG.log(Level.FINE, "Retrieve list of groups with {0} membership for user '{1}'...",
+                    new Object[] { membership, username });
 
             while (true) {
-                LOG.log(Level.FINEST, "Fetching groups [" + index + "..." + (index + MAX_GROUPS - 1) + "]...");
+                LOG.log(Level.FINEST, "Fetching groups [{0}...{1}]...",
+                        new Object[] { index, (index + MAX_GROUPS - 1) });
 
                 List<Group> groups;
                 if (this.nestedGroups) {
