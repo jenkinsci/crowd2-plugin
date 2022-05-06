@@ -144,6 +144,19 @@
                 <version>3.12.0</version>
             </dependency>
 
+            <!--
+                RequireUpperBoundDeps:
+                * io.jenkins.plugins:jaxb:2.3.0.1 depends on javax.xml.bind:jaxb-api:2.3.0
+                * com.thoughtworks.xstream:xstream:1.4.17 via org.jenkins-ci.main:jenkins-core:2.303.1
+                    depends on javax.xml.bind:jaxb-api:2.3.1
+                You can remove here if a newer version of jaxb-plugin is released.
+            -->
+            <dependency>
+                <groupId>javax.xml.bind</groupId>
+                <artifactId>jaxb-api</artifactId>
+                <version>2.3.1</version>
+            </dependency>
+
             <dependency>
                 <groupId>io.jenkins.tools.bom</groupId>
                 <artifactId>bom-2.303.x</artifactId>
