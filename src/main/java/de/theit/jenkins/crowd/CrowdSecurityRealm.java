@@ -401,6 +401,16 @@ public class CrowdSecurityRealm extends AbstractPasswordBasedSecurityRealm {
         return getSecurityComponents().userDetails.loadUserByUsername(username);
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * @see hudson.security.AbstractPasswordBasedSecurityRealm#loadUserByUsername2(java.lang.String)
+     */
+    @Override
+    public UserDetails loadUserByUsername2(String username) throws UsernameNotFoundException {
+        return getSecurityComponents().userDetails2.loadUserByUsername(username);
+    }
+
     // TODO: Implement missing loadGroupByGroupname2
     /**
      * {@inheritDoc}
@@ -419,16 +429,6 @@ public class CrowdSecurityRealm extends AbstractPasswordBasedSecurityRealm {
         } catch (AuthenticationException x) {
             throw org.acegisecurity.AuthenticationException.fromSpring(x);
         }
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * @see hudson.security.AbstractPasswordBasedSecurityRealm#loadUserByUsername2(java.lang.String)
-     */
-    @Override
-    public UserDetails loadUserByUsername2(String username) throws UsernameNotFoundException {
-        return getSecurityComponents().userDetails2.loadUserByUsername(username);
     }
 
     /**
