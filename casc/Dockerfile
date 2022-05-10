@@ -19,6 +19,7 @@ COPY    --chown=jenkins:jenkins "casc/jenkins_home" "/var/jenkins_home"
 RUN     jenkins-plugin-cli --plugins configuration-as-code \
                                      apache-httpcomponents-client-4-api \
                                      mailer \
-                                     monitoring
+                                     monitoring \
+                                     jaxb
 
 COPY    --chown=jenkins:jenkins target/crowd2.hpi /usr/share/jenkins/ref/plugins/
