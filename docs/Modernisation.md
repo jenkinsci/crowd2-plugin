@@ -11,7 +11,7 @@ This plugin try to apply those changes suggested by community to upgrade plugin.
 * [x] Enable incremental build publishing to better evaluate pull requests
 * [x] Enable release drafter for changelog automation
 * [x] Convert plugin documentation to GitHub
-* [ ] Check for issues related to more inclusive naming
+* [x] Check for issues related to more inclusive naming
 * [x] Use the plugin bill of materials to simplify dependency management
 * [ ] Enable continuous delivery to simplify releases
 * [x] Enable spotbugs extension findsecbugs
