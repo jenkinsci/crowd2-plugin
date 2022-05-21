@@ -49,7 +49,7 @@ THE SOFTWARE.
         </f:entry>
     </f:optionalBlock>
     <f:advanced>
-        <f:entry title="${%session.validationinterval}" field="sessionValidationInterval">
+        <f:entry title="${%session.validationInterval}" field="sessionValidationInterval">
             <f:textbox default="2" />
         </f:entry>
         <f:entry title="${%http.max.connections}" field="httpMaxConnections">
