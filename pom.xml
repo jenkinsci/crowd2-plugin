@@ -162,19 +162,19 @@
                 <artifactId>properties-maven-plugin</artifactId>
                 <version>1.1.0</version>
                 <executions>
-                  <execution>
-                    <phase>initialize</phase>
-                    <goals>
-                      <goal>read-project-properties</goal>
-                    </goals>
-                    <configuration>
-                      <files>
-                        <file>sonar-project.properties</file>
-                      </files>
-                    </configuration>
-                  </execution>
+                    <execution>
+                        <phase>initialize</phase>
+                        <goals>
+                            <goal>read-project-properties</goal>
+                        </goals>
+                        <configuration>
+                            <files>
+                                <file>sonar-project.properties</file>
+                            </files>
+                        </configuration>
+                    </execution>
                 </executions>
-              </plugin>
+            </plugin>
             <plugin>
                 <groupId>org.sonarsource.scanner.maven</groupId>
                 <artifactId>sonar-maven-plugin</artifactId>
@@ -193,6 +193,13 @@
                     </plugins>
                 </configuration>
             </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-pmd-plugin</artifactId>
+                <!-- Version specified in parent POM -->
+            </plugin>
+
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-checkstyle-plugin</artifactId>
