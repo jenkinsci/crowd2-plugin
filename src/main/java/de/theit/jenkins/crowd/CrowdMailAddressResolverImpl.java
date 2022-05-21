@@ -30,13 +30,13 @@ import hudson.model.User;
 import hudson.security.SecurityRealm;
 import hudson.security.UserMayOrMayNotExistException2;
 import hudson.tasks.MailAddressResolver;
-import jenkins.model.Jenkins;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import jenkins.model.Jenkins;
 
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 /**
  * This class resolves email addresses via lookup in Crowd.

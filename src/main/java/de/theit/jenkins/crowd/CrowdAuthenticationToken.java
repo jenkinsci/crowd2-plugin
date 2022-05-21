@@ -25,20 +25,21 @@
  */
 package de.theit.jenkins.crowd;
 
-import java.io.IOException;
-import java.util.List;
-import java.util.logging.Logger;
-import java.util.logging.Level;
-
-import jenkins.model.Jenkins;
 import hudson.tasks.Mailer;
 import hudson.tasks.Mailer.UserProperty;
 
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.authentication.AbstractAuthenticationToken;
-import org.springframework.security.core.userdetails.UserDetails;
+import java.io.IOException;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import jenkins.model.Jenkins;
 
 import org.apache.commons.lang.StringUtils;
+import org.springframework.security.authentication.AbstractAuthenticationToken;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+
 
 /**
  * This class represents an authentication token that is created after a user

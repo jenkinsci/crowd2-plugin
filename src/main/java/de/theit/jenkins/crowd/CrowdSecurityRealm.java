@@ -34,6 +34,7 @@ import com.atlassian.crowd.exception.OperationFailedException;
 import com.atlassian.crowd.exception.UserNotFoundException;
 import com.atlassian.crowd.model.group.Group;
 import com.atlassian.crowd.model.user.User;
+
 import hudson.Extension;
 import hudson.model.AbstractDescribableImpl;
 import hudson.model.Descriptor;
@@ -43,34 +44,47 @@ import hudson.security.SecurityRealm;
 import hudson.util.FormValidation;
 import hudson.util.ListBoxModel;
 import hudson.util.Secret;
-import jenkins.model.Jenkins;
 
-import org.springframework.security.authentication.AccountExpiredException;
-import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.AuthenticationServiceException;
-import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.authentication.InsufficientAuthenticationException;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.kohsuke.stapler.DataBoundConstructor;
-import org.kohsuke.stapler.QueryParameter;
-import org.kohsuke.stapler.StaplerRequest;
-import org.kohsuke.stapler.StaplerResponse;
-import org.kohsuke.stapler.verb.POST;
-
-import javax.servlet.Filter;
-import javax.servlet.FilterConfig;
-import javax.servlet.ServletException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import static de.theit.jenkins.crowd.ErrorMessages.*;
+import javax.servlet.Filter;
+import javax.servlet.FilterConfig;
+import javax.servlet.ServletException;
+
+import jenkins.model.Jenkins;
+
+import org.kohsuke.stapler.DataBoundConstructor;
+import org.kohsuke.stapler.QueryParameter;
+import org.kohsuke.stapler.StaplerRequest;
+import org.kohsuke.stapler.StaplerResponse;
+import org.kohsuke.stapler.verb.POST;
+import org.springframework.security.authentication.AccountExpiredException;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.AuthenticationServiceException;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.InsufficientAuthenticationException;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+
+import static de.theit.jenkins.crowd.ErrorMessages.accountExpired;
+import static de.theit.jenkins.crowd.ErrorMessages.applicationPermission;
+import static de.theit.jenkins.crowd.ErrorMessages.expiredCredentials;
+import static de.theit.jenkins.crowd.ErrorMessages.groupNotFound;
+import static de.theit.jenkins.crowd.ErrorMessages.invalidAuthentication;
+import static de.theit.jenkins.crowd.ErrorMessages.operationFailed;
+import static de.theit.jenkins.crowd.ErrorMessages.specifyApplicationName;
+import static de.theit.jenkins.crowd.ErrorMessages.specifyApplicationPassword;
+import static de.theit.jenkins.crowd.ErrorMessages.specifyCrowdUrl;
+import static de.theit.jenkins.crowd.ErrorMessages.specifySessionValidationInterval;
+import static de.theit.jenkins.crowd.ErrorMessages.userNotFound;
+import static de.theit.jenkins.crowd.ErrorMessages.userNotValid;
 
 /**
  * This class provides the security realm for authenticating users against a

@@ -34,17 +34,20 @@ import com.atlassian.crowd.exception.InvalidTokenException;
 import com.atlassian.crowd.exception.OperationFailedException;
 import com.atlassian.crowd.model.authentication.ValidationFactor;
 import com.atlassian.crowd.model.user.User;
-import hudson.security.SecurityRealm;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.web.authentication.RememberMeServices;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import hudson.security.SecurityRealm;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.web.authentication.RememberMeServices;
 
 import static de.theit.jenkins.crowd.ErrorMessages.accountExpired;
 import static de.theit.jenkins.crowd.ErrorMessages.applicationAccessDenied;

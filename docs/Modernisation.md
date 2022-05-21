@@ -32,7 +32,7 @@ This plugin try to apply those changes suggested by community to upgrade plugin.
 * [ ] Automate label assignment for pull requests
 * [ ] Assign repository topics and labels
 * [ ] Enable Jenkins specific security scanning
-* [ ] Enable checkstyle reporting
+* [x] Enable checkstyle reporting
 * [ ] Enable project mess detector (pmd) reporting
 * [ ] Review the plugin security checklist
 * [ ] Enable continuous delivery

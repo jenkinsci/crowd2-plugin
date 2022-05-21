@@ -2,6 +2,7 @@ package de.theit.jenkins.crowd;
 
 import hudson.model.User;
 import hudson.security.SecurityRealm;
+
 import org.assertj.core.api.Assertions;
 import org.junit.Test;
 import org.mockito.Mockito;

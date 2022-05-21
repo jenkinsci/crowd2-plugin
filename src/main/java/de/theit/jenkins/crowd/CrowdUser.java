@@ -25,13 +25,14 @@
  */
 package de.theit.jenkins.crowd;
 
+import com.atlassian.crowd.model.user.User;
+
 import java.util.Collection;
 import java.util.List;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import com.atlassian.crowd.model.user.User;
 
 /**
  * This class provides the information about a user that was authenticated

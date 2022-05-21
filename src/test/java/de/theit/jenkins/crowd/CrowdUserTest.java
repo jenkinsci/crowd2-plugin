@@ -1,16 +1,16 @@
 package de.theit.jenkins.crowd;
 
+import com.atlassian.crowd.model.user.ImmutableUser;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-
-import com.atlassian.crowd.model.user.ImmutableUser;
 import org.assertj.core.api.Assertions;
 import org.junit.Before;
 import org.junit.Test;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 public class CrowdUserTest {
 

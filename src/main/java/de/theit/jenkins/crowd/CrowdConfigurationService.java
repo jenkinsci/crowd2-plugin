@@ -25,32 +25,6 @@
  */
 package de.theit.jenkins.crowd;
 
-import static de.theit.jenkins.crowd.ErrorMessages.applicationPermission;
-import static de.theit.jenkins.crowd.ErrorMessages.groupNotFound;
-import static de.theit.jenkins.crowd.ErrorMessages.invalidAuthentication;
-import static de.theit.jenkins.crowd.ErrorMessages.operationFailed;
-import static de.theit.jenkins.crowd.ErrorMessages.userNotFound;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.TreeSet;
-import java.util.concurrent.TimeUnit;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.apache.commons.lang.SystemUtils;
-
 import com.atlassian.crowd.exception.ApplicationAccessDeniedException;
 import com.atlassian.crowd.exception.ApplicationPermissionException;
 import com.atlassian.crowd.exception.ExpiredCredentialException;
@@ -74,6 +48,32 @@ import com.atlassian.crowd.service.client.ClientPropertiesImpl;
 import com.atlassian.crowd.service.client.CrowdClient;
 
 import hudson.util.Secret;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.TreeSet;
+import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.commons.lang.SystemUtils;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+
+import static de.theit.jenkins.crowd.ErrorMessages.applicationPermission;
+import static de.theit.jenkins.crowd.ErrorMessages.groupNotFound;
+import static de.theit.jenkins.crowd.ErrorMessages.invalidAuthentication;
+import static de.theit.jenkins.crowd.ErrorMessages.operationFailed;
+import static de.theit.jenkins.crowd.ErrorMessages.userNotFound;
 
 /**
  * This class contains all objects that are necessary to access the REST
@@ -823,7 +823,7 @@ public class CrowdConfigurationService {
         private final long expires;
         private final T value;
 
-        public CacheEntry(int ttlSeconds, T value) {
+        CacheEntry(int ttlSeconds, T value) {
             this.expires = System.currentTimeMillis() + TimeUnit.SECONDS.toMillis(ttlSeconds);
             this.value = value;
         }
@@ -850,7 +850,7 @@ public class CrowdConfigurationService {
         private static final long serialVersionUID = 1L;
         private final int cacheSize;
 
-        public CacheMap(int cacheSize) {
+        CacheMap(int cacheSize) {
             super(cacheSize + 1); // prevent realloc when hitting cache size limit
             this.cacheSize = cacheSize;
         }

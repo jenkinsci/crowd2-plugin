@@ -1,18 +1,17 @@
 package de.theit.jenkins.crowd;
 
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.assertj.core.api.Assertions;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.MockedStatic;
-import org.mockito.Mockito;
-import org.openjdk.jmh.annotations.Setup;
-
 import com.atlassian.crowd.exception.ApplicationPermissionException;
 import com.atlassian.crowd.exception.InvalidAuthenticationException;
 import com.atlassian.crowd.exception.OperationFailedException;
 import com.atlassian.crowd.exception.UserNotFoundException;
 import com.atlassian.crowd.model.user.ImmutableUser;
+
+import org.assertj.core.api.Assertions;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.MockedStatic;
+import org.mockito.Mockito;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 public class CrowdUserDetailsServiceTest {
 
