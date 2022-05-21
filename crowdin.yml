@@ -3,14 +3,14 @@ files:
     ignore:
     - '/src/main/resources/de/theit/jenkins/crowd/**/%file_name%_%two_letters_code%.properties'
     - '/src/main/resources/de/theit/jenkins/crowd/**/%file_name%_%locale_with_underscore%.properties'
-    translation: '/src/main/resources/de/theit/jenkins/crowd/**/%file_name%_%two_letters_code%.properties'
+    translation: '/src/main/resources/de/theit/jenkins/crowd/**/%file_name%_%locale_with_underscore%.properties'
     escape_quotes: 0
     escape_special_characters: 0
   - source: '/src/main/resources/de/theit/jenkins/crowd/**/*.html'
     ignore:
     - '/src/main/resources/de/theit/jenkins/crowd/**/%file_name%_%two_letters_code%.html'
     - '/src/main/resources/de/theit/jenkins/crowd/**/%file_name%_%locale_with_underscore%.html'
-    translation: '/src/main/resources/de/theit/jenkins/crowd/**/%file_name%_%two_letters_code%.html'
+    translation: '/src/main/resources/de/theit/jenkins/crowd/**/%file_name%_%locale_with_underscore%.html'
     escape_quotes: 0
     escape_special_characters: 0
 
