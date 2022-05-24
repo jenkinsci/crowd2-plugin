@@ -62,7 +62,7 @@ THE SOFTWARE.
             <f:textbox default="20000" />
         </f:entry>
         <f:optionalBlock title="${%http.enableProxy}" field="useProxy" inline="true">
-            <f:entry title="http.proxy.host" field="httpProxyHost">
+            <f:entry title="${%http.proxy.host}" field="httpProxyHost">
                 <f:textbox />
             </f:entry>
             <f:entry title="${%http.proxy.port}" field="httpProxyPort">
