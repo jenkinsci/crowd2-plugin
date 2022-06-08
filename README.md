@@ -155,9 +155,9 @@ and JIRA, other well known products from Atlassian, also work that way.
 
 Yes.
 
-Actually only German localization is included. If you can translate a
-couple of messages and info texts into other languages, please send me a
-note, and I'll include them in a newer version.
+If you want to add some translation please feel free to add some in 
+https://crowdin.jenkins.io/crowd2-plugin
+After proper review it will be automaticaly added to plugin.
 
 ## Roadmap
 
