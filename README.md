@@ -9,9 +9,7 @@ This plugin allows using [Atlassian Crowd](https://www.atlassian.com/software/cr
 
 ## Requirements
 
-This plugin has been tested with Jenkins 1.431 and Crowd 2.3.x, but was
-built using Jenkins core 1.398 so it should work with Jenkins \>= 1.398.
-
+Current version of plugin is tested agains `Crowd 3.7`, with `Jenkins 2.289.3`.
 This plugin uses Crowd REST APIs for connecting to Crowd and therefore
 requires Crowd \>= 2.1
 (see <http://developer.atlassian.com/display/CROWDDEV/Crowd+REST+APIs>).
@@ -71,8 +69,10 @@ You can use Crowd users and groups to define permissions on folder/pipeline/job 
 
 These instructions will get you a copy of the project up and running on your local machine for development and testing purposes. See deployment for notes on how to deploy the project on a live system.
 
-```
-git clone https://github.com/pingunaut/crowd2-plugin/
+### A classic approach.
+
+``` sh
+git clone https://github.com/jenkinsci/crowd2-plugin.git
 cd crowd2-plugin
 mvn install
 
@@ -87,6 +87,21 @@ To start a local build of the plugin in a standalone test environment, run
 mvn install
 ```
 then upload the resulting .hpi file (target/crowd2-VERSION.hpi) like described in the [official documentation](https://jenkins.io/doc/book/managing/plugins/#advanced-installation).
+
+### More advanced one with docker
+
+More about it in [CONTRIBUTE.md](CONTRIBUTE.md)
+``` sh
+git clone https://github.com/jenkinsci/crowd2-plugin.git
+cd crowd2-plugin
+
+# run this if you want to use mvn jenkins repo
+./_init.sh
+
+# this command will set up local crowd and jenkins instance
+# with all integration already setup 
+./_start.sh 11
+```
 
 ### Built With
 
@@ -148,22 +163,9 @@ note, and I'll include them in a newer version.
 
 The following changes and improvements are planned for the following releases
 
-### 2.1.0
-
-* [x] Make RememberMe work
-* [x] Add java 11 support
-
-### 2.2.0
-
-* [ ] Improve test coverage by adding new tests
-* [ ] Merge open pull requests to fix caching and httpclient to solve performance and compatibility issues
-
-### 2.3.0
-
-* [x] Update to latest libs
-
 ### 3.x.x
 
-* [ ] Pickup changes from the refactoring branch
-* [ ] Bump crowd rest client version
 * [ ] Work on the open JIRA issues
+* [ ] Improve test coverage by adding new tests
+* [ ] Merge open pull requests to fix caching and httpclient to solve performance and compatibility issues
+* [ ] Fix logging for plugin
