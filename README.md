@@ -3,6 +3,9 @@
 [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=jenkins-crowd2-plugin&metric=coverage)](https://sonarcloud.io/dashboard?id=jenkins-crowd2-plugin)
 [![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=jenkins-crowd2-plugin&metric=security_rating)](https://sonarcloud.io/dashboard?id=jenkins-crowd2-plugin)
 
+[![Open in Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io/#https://github.com/jenkinsci/crowd2-plugin)
+
+
 # Crowd 2 Plugin for Jenkins (crowd2-plugin)
 
 This plugin allows using [Atlassian Crowd](https://www.atlassian.com/software/crowd) or [JIRA](https://www.atlassian.com/software/jira) as an authentication and authorization provider for Jenkins (Crowd version 2 and later). Crowd is a commercial identity management and Single Sign-On (SSO) application.
