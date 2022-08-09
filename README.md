@@ -2,6 +2,7 @@
 [![Build Status](https://ci.jenkins.io/buildStatus/icon?job=Plugins/crowd2-plugin/master)](https://ci.jenkins.io/job/Plugins/job/crowd2-plugin/job/master/)
 [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=jenkins-crowd2-plugin&metric=coverage)](https://sonarcloud.io/dashboard?id=jenkins-crowd2-plugin)
 [![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=jenkins-crowd2-plugin&metric=security_rating)](https://sonarcloud.io/dashboard?id=jenkins-crowd2-plugin)
+[![Crowdin](https://badges.crowdin.net/e/5bc518646218c4dbffd033e19f64e1ad/localized.svg)](https://jenkins.crowdin.com/crowd2-plugin)
 
 [![Open in Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io/#https://github.com/jenkinsci/crowd2-plugin)
 
@@ -93,7 +94,7 @@ then upload the resulting .hpi file (target/crowd2-VERSION.hpi) like described i
 
 ### More advanced one with docker
 
-More about it in [CONTRIBUTE.md](CONTRIBUTE.md)
+More about it in [CONTRIBUTING.md](CONTRIBUTING.md)
 ``` sh
 git clone https://github.com/jenkinsci/crowd2-plugin.git
 cd crowd2-plugin
