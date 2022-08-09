@@ -94,7 +94,7 @@ then upload the resulting .hpi file (target/crowd2-VERSION.hpi) like described i
 
 ### More advanced one with docker
 
-More about it in [CONTRIBUTE.md](CONTRIBUTE.md)
+More about it in [CONTRIBUTING.md](CONTRIBUTING.md)
 ``` sh
 git clone https://github.com/jenkinsci/crowd2-plugin.git
 cd crowd2-plugin
