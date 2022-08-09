@@ -39,4 +39,4 @@ jobs:
         #   config-name: my-config.yml
         #   disable-autolabeler: true
         env:
-          GITHUB_TOKEN: ${{ secrets.PERSONAL_DUMAM_GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GH_PERSONAL_TOKEN }}
