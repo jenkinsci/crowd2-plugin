@@ -1,0 +1,8 @@
+<div>
+Un domaine à utiliser lors de la configuration des cookies, écrasant le domaine SSO défini dans Crowd (depuis Crowd 2.5.2).
+Lorsqu'un domaine SSO est défini dans Crowd, toutes les applications clientes doivent être dans le même domaine pour que les cookies puissent être partagés.
+Un déploiement de Crowd peut avoir des hôtes sans suffixe de domaine commun, par exemple 'domain.example.com' et 'domain.internal'. Même si un utilisateur s'est déjà connecté à 'domain.example.com' et a un cookie positionné, les applications s'exécutant sous 'domain.internal' ne recevront pas ce cookie car les domaines diffèrent, et les utilisateurs seront incapables de se connecter.
+Définissez cette propriété dans l'application cliente Crowd pour surcharger le domaine. Les applications dans le même domaine pourront ensuite partager les sessions SSO.
+<p/>
+<a href="https://confluence.atlassian.com/display/CROWD/The+crowd.properties+file">Documentation de configuration de Crowd</a>
+</div>

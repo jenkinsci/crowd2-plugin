@@ -57,6 +57,7 @@ import javax.servlet.ServletException;
 
 import jenkins.model.Jenkins;
 
+import org.apache.commons.lang.StringUtils;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.QueryParameter;
 import org.kohsuke.stapler.StaplerRequest;
@@ -211,10 +212,10 @@ public class CrowdSecurityRealm extends AbstractPasswordBasedSecurityRealm {
         this.socketTimeout = socketTimeout;
         this.httpTimeout = httpTimeout;
         this.httpMaxConnections = httpMaxConnections;
-        this.url = url.trim();
-        this.applicationName = applicationName.trim();
+        this.url = StringUtils.trimToEmpty(url);
+        this.applicationName = StringUtils.trimToEmpty(applicationName);
         this.password = password;
-        this.group = group.trim();
+        this.group = StringUtils.trimToEmpty(group);
         this.nestedGroups = nestedGroups;
         this.sessionValidationInterval = sessionValidationInterval;
         this.useSSO = useSSO;
@@ -260,7 +261,7 @@ public class CrowdSecurityRealm extends AbstractPasswordBasedSecurityRealm {
             String cookieTokenkey, Boolean useProxy, String httpProxyHost, String httpProxyPort,
             String httpProxyUsername, String httpProxyPassword, String socketTimeout,
             String httpTimeout, String httpMaxConnections, CacheConfiguration cache) {
-        this(url, applicationName, Secret.fromString(password.trim()), group, nestedGroups, sessionValidationInterval,
+        this(url, applicationName, Secret.fromString(password), group, nestedGroups, sessionValidationInterval,
                 useSSO,
                 cookieDomain, cookieTokenkey, useProxy, httpProxyHost, httpProxyPort, httpProxyUsername,
                 Secret.fromString(httpProxyPassword), socketTimeout, httpTimeout, httpMaxConnections, cache);

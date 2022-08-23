@@ -4,7 +4,7 @@
     <parent>
         <groupId>org.jenkins-ci.plugins</groupId>
         <artifactId>plugin</artifactId>
-        <version>4.43.1</version>
+        <version>4.45</version>
     </parent>
 
     <artifactId>crowd2</artifactId>
@@ -50,11 +50,11 @@
     </contributors>
 
     <properties>
-        <revision>3.2.0</revision>
+        <revision>4.0.0-alpha</revision>
         <changelist>-SNAPSHOT</changelist>
         <gitHubRepo>jenkinsci/crowd2-plugin</gitHubRepo>
-        <jenkins.version>2.303.1</jenkins.version>
-        <crowd-integration-client-rest.version>3.7.1</crowd-integration-client-rest.version>
+        <jenkins.version>2.346.2</jenkins.version>
+        <crowd-integration-client-rest.version>4.4.2</crowd-integration-client-rest.version>
         <findbugs.failOnError>false</findbugs.failOnError>
         <spotbugs.effort>Max</spotbugs.effort>
         <spotbugs.failOnError>true</spotbugs.failOnError>
@@ -146,8 +146,8 @@
 
             <dependency>
                 <groupId>io.jenkins.tools.bom</groupId>
-                <artifactId>bom-2.303.x</artifactId>
-                <version>1478.v81d3dc4f9a_43</version>
+                <artifactId>bom-2.346.x</artifactId>
+                <version>1500.ve4d05cd32975</version>
                 <scope>import</scope>
                 <type>pom</type>
             </dependency>
@@ -157,6 +157,14 @@
 
     <build>
         <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.8.0</version>
+                <configuration>
+                    <release>11</release>
+                </configuration>
+            </plugin>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>properties-maven-plugin</artifactId>
