@@ -54,7 +54,7 @@
         <changelist>-SNAPSHOT</changelist>
         <gitHubRepo>jenkinsci/crowd2-plugin</gitHubRepo>
         <jenkins.version>2.303.1</jenkins.version>
-        <crowd-integration-client-rest.version>3.7.1</crowd-integration-client-rest.version>
+        <crowd-integration-client-rest.version>3.7.2</crowd-integration-client-rest.version>
         <findbugs.failOnError>false</findbugs.failOnError>
         <spotbugs.effort>Max</spotbugs.effort>
         <spotbugs.failOnError>true</spotbugs.failOnError>
@@ -72,7 +72,17 @@
     <repositories>
         <repository>
             <id>repo.jenkins-ci.org</id>
-            <url>https://repo.jenkins-ci.org/public/</url>
+            <url>https://repo.jenkins-ci.org/artifactory/public/</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+        <repository>
+            <id>repo.jenkins-ci.org.cache</id>
+            <url>https://repo.jenkins-ci.org/artifactory/jcenter-cache/</url>
             <releases>
                 <enabled>true</enabled>
             </releases>
@@ -85,7 +95,11 @@
     <pluginRepositories>
         <pluginRepository>
             <id>repo.jenkins-ci.org</id>
-            <url>https://repo.jenkins-ci.org/public/</url>
+            <url>https://repo.jenkins-ci.org/artifactory/public/</url>
+        </pluginRepository>
+        <pluginRepository>
+            <id>repo.jenkins-ci.org.cache</id>
+            <url>https://repo.jenkins-ci.org/artifactory/jcenter-cache/</url>
         </pluginRepository>
     </pluginRepositories>
 

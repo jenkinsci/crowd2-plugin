@@ -1,5 +1,12 @@
 <settings xmlns="http://maven.apache.org/SETTINGS/1.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0
                     http://maven.apache.org/xsd/settings-1.0.0.xsd">
+    <servers>
+        <server>
+            <id>repo.jenkins-ci.org</id>
+            <username>your_user_name_here</username>
+            <password>your_encrypted_password_here</password>
+        </server>
+    </servers>
 
     <pluginGroups>
         <pluginGroup>org.jenkins-ci.tools</pluginGroup>
@@ -15,22 +22,24 @@
             <repositories>
                 <repository>
                     <id>repo.jenkins-ci.org</id>
-                    <url>https://repo.jenkins-ci.org/public/</url>
+                    <url>https://repo.jenkins-ci.org/artifactory/public/</url>
+                </repository>
+                <repository>
+                    <id>repo.jenkins-ci.org.cache</id>
+                    <url>https://repo.jenkins-ci.org/artifactory/jcenter-cache/</url>
                 </repository>
             </repositories>
+
             <pluginRepositories>
                 <pluginRepository>
                     <id>repo.jenkins-ci.org</id>
-                    <url>https://repo.jenkins-ci.org/public/</url>
+                    <url>https://repo.jenkins-ci.org/artifactory/public/</url>
+                </pluginRepository>
+                <pluginRepository>
+                    <id>repo.jenkins-ci.org.cache</id>
+                    <url>https://repo.jenkins-ci.org/artifactory/jcenter-cache/</url>
                 </pluginRepository>
             </pluginRepositories>
         </profile>
     </profiles>
-    <mirrors>
-        <mirror>
-            <id>repo.jenkins-ci.org</id>
-            <url>https://repo.jenkins-ci.org/public/</url>
-            <mirrorOf>m.g.o-public</mirrorOf>
-        </mirror>
-    </mirrors>
 </settings>
