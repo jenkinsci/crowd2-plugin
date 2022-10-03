@@ -22,24 +22,19 @@
             <repositories>
                 <repository>
                     <id>repo.jenkins-ci.org</id>
-                    <url>https://repo.jenkins-ci.org/artifactory/public/</url>
-                </repository>
-                <repository>
-                    <id>repo.jenkins-ci.org.cache</id>
-                    <url>https://repo.jenkins-ci.org/artifactory/jcenter-cache/</url>
+                    <url>https://repo.jenkins-ci.org/public/</url>
                 </repository>
             </repositories>
 
             <pluginRepositories>
                 <pluginRepository>
                     <id>repo.jenkins-ci.org</id>
-                    <url>https://repo.jenkins-ci.org/artifactory/public/</url>
-                </pluginRepository>
-                <pluginRepository>
-                    <id>repo.jenkins-ci.org.cache</id>
-                    <url>https://repo.jenkins-ci.org/artifactory/jcenter-cache/</url>
+                    <url>https://repo.jenkins-ci.org/public/</url>
                 </pluginRepository>
             </pluginRepositories>
         </profile>
     </profiles>
+    <activeProfiles>
+        <activeProfile>jenkins</activeProfile>
+    </activeProfiles>
 </settings>
