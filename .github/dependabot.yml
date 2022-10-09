@@ -10,3 +10,8 @@ updates:
   - <insert-maintainers-here-one-per-line>
   labels:
   - skip-changelog
+- package-ecosystem: "github-actions"
+  directory: "/"
+  schedule:
+    # Check for updates to GitHub Actions every week
+    interval: "weekly"
