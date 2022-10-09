@@ -11,7 +11,7 @@ export CROWD_BACKUP_FILE="casc/crowd_backup.xml"
 if [[ ! -f "$CROWD_SNAPSHOT_FILE_PATH" ]]; then
     echo "--- No builds found - building plugin ---"
     mvn -ntp clean verify
-fi 
+fi
 
 # create new img with crowd2-snapshot file installed
 # if there is args passed use java 11 

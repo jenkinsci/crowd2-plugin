@@ -53,7 +53,7 @@
         <revision>4.0.0-alpha</revision>
         <changelist>-SNAPSHOT</changelist>
         <gitHubRepo>jenkinsci/crowd2-plugin</gitHubRepo>
-        <jenkins.version>2.346.2</jenkins.version>
+        <jenkins.version>2.361.1</jenkins.version>
         <crowd-integration-client-rest.version>4.4.2</crowd-integration-client-rest.version>
         <findbugs.failOnError>false</findbugs.failOnError>
         <spotbugs.effort>Max</spotbugs.effort>
@@ -67,7 +67,6 @@
         <url>https://github.com/${gitHubRepo}</url>
         <tag>${scmTag}</tag>
     </scm>
-
 
     <repositories>
         <repository>
@@ -146,7 +145,7 @@
 
             <dependency>
                 <groupId>io.jenkins.tools.bom</groupId>
-                <artifactId>bom-2.346.x</artifactId>
+                <artifactId>bom-2.361.x</artifactId>
                 <version>1500.ve4d05cd32975</version>
                 <scope>import</scope>
                 <type>pom</type>
