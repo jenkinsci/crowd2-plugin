@@ -9,13 +9,13 @@
 
     <artifactId>crowd2</artifactId>
     <version>${revision}${changelist}</version>
-
     <packaging>hpi</packaging>
 
     <name>Crowd 2 Integration</name>
     <description>SecurityRealm that enables the use of Atlassian's Crowd identity management server.</description>
 
     <url>https://github.com/jenkinsci/crowd2-plugin</url>
+
     <issueManagement>
         <system>JIRA</system>
         <url>https://issues.jenkins-ci.org/</url>
@@ -58,6 +58,8 @@
         <findbugs.failOnError>false</findbugs.failOnError>
         <spotbugs.effort>Max</spotbugs.effort>
         <spotbugs.failOnError>true</spotbugs.failOnError>
+        <spotbugs.threshold>Medium</spotbugs.threshold>
+        <spotbugs.effort>Default</spotbugs.effort>
     </properties>
 
 
@@ -72,15 +74,8 @@
         <repository>
             <id>repo.jenkins-ci.org</id>
             <url>https://repo.jenkins-ci.org/public/</url>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
         </repository>
     </repositories>
-
     <pluginRepositories>
         <pluginRepository>
             <id>repo.jenkins-ci.org</id>
@@ -255,11 +250,11 @@
                                 <!-- Imports: https://checkstyle.sourceforge.io/config_imports.html-->
                                 <module name="AvoidStarImport" />
                                 <module name="ImportOrder">
-                                    <property name="groups" value="*,com,dagger,de,hudson,io,java,javax,jenkins,okhttp3,org,retrofit2,software,"/>
-                                    <property name="ordered" value="true"/>
-                                    <property name="separated" value="true"/>
-                                    <property name="option" value="bottom"/>
-                                    <property name="sortStaticImportsAlphabetically" value="true"/>
+                                    <property name="groups" value="*,com,dagger,de,hudson,io,java,javax,jenkins,okhttp3,org,retrofit2,software," />
+                                    <property name="ordered" value="true" />
+                                    <property name="separated" value="true" />
+                                    <property name="option" value="bottom" />
+                                    <property name="sortStaticImportsAlphabetically" value="true" />
                                 </module>
                                 <module name="IllegalImport">
                                     <!-- prevent the use of jsr-305 annotations -->
