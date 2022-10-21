@@ -6,8 +6,8 @@ mkdir -p "$(dirname "$MVN_SETTINGS_PATH")"
 
 # check if any mvn file is created
 if [ -f "$MVN_SETTINGS_PATH" ]; then
-    mv "$MVN_SETTINGS_PATH" "$MVN_SETTINGS_PATH.bak"
+    mv "$MVN_SETTINGS_PATH" "$MVN_SETTINGS_PATH.bak$(date +%s)"
 fi
 
-# move our file as a main one for mvn
-cp -a "init/settings.xml" "$MVN_SETTINGS_PATH"
+# get settings.xml form jenkins
+curl -u "${ARTIFACTORY_USER}:${ARTIFACTORY_PASS}" https://repo.jenkins-ci.org/setup/settings.xml > "$MVN_SETTINGS_PATH"
