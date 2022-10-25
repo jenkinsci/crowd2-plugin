@@ -19,10 +19,10 @@ jobs:
     steps:
 
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v3.1.0
 
       - name: crowdin action
-        uses: crowdin/github-action@1.4.9
+        uses: crowdin/github-action@1.4.16
         with:
           upload_translations: false
           download_translations: true
@@ -36,6 +36,6 @@ jobs:
           base_url: 'https://jenkins.crowdin.com'
           config: 'crowdin.yml'
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GH_PERSONAL_TOKEN }}
           CROWDIN_PROJECT_ID: 24
           CROWDIN_PERSONAL_TOKEN: ${{ secrets.CROWDIN_PERSONAL_TOKEN }}

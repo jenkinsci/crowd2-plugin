@@ -1,0 +1,22 @@
+chore:	
+- .gitattributes
+- .github/**/*
+- .gitignore
+- .mvn/**/*
+- .pre-commit-config.yaml
+- .sonarcloud.properties
+- .vscode/**/*
+- Jenkinsfile
+
+documentation:	
+- CONTRIBUTING.md
+- README.md
+- LICENSE.txt
+- src/main/**/*.html
+
+test:	
+- src/**/*.sh
+- src/**/Dockerfile
+- src/**/lsb_release-a
+- src/**/os-release
+- casc/**/*

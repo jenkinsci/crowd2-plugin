@@ -1,12 +1,14 @@
-<settings xmlns="http://maven.apache.org/SETTINGS/1.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0
-                    http://maven.apache.org/xsd/settings-1.0.0.xsd">
+<settings xmlns="http://maven.apache.org/SETTINGS/1.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0 http://maven.apache.org/xsd/settings-1.0.0.xsd">
 
-    <pluginGroups>
-        <pluginGroup>org.jenkins-ci.tools</pluginGroup>
-    </pluginGroups>
+    <servers>
+        <server>
+            <id>repo.jenkins-ci.org</id>
+            <username>your_user_name_here</username>
+            <password>your_encrypted_password_here</password>
+        </server>
+    </servers>
 
     <profiles>
-        <!-- Give access to Jenkins plugins -->
         <profile>
             <id>jenkins</id>
             <activation>
@@ -18,6 +20,7 @@
                     <url>https://repo.jenkins-ci.org/public/</url>
                 </repository>
             </repositories>
+
             <pluginRepositories>
                 <pluginRepository>
                     <id>repo.jenkins-ci.org</id>
@@ -26,11 +29,7 @@
             </pluginRepositories>
         </profile>
     </profiles>
-    <mirrors>
-        <mirror>
-            <id>repo.jenkins-ci.org</id>
-            <url>https://repo.jenkins-ci.org/public/</url>
-            <mirrorOf>m.g.o-public</mirrorOf>
-        </mirror>
-    </mirrors>
+    <activeProfiles>
+        <activeProfile>jenkins</activeProfile>
+    </activeProfiles>
 </settings>

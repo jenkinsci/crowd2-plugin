@@ -1,7 +1,7 @@
 <div>
 Domena do użycia podczas ustawiania ciasteczek, nadpisuje Domenę SSO ustawioną w Crowd (od Crowd 2.5.2).
 Gdy Domena SSO jest ustawiona w Crowd, wszystkie aplikacje klienckie muszą być w tej samej domenie, aby pliki cookie mogły być udostępnione.
-Crowd może mieć hosty bez wspólnego przyrostka domeny, na przykład 'domain.example.com' i 'domain.internal'. Mimo że użytkownik już zalogował się do 'domeny.example.com' i ma zestaw plików cookie, aplikacje działające pod 'domeną'. nternal' nie otrzyma tego ciasteczka, ponieważ domeny się różnią, a użytkownicy nie będą w stanie się zalogować.
+Crowd może mieć hosty bez wspólnego przyrostka domeny, na przykład 'domena.example.com' i 'domain.internal'. Mimo że użytkownik już zalogował się do 'domeny.example.com' i ma zestaw plików cookie, aplikacje działające pod 'domeną'. nternal' nie otrzyma tego ciasteczka, ponieważ domeny się różnią, a użytkownicy nie będą w stanie się zalogować.
 Ustaw tę właściwość w aplikacji klienta Crowd (Jenkinsie), aby nadpisać domenę. Aplikacje w tej samej domenie będą mogły udostępniać sesje SSO.
 <p/>
  <a href="https://confluence.atlassian.com/display/CROWD/The+crowd.properties+file">Dokumentacja konfiguracji Crowd</a>

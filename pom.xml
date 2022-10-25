@@ -4,18 +4,18 @@
     <parent>
         <groupId>org.jenkins-ci.plugins</groupId>
         <artifactId>plugin</artifactId>
-        <version>4.40</version>
+        <version>4.48</version>
     </parent>
 
     <artifactId>crowd2</artifactId>
     <version>${revision}${changelist}</version>
-
     <packaging>hpi</packaging>
 
     <name>Crowd 2 Integration</name>
     <description>SecurityRealm that enables the use of Atlassian's Crowd identity management server.</description>
 
     <url>https://github.com/jenkinsci/crowd2-plugin</url>
+
     <issueManagement>
         <system>JIRA</system>
         <url>https://issues.jenkins-ci.org/</url>
@@ -50,14 +50,16 @@
     </contributors>
 
     <properties>
-        <revision>3.2.0</revision>
+        <revision>3.2.1</revision>
         <changelist>-SNAPSHOT</changelist>
         <gitHubRepo>jenkinsci/crowd2-plugin</gitHubRepo>
         <jenkins.version>2.303.1</jenkins.version>
-        <crowd-integration-client-rest.version>3.7.1</crowd-integration-client-rest.version>
+        <crowd-integration-client-rest.version>3.7.2</crowd-integration-client-rest.version>
         <findbugs.failOnError>false</findbugs.failOnError>
         <spotbugs.effort>Max</spotbugs.effort>
         <spotbugs.failOnError>true</spotbugs.failOnError>
+        <spotbugs.threshold>Medium</spotbugs.threshold>
+        <spotbugs.effort>Default</spotbugs.effort>
     </properties>
 
 
@@ -68,23 +70,15 @@
         <tag>${scmTag}</tag>
     </scm>
 
-
     <repositories>
         <repository>
-            <id>repo.jenkins-ci.org</id>
+            <id>maven.jenkins-ci.org</id>
             <url>https://repo.jenkins-ci.org/public/</url>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
         </repository>
     </repositories>
-
     <pluginRepositories>
         <pluginRepository>
-            <id>repo.jenkins-ci.org</id>
+            <id>maven.jenkins-ci.org</id>
             <url>https://repo.jenkins-ci.org/public/</url>
         </pluginRepository>
     </pluginRepositories>
@@ -131,7 +125,7 @@
         <dependency>
             <groupId>org.assertj</groupId>
             <artifactId>assertj-core</artifactId>
-            <version>3.22.0</version>
+            <version>3.23.1</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
@@ -147,7 +141,7 @@
             <dependency>
                 <groupId>io.jenkins.tools.bom</groupId>
                 <artifactId>bom-2.303.x</artifactId>
-                <version>1370.vfa_e23fe119c3</version>
+                <version>1500.ve4d05cd32975</version>
                 <scope>import</scope>
                 <type>pom</type>
             </dependency>
@@ -256,11 +250,11 @@
                                 <!-- Imports: https://checkstyle.sourceforge.io/config_imports.html-->
                                 <module name="AvoidStarImport" />
                                 <module name="ImportOrder">
-                                    <property name="groups" value="*,com,dagger,de,hudson,io,java,javax,jenkins,okhttp3,org,retrofit2,software,"/>
-                                    <property name="ordered" value="true"/>
-                                    <property name="separated" value="true"/>
-                                    <property name="option" value="bottom"/>
-                                    <property name="sortStaticImportsAlphabetically" value="true"/>
+                                    <property name="groups" value="*,com,dagger,de,hudson,io,java,javax,jenkins,okhttp3,org,retrofit2,software," />
+                                    <property name="ordered" value="true" />
+                                    <property name="separated" value="true" />
+                                    <property name="option" value="bottom" />
+                                    <property name="sortStaticImportsAlphabetically" value="true" />
                                 </module>
                                 <module name="IllegalImport">
                                     <!-- prevent the use of jsr-305 annotations -->

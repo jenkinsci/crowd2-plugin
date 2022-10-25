@@ -2,6 +2,10 @@
 [![Build Status](https://ci.jenkins.io/buildStatus/icon?job=Plugins/crowd2-plugin/master)](https://ci.jenkins.io/job/Plugins/job/crowd2-plugin/job/master/)
 [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=jenkins-crowd2-plugin&metric=coverage)](https://sonarcloud.io/dashboard?id=jenkins-crowd2-plugin)
 [![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=jenkins-crowd2-plugin&metric=security_rating)](https://sonarcloud.io/dashboard?id=jenkins-crowd2-plugin)
+[![Crowdin](https://badges.crowdin.net/e/5bc518646218c4dbffd033e19f64e1ad/localized.svg)](https://jenkins.crowdin.com/crowd2-plugin)
+
+[![Open in Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io/#https://github.com/jenkinsci/crowd2-plugin)
+
 
 # Crowd 2 Plugin for Jenkins (crowd2-plugin)
 
@@ -9,9 +13,7 @@ This plugin allows using [Atlassian Crowd](https://www.atlassian.com/software/cr
 
 ## Requirements
 
-This plugin has been tested with Jenkins 1.431 and Crowd 2.3.x, but was
-built using Jenkins core 1.398 so it should work with Jenkins \>= 1.398.
-
+Current version of plugin is tested agains `Crowd 3.7`, with `Jenkins 2.289.3`.
 This plugin uses Crowd REST APIs for connecting to Crowd and therefore
 requires Crowd \>= 2.1
 (see <http://developer.atlassian.com/display/CROWDDEV/Crowd+REST+APIs>).
@@ -71,8 +73,10 @@ You can use Crowd users and groups to define permissions on folder/pipeline/job 
 
 These instructions will get you a copy of the project up and running on your local machine for development and testing purposes. See deployment for notes on how to deploy the project on a live system.
 
-```
-git clone https://github.com/pingunaut/crowd2-plugin/
+### A classic approach.
+
+``` sh
+git clone https://github.com/jenkinsci/crowd2-plugin.git
 cd crowd2-plugin
 mvn install
 
@@ -87,6 +91,21 @@ To start a local build of the plugin in a standalone test environment, run
 mvn install
 ```
 then upload the resulting .hpi file (target/crowd2-VERSION.hpi) like described in the [official documentation](https://jenkins.io/doc/book/managing/plugins/#advanced-installation).
+
+### More advanced one with docker
+
+More about it in [CONTRIBUTING.md](CONTRIBUTING.md)
+``` sh
+git clone https://github.com/jenkinsci/crowd2-plugin.git
+cd crowd2-plugin
+
+# run this if you want to use mvn jenkins repo
+./_init.sh
+
+# this command will set up local crowd and jenkins instance
+# with all integration already setup 
+./_start.sh 11
+```
 
 ### Built With
 
@@ -140,30 +159,17 @@ and JIRA, other well known products from Atlassian, also work that way.
 
 Yes.
 
-Actually only German localization is included. If you can translate a
-couple of messages and info texts into other languages, please send me a
-note, and I'll include them in a newer version.
+If you want to add some translation please feel free to add some in 
+https://crowdin.jenkins.io/crowd2-plugin
+After proper review it will be automaticaly added to plugin.
 
 ## Roadmap
 
 The following changes and improvements are planned for the following releases
 
-### 2.1.0
-
-* [x] Make RememberMe work
-* [x] Add java 11 support
-
-### 2.2.0
-
-* [ ] Improve test coverage by adding new tests
-* [ ] Merge open pull requests to fix caching and httpclient to solve performance and compatibility issues
-
-### 2.3.0
-
-* [x] Update to latest libs
-
 ### 3.x.x
 
-* [ ] Pickup changes from the refactoring branch
-* [ ] Bump crowd rest client version
 * [ ] Work on the open JIRA issues
+* [ ] Improve test coverage by adding new tests
+* [ ] Merge open pull requests to fix caching and httpclient to solve performance and compatibility issues
+* [ ] Fix logging for plugin
