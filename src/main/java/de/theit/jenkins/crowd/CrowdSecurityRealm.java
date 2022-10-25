@@ -34,6 +34,7 @@ import com.atlassian.crowd.exception.OperationFailedException;
 import com.atlassian.crowd.exception.UserNotFoundException;
 import com.atlassian.crowd.model.group.Group;
 import com.atlassian.crowd.model.user.User;
+
 import hudson.Extension;
 import hudson.model.AbstractDescribableImpl;
 import hudson.model.Descriptor;
@@ -43,36 +44,48 @@ import hudson.security.SecurityRealm;
 import hudson.util.FormValidation;
 import hudson.util.ListBoxModel;
 import hudson.util.Secret;
-import jenkins.model.Jenkins;
 
-import org.acegisecurity.AccountExpiredException;
-import org.acegisecurity.AuthenticationException;
-import org.acegisecurity.AuthenticationManager;
-import org.acegisecurity.AuthenticationServiceException;
-import org.acegisecurity.BadCredentialsException;
-import org.acegisecurity.GrantedAuthority;
-import org.acegisecurity.InsufficientAuthenticationException;
-import org.acegisecurity.userdetails.UserDetails;
-import org.acegisecurity.userdetails.UserDetailsService;
-import org.acegisecurity.userdetails.UsernameNotFoundException;
-import org.kohsuke.stapler.DataBoundConstructor;
-import org.kohsuke.stapler.QueryParameter;
-import org.kohsuke.stapler.StaplerRequest;
-import org.kohsuke.stapler.StaplerResponse;
-import org.kohsuke.stapler.verb.POST;
-import org.springframework.dao.DataAccessException;
-import org.springframework.dao.DataRetrievalFailureException;
-
-import javax.servlet.Filter;
-import javax.servlet.FilterConfig;
-import javax.servlet.ServletException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import static de.theit.jenkins.crowd.ErrorMessages.*;
+import javax.servlet.Filter;
+import javax.servlet.FilterConfig;
+import javax.servlet.ServletException;
+
+import jenkins.model.Jenkins;
+
+import org.apache.commons.lang.StringUtils;
+import org.kohsuke.stapler.DataBoundConstructor;
+import org.kohsuke.stapler.QueryParameter;
+import org.kohsuke.stapler.StaplerRequest;
+import org.kohsuke.stapler.StaplerResponse;
+import org.kohsuke.stapler.verb.POST;
+import org.springframework.security.authentication.AccountExpiredException;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.AuthenticationServiceException;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.InsufficientAuthenticationException;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+
+import static de.theit.jenkins.crowd.ErrorMessages.accountExpired;
+import static de.theit.jenkins.crowd.ErrorMessages.applicationPermission;
+import static de.theit.jenkins.crowd.ErrorMessages.expiredCredentials;
+import static de.theit.jenkins.crowd.ErrorMessages.groupNotFound;
+import static de.theit.jenkins.crowd.ErrorMessages.invalidAuthentication;
+import static de.theit.jenkins.crowd.ErrorMessages.operationFailed;
+import static de.theit.jenkins.crowd.ErrorMessages.specifyApplicationName;
+import static de.theit.jenkins.crowd.ErrorMessages.specifyApplicationPassword;
+import static de.theit.jenkins.crowd.ErrorMessages.specifyCrowdUrl;
+import static de.theit.jenkins.crowd.ErrorMessages.specifySessionValidationInterval;
+import static de.theit.jenkins.crowd.ErrorMessages.userNotFound;
+import static de.theit.jenkins.crowd.ErrorMessages.userNotValid;
 
 /**
  * This class provides the security realm for authenticating users against a
@@ -149,7 +162,7 @@ public class CrowdSecurityRealm extends AbstractPasswordBasedSecurityRealm {
      * The configuration data necessary for accessing the services on the remote
      * Crowd server.
      */
-    transient private CrowdConfigurationService configuration;
+    private transient CrowdConfigurationService configuration;
 
     /**
      * Default constructor. Fields in config.jelly must match the parameter
@@ -199,10 +212,10 @@ public class CrowdSecurityRealm extends AbstractPasswordBasedSecurityRealm {
         this.socketTimeout = socketTimeout;
         this.httpTimeout = httpTimeout;
         this.httpMaxConnections = httpMaxConnections;
-        this.url = url.trim();
-        this.applicationName = applicationName.trim();
+        this.url = StringUtils.trimToEmpty(url);
+        this.applicationName = StringUtils.trimToEmpty(applicationName);
         this.password = password;
-        this.group = group.trim();
+        this.group = StringUtils.trimToEmpty(group);
         this.nestedGroups = nestedGroups;
         this.sessionValidationInterval = sessionValidationInterval;
         this.useSSO = useSSO;
@@ -248,7 +261,7 @@ public class CrowdSecurityRealm extends AbstractPasswordBasedSecurityRealm {
             String cookieTokenkey, Boolean useProxy, String httpProxyHost, String httpProxyPort,
             String httpProxyUsername, String httpProxyPassword, String socketTimeout,
             String httpTimeout, String httpMaxConnections, CacheConfiguration cache) {
-        this(url, applicationName, Secret.fromString(password.trim()), group, nestedGroups, sessionValidationInterval,
+        this(url, applicationName, Secret.fromString(password), group, nestedGroups, sessionValidationInterval,
                 useSSO,
                 cookieDomain, cookieTokenkey, useProxy, httpProxyHost, httpProxyPort, httpProxyUsername,
                 Secret.fromString(httpProxyPassword), socketTimeout, httpTimeout, httpMaxConnections, cache);
@@ -328,7 +341,7 @@ public class CrowdSecurityRealm extends AbstractPasswordBasedSecurityRealm {
     /**
      * {@inheritDoc}
      *
-     * @see hudson.security.SecurityRealm#createSecurityComponents()
+     * @see hudson.security.AbstractPasswordBasedSecurityRealm#createSecurityComponents()
      */
     @Override
     public SecurityComponents createSecurityComponents() {
@@ -361,8 +374,8 @@ public class CrowdSecurityRealm extends AbstractPasswordBasedSecurityRealm {
 
         if (useSSO) {
             if (realm instanceof CrowdSecurityRealm
-                    && realm.getSecurityComponents().rememberMe instanceof CrowdRememberMeServices) {
-                ((CrowdRememberMeServices) realm.getSecurityComponents().rememberMe).logout(req, rsp);
+                    && realm.getSecurityComponents().rememberMe2 instanceof CrowdRememberMeServices) {
+                ((CrowdRememberMeServices) realm.getSecurityComponents().rememberMe2).logout(req, rsp);
             }
         }
 
@@ -392,28 +405,61 @@ public class CrowdSecurityRealm extends AbstractPasswordBasedSecurityRealm {
     /**
      * {@inheritDoc}
      *
+     * @deprecated use {@link #loadUserByUsername2}
      * @see hudson.security.AbstractPasswordBasedSecurityRealm#loadUserByUsername(java.lang.String)
      */
     @Override
-    public UserDetails loadUserByUsername(String username)
-            throws UsernameNotFoundException, DataAccessException {
+    @Deprecated
+    public org.acegisecurity.userdetails.UserDetails loadUserByUsername(String username)
+            throws org.acegisecurity.userdetails.UsernameNotFoundException,
+            org.springframework.dao.DataAccessException {
         return getSecurityComponents().userDetails.loadUserByUsername(username);
     }
 
     /**
      * {@inheritDoc}
      *
+     * @see hudson.security.AbstractPasswordBasedSecurityRealm#loadUserByUsername2(java.lang.String)
+     */
+    @Override
+    public UserDetails loadUserByUsername2(String username) throws UsernameNotFoundException {
+        return getSecurityComponents().userDetails2.loadUserByUsername(username);
+    }
+
+    // TODO: Implement missing loadGroupByGroupname2
+    /**
+     * {@inheritDoc}
+     *
+     * @deprecated use {@link #loadGroupByGroupname2}
+     * @since 1.549
      * @see hudson.security.SecurityRealm#loadGroupByGroupname(java.lang.String)
      */
     @Override
-    public GroupDetails loadGroupByGroupname(String groupname)
-            throws UsernameNotFoundException, DataAccessException {
+    @Deprecated
+    public GroupDetails loadGroupByGroupname(String groupname, boolean fetchMembers)
+            throws org.acegisecurity.userdetails.UsernameNotFoundException,
+            org.springframework.dao.DataAccessException {
+        try {
+            return loadGroupByGroupname2(groupname, fetchMembers);
+        } catch (AuthenticationException x) {
+            throw org.acegisecurity.AuthenticationException.fromSpring(x);
+        }
+    }
 
+    /**
+     * {@inheritDoc}
+     *
+     * @deprecated use {@link #loadGroupByGroupname2}
+     * @see hudson.security.AbstractPasswordBasedSecurityRealm#loadGroupByGroupname(java.lang.String)
+     */
+    @Override
+    @Deprecated
+    public GroupDetails loadGroupByGroupname(String groupname)
+            throws org.acegisecurity.userdetails.UsernameNotFoundException,
+            org.springframework.dao.DataAccessException {
         try {
             // load the user object from the remote Crowd server
-            if (LOG.isLoggable(Level.FINER)) {
-                LOG.finer("Trying to load group: " + groupname);
-            }
+            LOG.log(Level.FINER, "Trying to load group: {0}", groupname);
             final Group crowdGroup = this.configuration.getGroup(groupname);
 
             return new GroupDetails() {
@@ -423,66 +469,57 @@ public class CrowdSecurityRealm extends AbstractPasswordBasedSecurityRealm {
                 }
             };
         } catch (GroupNotFoundException ex) {
-            if (LOG.isLoggable(Level.INFO)) {
-                LOG.info(groupNotFound(groupname));
-            }
-            throw new DataRetrievalFailureException(groupNotFound(groupname), ex);
+            LOG.log(Level.INFO, groupNotFound(groupname));
+            throw new org.springframework.dao.DataAccessException(groupNotFound(groupname), ex);
         } catch (ApplicationPermissionException ex) {
-            LOG.warning(applicationPermission());
-            throw new DataRetrievalFailureException(applicationPermission(), ex);
+            LOG.log(Level.WARNING, applicationPermission());
+            throw new org.springframework.dao.DataAccessException(applicationPermission(), ex);
         } catch (InvalidAuthenticationException ex) {
-            LOG.warning(invalidAuthentication());
-            throw new DataRetrievalFailureException(invalidAuthentication(), ex);
+            LOG.log(Level.WARNING, invalidAuthentication());
+            throw new org.springframework.dao.DataAccessException(invalidAuthentication(), ex);
         } catch (OperationFailedException ex) {
             LOG.log(Level.SEVERE, operationFailed(), ex);
-            throw new DataRetrievalFailureException(operationFailed(), ex);
+            throw new org.springframework.dao.DataAccessException(operationFailed(), ex);
         }
     }
 
     /**
      * {@inheritDoc}
      *
-     * @see hudson.security.AbstractPasswordBasedSecurityRealm#authenticate(java.lang.String,
+     * @see hudson.security.AbstractPasswordBasedSecurityRealm#authenticate2(java.lang.String,
      *      java.lang.String)
+     *
      */
     @Override
-    protected UserDetails authenticate(String pUsername, String pPassword)
-            throws AuthenticationException {
+    protected UserDetails authenticate2(String pUsername, String pPassword) throws AuthenticationException {
+        User user;
+
         // ensure that the group is available, active and that the user
         // is a member of it
         if (!this.configuration.isGroupMember(pUsername)) {
-            throw new InsufficientAuthenticationException(userNotValid(
-                    pUsername, this.configuration.getAllowedGroupNames()));
+            throw new InsufficientAuthenticationException(
+                    userNotValid(pUsername, this.configuration.getAllowedGroupNames()));
         }
 
-        User user;
         try {
             // authenticate user
-            if (LOG.isLoggable(Level.FINE)) {
-                LOG.fine("Authenticate user '"
-                        + pUsername
-                        + "' using password '"
-                        + (null != pPassword ? "<available>'"
-                                : "<not specified>'"));
-            }
+            LOG.log(Level.FINE, "Authenticate user '{0}' using password {1}", new Object[]{pUsername, null != pPassword ? "'<available>'" : "'<not specified>'"});
             user = this.configuration.authenticateUser(pUsername, pPassword);
         } catch (UserNotFoundException ex) {
-            if (LOG.isLoggable(Level.INFO)) {
-                LOG.info(userNotFound(pUsername));
-            }
+            LOG.log(Level.INFO, userNotFound(pUsername));
             throw new BadCredentialsException(userNotFound(pUsername), ex);
         } catch (ExpiredCredentialException ex) {
-            LOG.warning(expiredCredentials(pUsername));
+            LOG.log(Level.WARNING, expiredCredentials(pUsername));
             throw new BadCredentialsException(expiredCredentials(pUsername), ex);
         } catch (InactiveAccountException ex) {
-            LOG.warning(accountExpired(pUsername));
+            LOG.log(Level.WARNING, accountExpired(pUsername));
             throw new AccountExpiredException(accountExpired(pUsername), ex);
         } catch (ApplicationPermissionException ex) {
-            LOG.warning(applicationPermission());
+            LOG.log(Level.WARNING, applicationPermission());
             throw new AuthenticationServiceException(applicationPermission(),
                     ex);
         } catch (InvalidAuthenticationException ex) {
-            LOG.warning(invalidAuthentication());
+            LOG.log(Level.WARNING, invalidAuthentication());
             throw new AuthenticationServiceException(invalidAuthentication(),
                     ex);
         } catch (OperationFailedException ex) {
@@ -491,10 +528,10 @@ public class CrowdSecurityRealm extends AbstractPasswordBasedSecurityRealm {
         }
 
         // create the list of granted authorities
-        List<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>();
+        List<GrantedAuthority> authorities = new ArrayList<>();
         // add the "authenticated" authority to the list of granted
         // authorities...
-        authorities.add(SecurityRealm.AUTHENTICATED_AUTHORITY);
+        authorities.add(SecurityRealm.AUTHENTICATED_AUTHORITY2);
         // ..and all authorities retrieved from the Crowd server
         authorities.addAll(this.configuration.getAuthoritiesForUser(pUsername));
 
@@ -622,7 +659,7 @@ public class CrowdSecurityRealm extends AbstractPasswordBasedSecurityRealm {
          * @param password                  The application's password.
          * @param group                     The Crowd groups users have to belong to if
          *                                  specified.
-         * @param useSSO                    Spcifies if SSO should be used
+         * @param useSSO                    Specifies if SSO should be used
          * @param cookieDomain              The cookie domain
          * @param sessionValidationInterval The session validation interval
          * @param cookieTokenkey            The cookie token key
@@ -647,7 +684,6 @@ public class CrowdSecurityRealm extends AbstractPasswordBasedSecurityRealm {
                 @QueryParameter String httpProxyPassword, @QueryParameter String socketTimeout,
                 @QueryParameter String httpTimeout, @QueryParameter String httpMaxConnections) {
 
-            // Logger log = Logger.getLogger(getClass().getName());
             Jenkins.get().checkPermission(Jenkins.ADMINISTER);
             CrowdConfigurationService tConfiguration = new CrowdConfigurationService(
                     url, applicationName, Secret.fromString(password), sessionValidationInterval,
@@ -732,7 +768,7 @@ public class CrowdSecurityRealm extends AbstractPasswordBasedSecurityRealm {
 
             public ListBoxModel doFillTtlItems() {
                 ListBoxModel m = new ListBoxModel();
-                // TODO use Messages (not that there were any translations before)
+                // TODO: use Messages (not that there were any translations before)
                 m.add("30 sec", "30");
                 m.add("1 min", "60");
                 m.add("2 min", "120");

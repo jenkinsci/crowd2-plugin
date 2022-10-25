@@ -32,21 +32,23 @@ import com.atlassian.crowd.exception.InvalidAuthenticationException;
 import com.atlassian.crowd.exception.OperationFailedException;
 import com.atlassian.crowd.exception.UserNotFoundException;
 import com.atlassian.crowd.model.user.User;
+
 import hudson.security.SecurityRealm;
-import org.acegisecurity.AccountExpiredException;
-import org.acegisecurity.Authentication;
-import org.acegisecurity.AuthenticationException;
-import org.acegisecurity.AuthenticationManager;
-import org.acegisecurity.AuthenticationServiceException;
-import org.acegisecurity.BadCredentialsException;
-import org.acegisecurity.CredentialsExpiredException;
-import org.acegisecurity.GrantedAuthority;
-import org.acegisecurity.InsufficientAuthenticationException;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import org.springframework.security.authentication.AccountExpiredException;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.AuthenticationServiceException;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.CredentialsExpiredException;
+import org.springframework.security.authentication.InsufficientAuthenticationException;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.GrantedAuthority;
 
 import static de.theit.jenkins.crowd.ErrorMessages.accountExpired;
 import static de.theit.jenkins.crowd.ErrorMessages.applicationPermission;
@@ -87,22 +89,23 @@ public class CrowdAuthenticationManager implements AuthenticationManager {
     /**
      * {@inheritDoc}
      *
-     * @see org.acegisecurity.AuthenticationManager#authenticate(org.acegisecurity.Authentication)
+     * @see org.springframework.security.authentication.AuthenticationManager#authenticate(org.springframework.security.core.Authentication)
      */
     @Override
     public Authentication authenticate(Authentication authentication)
             throws AuthenticationException {
+        if (authentication == null) {
+            return null;
+        }
+
         String username = authentication.getPrincipal().toString();
 
         // checking whether there's already a SSO token
         if (null == authentication.getCredentials()
-                && authentication instanceof CrowdAuthenticationToken
-                && null != ((CrowdAuthenticationToken) authentication)
-                        .getSSOToken()) {
+                 && authentication instanceof CrowdAuthenticationToken
+                 && null != ((CrowdAuthenticationToken) authentication).getSSOToken()) {
             // SSO token available => user already authenticated
-            if (LOG.isLoggable(Level.FINER)) {
-                LOG.finer("User '" + username + "' already authenticated");
-            }
+            LOG.log(Level.FINER, "User '{0}' already authenticated", username);
             return authentication;
         }
 
@@ -111,40 +114,30 @@ public class CrowdAuthenticationManager implements AuthenticationManager {
         // ensure that the group is available, active and that the user
         // is a member of it
         if (!this.configuration.isGroupMember(username)) {
-            throw new InsufficientAuthenticationException(userNotValid(
-                    username, this.configuration.getAllowedGroupNames()));
+            throw new InsufficientAuthenticationException(
+                    userNotValid(username, this.configuration.getAllowedGroupNames()));
         }
 
-        // String displayName = null;
         try {
             // authenticate user
-            if (LOG.isLoggable(Level.FINE)) {
-                LOG.fine("Authenticating user: " + username);
-            }
-            User user = this.configuration.authenticateUser(
-                    username, password);
+            LOG.log(Level.FINE, "Authenticating user: {0}", username);
+            User user = this.configuration.authenticateUser(username, password);
             CrowdAuthenticationToken.updateUserInfo(user);
-            // displayName = user.getDisplayName();
         } catch (UserNotFoundException ex) {
-            if (LOG.isLoggable(Level.INFO)) {
-                LOG.info(userNotFound(username));
-            }
+            LOG.log(Level.INFO, userNotFound(username));
             throw new BadCredentialsException(userNotFound(username), ex);
         } catch (ExpiredCredentialException ex) {
-            LOG.warning(expiredCredentials(username));
-            throw new CredentialsExpiredException(expiredCredentials(username),
-                    ex);
+            LOG.log(Level.WARNING, expiredCredentials(username));
+            throw new CredentialsExpiredException(expiredCredentials(username), ex);
         } catch (InactiveAccountException ex) {
-            LOG.warning(accountExpired(username));
+            LOG.log(Level.WARNING, accountExpired(username));
             throw new AccountExpiredException(accountExpired(username), ex);
         } catch (ApplicationPermissionException ex) {
-            LOG.warning(applicationPermission());
-            throw new AuthenticationServiceException(applicationPermission(),
-                    ex);
+            LOG.log(Level.WARNING, applicationPermission());
+            throw new AuthenticationServiceException(applicationPermission(), ex);
         } catch (InvalidAuthenticationException ex) {
-            LOG.warning(invalidAuthentication());
-            throw new AuthenticationServiceException(invalidAuthentication(),
-                    ex);
+            LOG.log(Level.WARNING, invalidAuthentication());
+            throw new AuthenticationServiceException(invalidAuthentication(), ex);
         } catch (OperationFailedException ex) {
             LOG.log(Level.SEVERE, operationFailed(), ex);
             throw new AuthenticationServiceException(operationFailed(), ex);
@@ -152,20 +145,16 @@ public class CrowdAuthenticationManager implements AuthenticationManager {
 
         // user successfully authenticated
         // => retrieve the list of groups the user is a member of
-        List<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>();
+        List<GrantedAuthority> authorities = new ArrayList<>();
 
         // add the "authenticated" authority to the list of granted
         // authorities...
-        authorities.add(SecurityRealm.AUTHENTICATED_AUTHORITY);
+        authorities.add(SecurityRealm.AUTHENTICATED_AUTHORITY2);
         // ..and finally all authorities retrieved from the Crowd server
         authorities.addAll(this.configuration.getAuthoritiesForUser(username));
 
         // user successfully authenticated => create authentication token
-        if (LOG.isLoggable(Level.FINE)) {
-            LOG.fine("User successfully authenticated; creating authentication token");
-        }
-
+        LOG.log(Level.FINE, "User successfully authenticated; creating authentication token");
         return new CrowdAuthenticationToken(username, password, authorities, null);
     }
-
 }

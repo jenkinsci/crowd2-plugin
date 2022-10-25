@@ -9,11 +9,10 @@ tasks:
       sdk install java 8.0.322-tem
       sdk install java 11.0.14-tem
       sdk use maven 3.8.3
-      brew install gh xmlstarlet
+      brew install gh
 vscode:
   extensions:
     - bierner.markdown-preview-github-styles
-    - github.vscode-pull-request-github
     - redhat.fabric8-analytics
     - redhat.java
     - redhat.vscode-commons

@@ -25,13 +25,21 @@
  */
 package de.theit.jenkins.crowd;
 
+import hudson.tasks.Mailer;
+import hudson.tasks.Mailer.UserProperty;
+
+import java.io.IOException;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import jenkins.model.Jenkins;
-import org.acegisecurity.GrantedAuthority;
-import org.acegisecurity.providers.AbstractAuthenticationToken;
-import org.acegisecurity.userdetails.UserDetails;
+
 import org.apache.commons.lang.StringUtils;
+import org.springframework.security.authentication.AbstractAuthenticationToken;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+
 
 /**
  * This class represents an authentication token that is created after a user
@@ -42,6 +50,8 @@ import org.apache.commons.lang.StringUtils;
  * @version $Id$
  */
 public class CrowdAuthenticationToken extends AbstractAuthenticationToken {
+    private static final Logger LOGGER = Logger.getLogger(CrowdAuthenticationToken.class.getName());
+
     /** For serialization. */
     private static final long serialVersionUID = 7685110934682676618L;
 
@@ -68,8 +78,8 @@ public class CrowdAuthenticationToken extends AbstractAuthenticationToken {
      */
     public CrowdAuthenticationToken(String pPrincipal, String pCredentials,
             List<GrantedAuthority> authorities, String pSsoToken) {
-        super(authorities.toArray(new GrantedAuthority[authorities.size()]));
-        this.principal = Jenkins.get().getSecurityRealm().loadUserByUsername(pPrincipal);
+        super(authorities);
+        this.principal = Jenkins.get().getSecurityRealm().loadUserByUsername2(pPrincipal);
         this.credentials = pCredentials;
         this.ssoToken = pSsoToken;
         super.setAuthenticated(true);
@@ -78,7 +88,7 @@ public class CrowdAuthenticationToken extends AbstractAuthenticationToken {
     /**
      * {@inheritDoc}
      *
-     * @see org.acegisecurity.Authentication#getCredentials()
+     * @see org.springframework.security.core.Authentication#getCredentials()
      */
     @Override
     public String getCredentials() {
@@ -88,7 +98,7 @@ public class CrowdAuthenticationToken extends AbstractAuthenticationToken {
     /**
      * {@inheritDoc}
      *
-     * @see org.acegisecurity.Authentication#getPrincipal()
+     * @see org.springframework.security.core.Authentication#getPrincipal()
      */
     @Override
     public UserDetails getPrincipal() {
@@ -105,35 +115,33 @@ public class CrowdAuthenticationToken extends AbstractAuthenticationToken {
         return this.ssoToken;
     }
 
-    /**
-     * {@inheritDoc}
-     *
-     * @see org.acegisecurity.providers.AbstractAuthenticationToken#getName()
-     */
-    @Override
-    public String getName() {
-        return super.getName();
-        /*
-         * if (null == this.displayName) {
-         * return super.getName();
-         * }
-         * // append the user Id stored in getName() at the end of the display name
-         * return this.displayName + " (" + super.getName() + ')';
-         */
-    }
-
     public static void updateUserInfo(com.atlassian.crowd.model.user.User user) {
-        final String displayName = user == null ? null : user.getDisplayName();
-        if (StringUtils.isNotBlank(displayName)) {
-            final String username = user.getName();
-            getJenkinsUser(username).setFullName(displayName + " (" + username + ')');
+        if (user == null) {
+            return;
         }
-    }
 
-    /**
-     * Gets the corresponding {@link hudson.model.User} object.
-     */
-    private static hudson.model.User getJenkinsUser(String username) {
-        return hudson.model.User.get(username);
+        final String displayName = user.getDisplayName();
+            final String username = user.getName();
+        hudson.model.User hUser =  hudson.model.User.getById(username, true);
+        if (hUser == null) {
+            return;
+        }
+
+        // User objects are valid so try to load user data to jenkins
+        if (StringUtils.isNotBlank(displayName) && StringUtils.isNotBlank(username)) {
+            // update display name to match with current pattern
+            hUser.setFullName(displayName + " (" + username + ")");
+        }
+
+        // update email property if not set by user with different values then one in crowd
+        final String email = user.getEmailAddress();
+        UserProperty existing = hUser.getProperty(UserProperty.class);
+        if (StringUtils.isNotBlank(email) && (existing == null || !existing.hasExplicitlyConfiguredAddress())) {
+            try {
+                hUser.addProperty(new Mailer.UserProperty(email));
+            } catch (IOException e) {
+                LOGGER.log(Level.WARNING, "Failed to associate the e-mail address", e);
+            }
+        }
     }
 }

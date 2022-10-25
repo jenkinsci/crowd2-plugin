@@ -1,0 +1,8 @@
+<div>
+設置 cookie 時使用的域，覆蓋在 Crowd 中設置的 SSO 域 (自 Crowd 2.5.2 起)。
+在 Crowd 中設置 SSO 域時，所有客戶端應用程式必須位於同一域中，以便共享 cookie。
+Crowd 部署可能包含沒有公共域後綴的主機，例如 “domain.example.com” 和 “domain.internal”。 即使用戶已經登錄到 “domain.example.com” 並設置了 cookie，在 “domain.internal” 下運行的應用程式也不會收到此 cookie，因為域不同，用戶將無法登錄。
+在 Crowd 客戶端應用程式中設置此屬性以覆蓋域。 然後，同一域中的應用程序將能夠共享 SSO 時期。
+<p/>
+<a href="https://confluence.atlassian.com/display/CROWD/The+crowd.properties+file">Crowd 配置文檔</a>
+</div>

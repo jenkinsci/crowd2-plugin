@@ -25,32 +25,6 @@
  */
 package de.theit.jenkins.crowd;
 
-import static de.theit.jenkins.crowd.ErrorMessages.applicationPermission;
-import static de.theit.jenkins.crowd.ErrorMessages.groupNotFound;
-import static de.theit.jenkins.crowd.ErrorMessages.invalidAuthentication;
-import static de.theit.jenkins.crowd.ErrorMessages.operationFailed;
-import static de.theit.jenkins.crowd.ErrorMessages.userNotFound;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.TreeSet;
-import java.util.concurrent.TimeUnit;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import org.acegisecurity.GrantedAuthority;
-import org.acegisecurity.GrantedAuthorityImpl;
-import org.apache.commons.lang.SystemUtils;
-
 import com.atlassian.crowd.exception.ApplicationAccessDeniedException;
 import com.atlassian.crowd.exception.ApplicationPermissionException;
 import com.atlassian.crowd.exception.ExpiredCredentialException;
@@ -74,6 +48,32 @@ import com.atlassian.crowd.service.client.ClientPropertiesImpl;
 import com.atlassian.crowd.service.client.CrowdClient;
 
 import hudson.util.Secret;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.TreeSet;
+import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.commons.lang.SystemUtils;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+
+import static de.theit.jenkins.crowd.ErrorMessages.applicationPermission;
+import static de.theit.jenkins.crowd.ErrorMessages.groupNotFound;
+import static de.theit.jenkins.crowd.ErrorMessages.invalidAuthentication;
+import static de.theit.jenkins.crowd.ErrorMessages.operationFailed;
+import static de.theit.jenkins.crowd.ErrorMessages.userNotFound;
 
 /**
  * This class contains all objects that are necessary to access the REST
@@ -144,17 +144,18 @@ public class CrowdConfigurationService {
 
     private final Integer cacheTTL;
 
-    private transient CacheMap<String, Boolean> isGroupMemberCache = null;
+    private CacheMap<String, Boolean> isGroupMemberCache = null;
 
-    private transient CacheMap<String, User> userFromSSOTokenCache = null;
+    private CacheMap<String, User> userFromSSOTokenCache = null;
 
-    private transient CacheMap<String, User> userCache = null;
+    private CacheMap<String, User> userCache = null;
 
-    private transient CacheMap<String, Group> groupCache = null;
+    private CacheMap<String, Group> groupCache = null;
 
-    private transient CacheMap<String, Boolean> validationCache = null;
+    private CacheMap<String, Collection<GrantedAuthority>> authoritiesForUserCache = null;
 
-    private transient CacheMap<String, Collection<GrantedAuthority>> authoritiesForUserCache = null;
+    private CacheMap<String, Boolean> validationCache = null;
+
 
     /**
      * Creates a new Crowd configuration object.
@@ -193,16 +194,13 @@ public class CrowdConfigurationService {
             boolean useCache, Integer cacheSize, Integer cacheTTL,
             String pGroupNames, boolean pNestedGroups) {
 
-        if (LOG.isLoggable(Level.INFO)) {
-            LOG.info("Groups given for Crowd configuration service: " + pGroupNames);
-        }
+        LOG.log(Level.INFO, "Groups given for Crowd configuration service: {0}", pGroupNames);
+
         this.allowedGroupNames = new ArrayList<>();
         for (String group : pGroupNames.split(",")) {
             group = group.trim();
             if (group.length() > 0) {
-                if (LOG.isLoggable(Level.FINE)) {
-                    LOG.fine("-> adding allowed group name: " + group);
-                }
+                LOG.log(Level.FINE, "-> adding allowed group name: {0}", group);
                 this.allowedGroupNames.add(group);
             }
         }
@@ -223,7 +221,7 @@ public class CrowdConfigurationService {
                 this.tokenHelper);
     }
 
-    public ArrayList<String> getAllowedGroupNames() {
+    public List<String> getAllowedGroupNames() {
         return allowedGroupNames;
     }
 
@@ -264,10 +262,10 @@ public class CrowdConfigurationService {
                 }
             }
         } catch (ApplicationPermissionException ex) {
-            LOG.warning(applicationPermission());
+            LOG.log(Level.WARNING, applicationPermission());
             retval = null;
         } catch (InvalidAuthenticationException ex) {
-            LOG.warning(invalidAuthentication());
+            LOG.log(Level.WARNING, invalidAuthentication());
             retval = null;
         } catch (OperationFailedException ex) {
             LOG.log(Level.SEVERE, operationFailed(), ex);
@@ -307,17 +305,13 @@ public class CrowdConfigurationService {
         boolean retval = false;
 
         try {
-            if (LOG.isLoggable(Level.FINE)) {
-                LOG.fine("Checking whether group is active: " + groupName);
-            }
+            LOG.log(Level.FINE, "Checking whether group is active: {0}", groupName);
             Group group = getGroup(groupName);
             if (null != group) {
                 retval = group.isActive();
             }
         } catch (GroupNotFoundException ex) {
-            if (LOG.isLoggable(Level.FINE)) {
-                LOG.fine(groupNotFound(groupName));
-            }
+            LOG.log(Level.FINE, groupNotFound(groupName));
         }
 
         return retval;
@@ -355,81 +349,46 @@ public class CrowdConfigurationService {
 
         // retrieve the names of all groups the user is a directly or indirectly member
         // of if this configuration setting is active/enabled
-        if (this.nestedGroups) {
-            try {
-                int index = 0;
-                if (LOG.isLoggable(Level.FINE)) {
-                    LOG.fine("Retrieve list of groups with nested membership for user '"
-                            + username + "'...");
+        try {
+            int index = 0;
+            String membership = this.nestedGroups ? "nested" : "direct";
+            LOG.log(Level.FINE, "Retrieve list of groups with {0} membership for user '{1}'...",
+                    new Object[] { membership, username });
+
+            while (true) {
+                LOG.log(Level.FINEST, "Fetching groups [{0}...{1}]...",
+                        new Object[] { index, (index + MAX_GROUPS - 1) });
+
+                List<Group> groups;
+                if (this.nestedGroups) {
+                    groups = getGroupsForNestedUser(username, index, MAX_GROUPS);
+                } else {
+                    groups = getGroupsForUser(username, index, MAX_GROUPS);
                 }
-                while (true) {
-                    if (LOG.isLoggable(Level.FINEST)) {
-                        LOG.finest("Fetching groups [" + index + "..."
-                                + (index + MAX_GROUPS - 1) + "]...");
-                    }
-                    List<Group> groups = getGroupsForNestedUser(username, index, MAX_GROUPS);
-                    if (null == groups || groups.isEmpty()) {
-                        break;
-                    }
-                    for (Group group : groups) {
-                        if (group.isActive()) {
-                            groupNames.add(group.getName());
-                        }
-                    }
-                    index += MAX_GROUPS;
+
+                if (null == groups || groups.isEmpty()) {
+                    break;
                 }
-            } catch (UserNotFoundException ex) {
-                if (LOG.isLoggable(Level.INFO)) {
-                    LOG.info(userNotFound(username));
+                for (Group group : groups) {
+                    if (group.isActive()) {
+                        groupNames.add(group.getName());
+                    }
                 }
-            } catch (InvalidAuthenticationException ex) {
-                LOG.warning(invalidAuthentication());
-            } catch (ApplicationPermissionException ex) {
-                LOG.warning(applicationPermission());
-            } catch (OperationFailedException ex) {
-                LOG.log(Level.SEVERE, operationFailed(), ex);
+                index += MAX_GROUPS;
             }
-        } else {
-            // retrieve the names of all groups the user is a direct member of
-            try {
-                int index = 0;
-                if (LOG.isLoggable(Level.FINE)) {
-                    LOG.fine("Retrieve list of groups with direct membership for user '"
-                            + username + "'...");
-                }
-                while (true) {
-                    if (LOG.isLoggable(Level.FINEST)) {
-                        LOG.finest("Fetching groups [" + index + "..."
-                                + (index + MAX_GROUPS - 1) + "]...");
-                    }
-                    List<Group> groups = getGroupsForUser(
-                            username, index, MAX_GROUPS);
-                    if (null == groups || groups.isEmpty()) {
-                        break;
-                    }
-                    for (Group group : groups) {
-                        if (group.isActive()) {
-                            groupNames.add(group.getName());
-                        }
-                    }
-                    index += MAX_GROUPS;
-                }
-            } catch (UserNotFoundException ex) {
-                if (LOG.isLoggable(Level.INFO)) {
-                    LOG.info(userNotFound(username));
-                }
-            } catch (InvalidAuthenticationException ex) {
-                LOG.warning(invalidAuthentication());
-            } catch (ApplicationPermissionException ex) {
-                LOG.warning(applicationPermission());
-            } catch (OperationFailedException ex) {
-                LOG.log(Level.SEVERE, operationFailed(), ex);
-            }
+        } catch (UserNotFoundException ex) {
+            LOG.log(Level.INFO, userNotFound(username));
+        } catch (InvalidAuthenticationException ex) {
+            LOG.log(Level.WARNING, invalidAuthentication());
+        } catch (ApplicationPermissionException ex) {
+            LOG.log(Level.WARNING, applicationPermission());
+        } catch (OperationFailedException ex) {
+            LOG.log(Level.SEVERE, operationFailed(), ex);
         }
 
         // now create the list of authorities
         for (String str : groupNames) {
-            authorities.add(new GrantedAuthorityImpl(str));
+            authorities.add(new SimpleGrantedAuthority(str));
         }
 
         // If correct object was returned save it to cache
@@ -442,9 +401,7 @@ public class CrowdConfigurationService {
     public User authenticateUser(String login, String password) throws UserNotFoundException, InactiveAccountException,
             ExpiredCredentialException, ApplicationPermissionException, InvalidAuthenticationException,
             OperationFailedException {
-        if (LOG.isLoggable(Level.FINEST)) {
-            LOG.finest("CrowdClient.authenticateUser()");
-        }
+        LOG.log(Level.FINEST, "CrowdClient.authenticateUser()");
         ClassLoader orgContextClassLoader = null;
         Thread currentThread = null;
         if (IS_MIN_JAVA_11) {
@@ -469,9 +426,8 @@ public class CrowdConfigurationService {
             return retval;
         }
 
-        if (LOG.isLoggable(Level.FINEST)) {
-            LOG.finest("CrowdClient.getUser()");
-        }
+        LOG.log(Level.FINEST, "CrowdClient.getUser()");
+
         ClassLoader orgContextClassLoader = null;
         Thread currentThread = null;
         if (IS_MIN_JAVA_11) {
@@ -502,9 +458,8 @@ public class CrowdConfigurationService {
             return retval;
         }
 
-        if (LOG.isLoggable(Level.FINEST)) {
-            LOG.finest("CrowdClient.getGroup()");
-        }
+        LOG.log(Level.FINEST, "CrowdClient.getGroup()");
+
         ClassLoader orgContextClassLoader = null;
         Thread currentThread = null;
         if (IS_MIN_JAVA_11) {
@@ -530,9 +485,7 @@ public class CrowdConfigurationService {
     public List<Group> getGroupsForNestedUser(String username, int start, int size)
             throws OperationFailedException, InvalidAuthenticationException, ApplicationPermissionException,
             UserNotFoundException {
-        if (LOG.isLoggable(Level.FINEST)) {
-            LOG.finest("CrowdClient.getGroupsForNestedUser()");
-        }
+        LOG.log(Level.FINEST, "CrowdClient.getGroupsForNestedUser()");
         ClassLoader orgContextClassLoader = null;
         Thread currentThread = null;
         if (IS_MIN_JAVA_11) {
@@ -551,9 +504,7 @@ public class CrowdConfigurationService {
 
     public List<Group> getGroupsForUser(String username, int start, int size) throws OperationFailedException,
             InvalidAuthenticationException, ApplicationPermissionException, UserNotFoundException {
-        if (LOG.isLoggable(Level.FINEST)) {
-            LOG.finest("CrowdClient.getGroupsForUser()");
-        }
+        LOG.log(Level.FINEST, "CrowdClient.getGroupsForUser()");
         ClassLoader orgContextClassLoader = null;
         Thread currentThread = null;
         if (IS_MIN_JAVA_11) {
@@ -572,9 +523,8 @@ public class CrowdConfigurationService {
 
     public boolean isUserDirectGroupMember(String username, String groupname)
             throws OperationFailedException, ApplicationPermissionException, InvalidAuthenticationException {
-        if (LOG.isLoggable(Level.FINEST)) {
-            LOG.finest("CrowdClient.isUserDirectGroupMember()");
-        }
+        LOG.log(Level.FINEST, "CrowdClient.isUserDirectGroupMember()");
+
         ClassLoader orgContextClassLoader = null;
         Thread currentThread = null;
         if (IS_MIN_JAVA_11) {
@@ -593,9 +543,8 @@ public class CrowdConfigurationService {
 
     public boolean isUserNestedGroupMember(String username, String groupname)
             throws OperationFailedException, ApplicationPermissionException, InvalidAuthenticationException {
-        if (LOG.isLoggable(Level.FINEST)) {
-            LOG.finest("CrowdClient.isUserNestedGroupMember()");
-        }
+        LOG.log(Level.FINEST, "CrowdClient.isUserNestedGroupMember()");
+
         ClassLoader orgContextClassLoader = null;
         Thread currentThread = null;
         if (IS_MIN_JAVA_11) {
@@ -620,9 +569,7 @@ public class CrowdConfigurationService {
             return;
         }
 
-        if (LOG.isLoggable(Level.FINEST)) {
-            LOG.finest("CrowdClient.validateSSOAuthentication()");
-        }
+        LOG.log(Level.FINEST, "CrowdClient.validateSSOAuthentication()");
         ClassLoader orgContextClassLoader = null;
         Thread currentThread = null;
         if (IS_MIN_JAVA_11) {
@@ -650,9 +597,8 @@ public class CrowdConfigurationService {
             return retval;
         }
 
-        if (LOG.isLoggable(Level.FINEST)) {
-            LOG.finest("CrowdClient.findUserFromSSOToken()");
-        }
+        LOG.log(Level.FINEST, "CrowdClient.findUserFromSSOToken()");
+
         ClassLoader orgContextClassLoader = null;
         Thread currentThread = null;
         if (IS_MIN_JAVA_11) {
@@ -676,9 +622,8 @@ public class CrowdConfigurationService {
     }
 
     public void shutdown() {
-        if (LOG.isLoggable(Level.FINEST)) {
-            LOG.finest("CrowdClient.shutdown()");
-        }
+        LOG.log(Level.FINEST, "CrowdClient.shutdown()");
+
         ClassLoader orgContextClassLoader = null;
         Thread currentThread = null;
         if (IS_MIN_JAVA_11) {
@@ -704,9 +649,8 @@ public class CrowdConfigurationService {
             orgContextClassLoader = currentThread.getContextClassLoader();
             currentThread.setContextClassLoader(CrowdConfigurationService.class.getClassLoader());
         }
-        if (LOG.isLoggable(Level.FINEST)) {
-            LOG.finest("CrowdClient.testConnection()");
-        }
+        LOG.log(Level.FINEST, "CrowdClient.testConnection()");
+
         try {
             crowdClient.testConnection();
         } finally {
@@ -717,24 +661,19 @@ public class CrowdConfigurationService {
     }
 
     public String getCrowdToken(HttpServletRequest httpServletRequest) {
-        if (LOG.isLoggable(Level.FINEST)) {
-            LOG.finest("TokenHelper.getCrowdToken()");
-        }
+        LOG.log(Level.FINEST, "TokenHelper.getCrowdToken()");
         return tokenHelper.getCrowdToken(httpServletRequest, clientProperties.getCookieTokenKey());
     }
 
     public List<ValidationFactor> getValidationFactors(HttpServletRequest request) {
-        if (LOG.isLoggable(Level.FINEST)) {
-            LOG.finest("TokenHelper.getValidationFactorExtractor().getValidationFactors()");
-        }
+        LOG.log(Level.FINEST, "TokenHelper.getValidationFactorExtractor().getValidationFactors()");
         return tokenHelper.getValidationFactorExtractor().getValidationFactors(request);
     }
 
     public void logout(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse)
             throws ApplicationPermissionException, InvalidAuthenticationException, OperationFailedException {
-        if (LOG.isLoggable(Level.FINEST)) {
-            LOG.finest("CrowdHttpAuthenticator.logout()");
-        }
+        LOG.log(Level.FINEST, "CrowdHttpAuthenticator.logout()");
+
         ClassLoader orgContextClassLoader = null;
         Thread currentThread = null;
         if (IS_MIN_JAVA_11) {
@@ -757,9 +696,7 @@ public class CrowdConfigurationService {
             throws ApplicationPermissionException, InvalidAuthenticationException, OperationFailedException,
             ApplicationAccessDeniedException, ExpiredCredentialException, InactiveAccountException,
             InvalidTokenException {
-        if (LOG.isLoggable(Level.FINEST)) {
-            LOG.finest("CrowdHttpAuthenticator.authenticate()");
-        }
+        LOG.log(Level.FINEST, "CrowdHttpAuthenticator.authenticate()");
         ClassLoader orgContextClassLoader = null;
         Thread currentThread = null;
         if (IS_MIN_JAVA_11) {
@@ -778,9 +715,7 @@ public class CrowdConfigurationService {
 
     public boolean isAuthenticated(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse)
             throws OperationFailedException {
-        if (LOG.isLoggable(Level.FINEST)) {
-            LOG.finest("CrowdHttpAuthenticator.isAuthenticated()");
-        }
+        LOG.log(Level.FINEST, "CrowdHttpAuthenticator.isAuthenticated()");
         ClassLoader orgContextClassLoader = null;
         Thread currentThread = null;
         if (IS_MIN_JAVA_11) {
@@ -789,7 +724,7 @@ public class CrowdConfigurationService {
             currentThread.setContextClassLoader(CrowdConfigurationService.class.getClassLoader());
         }
         try {
-            return crowdHttpAuthenticator.isAuthenticated(httpServletRequest, httpServletResponse);
+            return crowdHttpAuthenticator.checkAuthenticated(httpServletRequest, httpServletResponse).isAuthenticated();
         } finally {
             if (currentThread != null) {
                 currentThread.setContextClassLoader(orgContextClassLoader);
@@ -824,23 +759,17 @@ public class CrowdConfigurationService {
             InvalidAuthenticationException, OperationFailedException {
         boolean retval = false;
         if (isGroupActive(group)) {
-            if (LOG.isLoggable(Level.FINE)) {
-                LOG.fine("Checking group membership for user '" + username
-                        + "' and group '" + group + "'...");
-            }
+            LOG.log(Level.FINE, "Checking group membership for user '" + username + "' and group '" + group + "'...");
+
             if (this.nestedGroups) {
                 if (isUserNestedGroupMember(username, group)) {
                     retval = true;
-                    if (LOG.isLoggable(Level.FINER)) {
-                        LOG.finer("=> user is a nested group member");
-                    }
+                    LOG.log(Level.FINER, "=> user is a nested group member");
                 }
             } else {
                 if (isUserDirectGroupMember(username, group)) {
                     retval = true;
-                    if (LOG.isLoggable(Level.FINER)) {
-                        LOG.finer("=> user is a direct group member");
-                    }
+                    LOG.log(Level.FINER, "=> user is a direct group member");
                 }
             }
         }
@@ -904,7 +833,7 @@ public class CrowdConfigurationService {
         private final long expires;
         private final T value;
 
-        public CacheEntry(int ttlSeconds, T value) {
+        CacheEntry(int ttlSeconds, T value) {
             this.expires = System.currentTimeMillis() + TimeUnit.SECONDS.toMillis(ttlSeconds);
             this.value = value;
         }
@@ -931,7 +860,7 @@ public class CrowdConfigurationService {
         private static final long serialVersionUID = 1L;
         private final int cacheSize;
 
-        public CacheMap(int cacheSize) {
+        CacheMap(int cacheSize) {
             super(cacheSize + 1); // prevent realloc when hitting cache size limit
             this.cacheSize = cacheSize;
         }

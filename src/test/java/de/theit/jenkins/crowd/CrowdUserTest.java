@@ -1,16 +1,16 @@
 package de.theit.jenkins.crowd;
 
+import com.atlassian.crowd.model.user.ImmutableUser;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.acegisecurity.GrantedAuthority;
-import org.acegisecurity.GrantedAuthorityImpl;
-
-import com.atlassian.crowd.model.user.ImmutableUser;
 import org.assertj.core.api.Assertions;
 import org.junit.Before;
 import org.junit.Test;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 public class CrowdUserTest {
 
@@ -20,20 +20,20 @@ public class CrowdUserTest {
     public void setUp() {
         ImmutableUser u = new ImmutableUser(0, "user1", "foo user 1", "foo@bar.baz", false, null, null, null);
         List<GrantedAuthority> authorities = new ArrayList<>();
-        authorities.add(new GrantedAuthorityImpl("fooGroup"));
+        authorities.add(new SimpleGrantedAuthority("fooGroup"));
         dummy = new CrowdUser(u, authorities);
     }
 
     @Test
     public void testCrowdUser() {
 
-        Assertions.assertThat("user1").isEqualTo(dummy.getUsername());
-        Assertions.assertThat("fooGroup").isEqualTo(dummy.getAuthorities()[0].getAuthority());
+        Assertions.assertThat(dummy.getUsername()).isEqualTo("user1");
+        Assertions.assertThat(dummy.getAuthorities().iterator().next().getAuthority()).isEqualTo("fooGroup");
     }
 
     @Test
     public void testGetAuthorities() {
-        Assertions.assertThat("fooGroup").isEqualTo(dummy.getAuthorities()[0].getAuthority());
+        Assertions.assertThat(dummy.getAuthorities().iterator().next().getAuthority()).isEqualTo("fooGroup");
     }
 
     @Test
@@ -43,7 +43,7 @@ public class CrowdUserTest {
 
     @Test
     public void testGetUsername() {
-        Assertions.assertThat("user1").isEqualTo(dummy.getUsername());
+        Assertions.assertThat(dummy.getUsername()).isEqualTo("user1");
     }
 
     @Test
@@ -77,7 +77,7 @@ public class CrowdUserTest {
 
     @Test
     public void testGetEmailAddress() {
-        Assertions.assertThat("foo@bar.baz").isEqualTo(dummy.getEmailAddress());
+        Assertions.assertThat(dummy.getEmailAddress()).isEqualTo("foo@bar.baz");
     }
 
 }

@@ -25,10 +25,10 @@ THE SOFTWARE.
 
 <?jelly escape-by-default='true'?>
 <j:jelly xmlns:j="jelly:core" xmlns:f="/lib/form">
-    <f:entry field="size" title="${%Cache size}">
+    <f:entry field="size" title="${%crowd.cache.size}">
         <f:select default="20"/>
     </f:entry>
-    <f:entry field="ttl" title="${%Cache TTL}">
+    <f:entry field="ttl" title="${%crowd.cache.TTL}">
         <f:select default="300"/>
     </f:entry>
 </j:jelly>

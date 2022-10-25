@@ -30,18 +30,18 @@ import com.atlassian.crowd.exception.InvalidAuthenticationException;
 import com.atlassian.crowd.exception.OperationFailedException;
 import com.atlassian.crowd.exception.UserNotFoundException;
 import com.atlassian.crowd.model.user.User;
+
 import hudson.security.SecurityRealm;
-import org.acegisecurity.GrantedAuthority;
-import org.acegisecurity.userdetails.UserDetails;
-import org.acegisecurity.userdetails.UserDetailsService;
-import org.acegisecurity.userdetails.UsernameNotFoundException;
-import org.springframework.dao.DataAccessException;
-import org.springframework.dao.DataRetrievalFailureException;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 import static de.theit.jenkins.crowd.ErrorMessages.applicationPermission;
 import static de.theit.jenkins.crowd.ErrorMessages.invalidAuthentication;
@@ -81,46 +81,41 @@ public class CrowdUserDetailsService implements UserDetailsService {
     /**
      * {@inheritDoc}
      *
-     * @see org.acegisecurity.userdetails.UserDetailsService#loadUserByUsername(java.lang.String)
+     * @see org.springframework.security.core.userdetails.UserDetailsService#loadUserByUsername(java.lang.String)
      */
     @Override
-    public UserDetails loadUserByUsername(String username)
-            throws UsernameNotFoundException, DataAccessException {
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 
-        // check whether there's at least one active group the user is a member
-        // of
-        if (!this.configuration.isGroupMember(username)) {
-            throw new DataRetrievalFailureException(userNotValid(username,
-                    this.configuration.getAllowedGroupNames()));
-        }
         User user;
+
+        // check whether there's at least one active group the user is a member of
+        if (!this.configuration.isGroupMember(username)) {
+            throw new UsernameNotFoundException(userNotValid(username, this.configuration.getAllowedGroupNames()));
+        }
+
         try {
             // load the user object from the remote Crowd server
-            if (LOG.isLoggable(Level.FINE)) {
-                LOG.fine("Loading user object from the remote Crowd server...");
-            }
+            LOG.log(Level.FINE, "Loading user object from the remote Crowd server...");
             user = this.configuration.getUser(username);
         } catch (UserNotFoundException ex) {
-            if (LOG.isLoggable(Level.INFO)) {
-                LOG.info(userNotFound(username));
-            }
+            LOG.log(Level.INFO, userNotFound(username));
             throw new UsernameNotFoundException(userNotFound(username), ex);
         } catch (ApplicationPermissionException ex) {
-            LOG.warning(applicationPermission());
-            throw new DataRetrievalFailureException(applicationPermission(), ex);
+            LOG.log(Level.WARNING, applicationPermission());
+            throw new UsernameNotFoundException(applicationPermission(), ex);
         } catch (InvalidAuthenticationException ex) {
-            LOG.warning(invalidAuthentication());
-            throw new DataRetrievalFailureException(invalidAuthentication(), ex);
+            LOG.log(Level.WARNING, invalidAuthentication());
+            throw new UsernameNotFoundException(invalidAuthentication(), ex);
         } catch (OperationFailedException ex) {
             LOG.log(Level.SEVERE, operationFailed(), ex);
-            throw new DataRetrievalFailureException(operationFailed(), ex);
+            throw new UsernameNotFoundException(operationFailed(), ex);
         }
 
         // create the list of granted authorities
-        List<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>();
+        List<GrantedAuthority> authorities = new ArrayList<>();
         // add the "authenticated" authority to the list of granted
         // authorities...
-        authorities.add(SecurityRealm.AUTHENTICATED_AUTHORITY);
+        authorities.add(SecurityRealm.AUTHENTICATED_AUTHORITY2);
         // ..and all authorities retrieved from the Crowd server
         authorities.addAll(this.configuration.getAuthoritiesForUser(username));
 

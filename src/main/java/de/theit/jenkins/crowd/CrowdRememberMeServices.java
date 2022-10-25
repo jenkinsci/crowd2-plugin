@@ -34,17 +34,20 @@ import com.atlassian.crowd.exception.InvalidTokenException;
 import com.atlassian.crowd.exception.OperationFailedException;
 import com.atlassian.crowd.model.authentication.ValidationFactor;
 import com.atlassian.crowd.model.user.User;
-import hudson.security.SecurityRealm;
-import org.acegisecurity.Authentication;
-import org.acegisecurity.GrantedAuthority;
-import org.acegisecurity.ui.rememberme.RememberMeServices;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import hudson.security.SecurityRealm;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.web.authentication.RememberMeServices;
 
 import static de.theit.jenkins.crowd.ErrorMessages.accountExpired;
 import static de.theit.jenkins.crowd.ErrorMessages.applicationAccessDenied;
@@ -83,59 +86,52 @@ public class CrowdRememberMeServices implements RememberMeServices {
     /**
      * {@inheritDoc}
      *
-     * @see org.acegisecurity.ui.rememberme.RememberMeServices#autoLogin(javax.servlet.http.HttpServletRequest,
+     * @see org.springframework.security.web.authentication.RememberMeServices#autoLogin(javax.servlet.http.HttpServletRequest,
      *      javax.servlet.http.HttpServletResponse)
      */
     @Override
-    public Authentication autoLogin(HttpServletRequest request,
-            HttpServletResponse response) {
+    public Authentication autoLogin(HttpServletRequest request, HttpServletResponse response) {
         Authentication result = null;
 
         if (configuration.isUseSSO()) {
             List<ValidationFactor> validationFactors = this.configuration.getValidationFactors(request);
 
             // check whether a SSO token is available
-            if (LOG.isLoggable(Level.FINER)) {
-                LOG.finer("Checking whether a SSO token is available...");
-            }
+            LOG.log(Level.FINER, "Checking whether a SSO token is available...");
             String ssoToken = this.configuration.getCrowdToken(request);
 
             // auto-login is only possible when the SSO token was found
             if (null != ssoToken) {
                 try {
                     // SSO token available => check whether it is still valid
-                    if (LOG.isLoggable(Level.FINER)) {
-                        LOG.finer("SSO token available => check whether it is still valid...");
-                    }
+                    LOG.log(Level.FINER, "SSO token available => check whether it is still valid...");
                     this.configuration.validateSSOAuthentication(
                             ssoToken, validationFactors);
 
                     // retrieve the user that is logged in via SSO
-                    if (LOG.isLoggable(Level.FINER)) {
-                        LOG.finer("Retrieving SSO user...");
-                    }
+                    LOG.log(Level.FINER, "Retrieving SSO user...");
+
                     User user = this.configuration.findUserFromSSOToken(ssoToken);
                     CrowdAuthenticationToken.updateUserInfo(user);
                     // check whether the user is a member of the user group in Crowd
                     // that specifies who is allowed to login
-                    if (LOG.isLoggable(Level.FINER)) {
-                        LOG.finer("Validating group membership of user...");
-                    }
+                    LOG.log(Level.FINER, "Validating group membership of user...");
+
                     if (this.configuration.isGroupMember(user.getName())) {
                         // user is authenticated and validated
                         // => create the user object and finalize the auto-login
                         // process
-                        List<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>();
-                        authorities.add(SecurityRealm.AUTHENTICATED_AUTHORITY);
+                        List<GrantedAuthority> authorities = new ArrayList<>();
+                        authorities.add(SecurityRealm.AUTHENTICATED_AUTHORITY2);
                         authorities.addAll(this.configuration.getAuthoritiesForUser(user.getName()));
                         result = new CrowdAuthenticationToken(user.getName(), null, authorities, ssoToken);
                     }
                 } catch (InvalidTokenException ex) {
                     // LOG.log(Level.INFO, invalidToken(), ex);
                 } catch (ApplicationPermissionException ex) {
-                    LOG.warning(applicationPermission());
+                    LOG.log(Level.WARNING, applicationPermission());
                 } catch (InvalidAuthenticationException ex) {
-                    LOG.warning(invalidAuthentication());
+                    LOG.log(Level.WARNING, invalidAuthentication());
                 } catch (OperationFailedException ex) {
                     LOG.log(Level.SEVERE, operationFailed(), ex);
                 }
@@ -147,21 +143,19 @@ public class CrowdRememberMeServices implements RememberMeServices {
     /**
      * {@inheritDoc}
      *
-     * @see org.acegisecurity.ui.rememberme.RememberMeServices#loginFail(javax.servlet.http.HttpServletRequest,
+     * @see org.springframework.security.web.authentication.RememberMeServices#loginFail(javax.servlet.http.HttpServletRequest,
      *      javax.servlet.http.HttpServletResponse)
      */
     @Override
     public void loginFail(HttpServletRequest request,
             HttpServletResponse response) {
         try {
-            if (LOG.isLoggable(Level.FINE)) {
-                LOG.fine("Login failed");
-            }
+            LOG.log(Level.FINE, "Login failed");
             this.configuration.logout(request, response);
         } catch (ApplicationPermissionException ex) {
-            LOG.warning(applicationPermission());
+            LOG.log(Level.WARNING, applicationPermission());
         } catch (InvalidAuthenticationException ex) {
-            LOG.warning(invalidAuthentication());
+            LOG.log(Level.WARNING, invalidAuthentication());
         } catch (OperationFailedException ex) {
             LOG.log(Level.SEVERE, operationFailed(), ex);
         }
@@ -170,9 +164,9 @@ public class CrowdRememberMeServices implements RememberMeServices {
     /**
      * {@inheritDoc}
      *
-     * @see org.acegisecurity.ui.rememberme.RememberMeServices#loginSuccess(javax.servlet.http.HttpServletRequest,
+     * @see org.springframework.security.web.authentication.RememberMeServices#loginSuccess(javax.servlet.http.HttpServletRequest,
      *      javax.servlet.http.HttpServletResponse,
-     *      org.acegisecurity.Authentication)
+     *      org.springframework.security.core.Authentication)
      */
     @Override
     public void loginSuccess(HttpServletRequest request,
@@ -193,17 +187,13 @@ public class CrowdRememberMeServices implements RememberMeServices {
             if (null == ssoToken) {
                 // SSO token not yet available => authenticate the user and
                 // create the SSO token
-                if (LOG.isLoggable(Level.FINE)) {
-                    LOG.fine("SSO token not yet available => authenticate user...");
-                }
+                LOG.log(Level.FINE, "SSO token not yet available => authenticate user...");
                 this.configuration.authenticate(request, response, crowdAuthenticationToken.getName(),
                         crowdAuthenticationToken.getCredentials());
 
                 // user is successfully authenticated
                 // => retrieve the SSO token
-                if (LOG.isLoggable(Level.FINER)) {
-                    LOG.finer("Retrieve SSO token...");
-                }
+                LOG.log(Level.FINER, "Retrieve SSO token...");
                 ssoToken = this.configuration.getCrowdToken(request);
             }
 
@@ -215,27 +205,23 @@ public class CrowdRememberMeServices implements RememberMeServices {
             }
 
             // validate the SSO authentication
-            if (LOG.isLoggable(Level.FINE)) {
-                LOG.fine("Validate the SSO authentication...");
-            }
+            LOG.log(Level.FINE, "Validate the SSO authentication...");
             this.configuration.validateSSOAuthentication(ssoToken, validationFactors);
 
             // alright, we're successfully authenticated via SSO
-            if (LOG.isLoggable(Level.FINE)) {
-                LOG.fine("Successfully authenticated via SSO");
-            }
+            LOG.log(Level.FINE, "Successfully authenticated via SSO");
         } catch (InvalidTokenException ex) {
             // LOG.log(Level.INFO, invalidToken(), ex);
         } catch (ApplicationPermissionException ex) {
-            LOG.warning(applicationPermission());
+            LOG.log(Level.WARNING, applicationPermission());
         } catch (InvalidAuthenticationException ex) {
-            LOG.warning(invalidAuthentication());
+            LOG.log(Level.WARNING, invalidAuthentication());
         } catch (ExpiredCredentialException ex) {
-            LOG.warning(expiredCredentials(crowdAuthenticationToken.getName()));
+            LOG.log(Level.WARNING, expiredCredentials(crowdAuthenticationToken.getName()));
         } catch (InactiveAccountException ex) {
-            LOG.warning(accountExpired(crowdAuthenticationToken.getName()));
+            LOG.log(Level.WARNING, accountExpired(crowdAuthenticationToken.getName()));
         } catch (ApplicationAccessDeniedException ex) {
-            LOG.warning(applicationAccessDenied(crowdAuthenticationToken.getName()));
+            LOG.log(Level.WARNING, applicationAccessDenied(crowdAuthenticationToken.getName()));
         } catch (OperationFailedException ex) {
             LOG.log(Level.SEVERE, operationFailed(), ex);
         }
@@ -250,14 +236,12 @@ public class CrowdRememberMeServices implements RememberMeServices {
     public void logout(HttpServletRequest request, HttpServletResponse response) {
         try {
             // logout the user and close the SSO session
-            if (LOG.isLoggable(Level.FINE)) {
-                LOG.fine("Logout user and close SSO session");
-            }
+            LOG.log(Level.FINE, "Logout user and close SSO session");
             this.configuration.logout(request, response);
         } catch (ApplicationPermissionException ex) {
-            LOG.warning(applicationPermission());
+            LOG.log(Level.WARNING, applicationPermission());
         } catch (InvalidAuthenticationException ex) {
-            LOG.warning(invalidAuthentication());
+            LOG.log(Level.WARNING, invalidAuthentication());
         } catch (OperationFailedException ex) {
             LOG.log(Level.SEVERE, operationFailed(), ex);
         }

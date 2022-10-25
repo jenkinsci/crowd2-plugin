@@ -1,4 +1,5 @@
 ---
+
 version: '3.8'
 services:
   jenkins:
@@ -15,7 +16,7 @@ services:
      - 50000:50000
     container_name: jenkins
     networks:
-      - crowdnet
+      - crowd_net
 
     volumes:
      - jenkins_home:/var/jenkins_home
@@ -25,23 +26,18 @@ services:
     image: blacklabelops/crowd
     container_name: crowd
     networks:
-      - crowdnet
+      - crowd_net
     volumes:
-      - crowddata:/var/atlassian/crowd
+      - crowd_home:/var/atlassian/crowd
     ports:
       - '8095:8095'
-    environment:
-      - "SPLASH_CONTEXT=ROOT"
-      - "CROWD_CONTEXT=crowd"
 
 volumes:
-  crowddata:
-    external: false
-  postgresqldata:
+  crowd_home:
     external: false
   jenkins_home:
     external: false
 
 networks:
-  crowdnet:
+  crowd_net:
     driver: bridge

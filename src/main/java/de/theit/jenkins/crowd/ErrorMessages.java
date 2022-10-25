@@ -25,7 +25,7 @@
  */
 package de.theit.jenkins.crowd;
 
-import java.util.ArrayList;
+import java.util.List;
 
 import org.jvnet.localizer.ResourceBundleHolder;
 
@@ -38,7 +38,7 @@ import org.jvnet.localizer.ResourceBundleHolder;
  */
 public class ErrorMessages {
     /** Contains the localized messages. */
-    private final static ResourceBundleHolder holder = ResourceBundleHolder.get(ErrorMessages.class);
+    private static final ResourceBundleHolder holder = ResourceBundleHolder.get(ErrorMessages.class);
 
     /**
      * Returns the localized error message when no URL is specified.
@@ -202,7 +202,7 @@ public class ErrorMessages {
      * @return The localized error message when a user does not have the
      *         permission to login.
      */
-    public static String userNotValid(String username, ArrayList<String> groupNames) {
+    public static String userNotValid(String username, List<String> groupNames) {
         return holder.format("userNotValid", username, groupNames.toString());
     }
 }

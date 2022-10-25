@@ -4,18 +4,18 @@
     <parent>
         <groupId>org.jenkins-ci.plugins</groupId>
         <artifactId>plugin</artifactId>
-        <version>4.40</version>
+        <version>4.42</version>
     </parent>
 
     <artifactId>crowd2</artifactId>
     <version>${revision}${changelist}</version>
-
     <packaging>hpi</packaging>
 
     <name>Crowd 2 Integration</name>
     <description>SecurityRealm that enables the use of Atlassian's Crowd identity management server.</description>
 
     <url>https://github.com/jenkinsci/crowd2-plugin</url>
+
     <issueManagement>
         <system>JIRA</system>
         <url>https://issues.jenkins-ci.org/</url>
@@ -50,15 +50,16 @@
     </contributors>
 
     <properties>
-        <revision>2.1.2</revision>
+        <revision>3.2.1</revision>
         <changelist>-SNAPSHOT</changelist>
         <gitHubRepo>jenkinsci/crowd2-plugin</gitHubRepo>
         <jenkins.version>2.303.1</jenkins.version>
-        <crowd-integration-client-rest.version>2.8.8</crowd-integration-client-rest.version>
-        <java.level>8</java.level>
+        <crowd-integration-client-rest.version>3.7.2</crowd-integration-client-rest.version>
         <findbugs.failOnError>false</findbugs.failOnError>
         <spotbugs.effort>Max</spotbugs.effort>
         <spotbugs.failOnError>true</spotbugs.failOnError>
+        <spotbugs.threshold>Medium</spotbugs.threshold>
+        <spotbugs.effort>Default</spotbugs.effort>
     </properties>
 
 
@@ -69,27 +70,15 @@
         <tag>${scmTag}</tag>
     </scm>
 
-
     <repositories>
         <repository>
-            <id>atlassian</id>
-            <url>https://m2proxy.atlassian.com/repository/public/</url>
-        </repository>
-        <repository>
-            <id>repo.jenkins-ci.org</id>
+            <id>maven.jenkins-ci.org</id>
             <url>https://repo.jenkins-ci.org/public/</url>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
         </repository>
     </repositories>
-
     <pluginRepositories>
         <pluginRepository>
-            <id>repo.jenkins-ci.org</id>
+            <id>maven.jenkins-ci.org</id>
             <url>https://repo.jenkins-ci.org/public/</url>
         </pluginRepository>
     </pluginRepositories>
@@ -108,14 +97,6 @@
                     <groupId>org.apache.httpcomponents</groupId>
                     <artifactId>httpclient-cache</artifactId>
                 </exclusion>
-                <exclusion>
-                    <groupId>com.google.guava</groupId>
-                    <artifactId>guava</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.slf4j</groupId>
-                    <artifactId>slf4j-api</artifactId>
-                </exclusion>
             </exclusions>
         </dependency>
         <dependency>
@@ -126,6 +107,10 @@
             <groupId>org.jenkins-ci.plugins</groupId>
             <artifactId>mailer</artifactId>
         </dependency>
+        <dependency>
+            <groupId>io.jenkins.plugins</groupId>
+            <artifactId>jaxb</artifactId>
+        </dependency>
         <!-- Tests -->
         <dependency>
             <groupId>junit</groupId>
@@ -134,13 +119,13 @@
         </dependency>
         <dependency>
             <groupId>org.mockito</groupId>
-            <artifactId>mockito-core</artifactId>
+            <artifactId>mockito-inline</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.assertj</groupId>
             <artifactId>assertj-core</artifactId>
-            <version>3.22.0</version>
+            <version>3.23.1</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
@@ -156,11 +141,164 @@
             <dependency>
                 <groupId>io.jenkins.tools.bom</groupId>
                 <artifactId>bom-2.303.x</artifactId>
-                <version>1246.va_b_50630c1d19</version>
+                <version>1500.ve4d05cd32975</version>
                 <scope>import</scope>
                 <type>pom</type>
             </dependency>
 
         </dependencies>
     </dependencyManagement>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>properties-maven-plugin</artifactId>
+                <version>1.1.0</version>
+                <executions>
+                    <execution>
+                        <phase>initialize</phase>
+                        <goals>
+                            <goal>read-project-properties</goal>
+                        </goals>
+                        <configuration>
+                            <files>
+                                <file>sonar-project.properties</file>
+                            </files>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.sonarsource.scanner.maven</groupId>
+                <artifactId>sonar-maven-plugin</artifactId>
+                <version>3.9.1.2184</version>
+            </plugin>
+            <plugin>
+                <groupId>com.github.spotbugs</groupId>
+                <artifactId>spotbugs-maven-plugin</artifactId>
+                <configuration>
+                    <plugins>
+                        <plugin>
+                            <groupId>com.h3xstream.findsecbugs</groupId>
+                            <artifactId>findsecbugs-plugin</artifactId>
+                            <version>1.12.0</version>
+                        </plugin>
+                    </plugins>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-pmd-plugin</artifactId>
+                <!-- Version specified in parent POM -->
+            </plugin>
+
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-checkstyle-plugin</artifactId>
+                <!-- Version specified in parent POM -->
+                <dependencies>
+                    <dependency>
+                        <groupId>com.puppycrawl.tools</groupId>
+                        <artifactId>checkstyle</artifactId>
+                        <!-- versions 10.x and above are unsupported by java 8-->
+                        <version>9.2</version>
+                    </dependency>
+                </dependencies>
+                <configuration>
+                    <consoleOutput>true</consoleOutput>
+                    <includeTestSourceDirectory>true</includeTestSourceDirectory>
+                    <!-- define here because checkstyle and multi module is a PITA -->
+                    <checkstyleRules>
+                        <module name="Checker">
+                            <module name="UniqueProperties" />
+                            <module name="LineLength">
+                                <property name="fileExtensions" value="java" />
+                                <property name="max" value="240" />
+                                <property name="ignorePattern" value="^package.*|^import.*|a href|href|http://|https://|ftp://" />
+                            </module>
+                            <module name="TreeWalker">
+                                <!-- Annotations: https://checkstyle.sourceforge.io/config_annotation.html -->
+                                <module name="AnnotationUseStyle" />
+                                <module name="MissingDeprecated" />
+                                <module name="MissingOverride" />
+                                <!--  Class Design: https://checkstyle.sourceforge.io/config_design.html -->
+                                <module name="OneTopLevelClass" />
+                                <!-- Coding: https://checkstyle.sourceforge.io/config_coding.html -->
+                                <module name="ArrayTrailingComma" />
+                                <module name="AvoidNoArgumentSuperConstructorCall" />
+                                <module name="CovariantEquals" />
+                                <module name="DefaultComesLast" />
+                                <module name="EqualsHashCode" />
+                                <module name="MissingSwitchDefault" />
+                                <module name="NoEnumTrailingComma" />
+                                <module name="OneStatementPerLine" />
+                                <module name="PackageDeclaration" />
+                                <module name="RequireThis" />
+                                <module name="SimplifyBooleanExpression" />
+                                <module name="StringLiteralEquality" />
+                                <module name="SuperClone" />
+                                <module name="SuperFinalize" />
+                                <module name="UnnecessarySemicolonAfterOuterTypeDeclaration" />
+                                <module name="UnnecessarySemicolonAfterTypeMemberDeclaration" />
+                                <module name="UnnecessarySemicolonInEnumeration" />
+                                <module name="UnnecessarySemicolonInTryWithResources" />
+                                <module name="VariableDeclarationUsageDistance">
+                                    <property name="allowedDistance" value="10" />
+                                </module>
+                                <!-- Imports: https://checkstyle.sourceforge.io/config_imports.html-->
+                                <module name="AvoidStarImport" />
+                                <module name="ImportOrder">
+                                    <property name="groups" value="*,com,dagger,de,hudson,io,java,javax,jenkins,okhttp3,org,retrofit2,software," />
+                                    <property name="ordered" value="true" />
+                                    <property name="separated" value="true" />
+                                    <property name="option" value="bottom" />
+                                    <property name="sortStaticImportsAlphabetically" value="true" />
+                                </module>
+                                <module name="IllegalImport">
+                                    <!-- prevent the use of jsr-305 annotations -->
+                                    <property name="illegalClasses" value="javax.annotation.MatchesPattern.Checker, javax.annotation.Nonnegative.Checker, javax.annotation.Nonnull.Checker, javax.annotation.RegEx.Checker, javax.annotation.CheckForNull, javax.annotation.CheckForSigned, javax.annotation.CheckReturnValue, javax.annotation.Detainted, javax.annotation.MatchesPattern, javax.annotation.Nonnegative, javax.annotation.Nonnull, javax.annotation.Nullable, javax.annotation.OverridingMethodsMustInvokeSuper, javax.annotation.ParametersAreNonnullByDefault, javax.annotation.ParametersAreNullableByDefault, javax.annotation.PropertyKey, javax.annotation.RegEx, javax.annotation.Signed, javax.annotation.Syntax, javax.annotation.Tainted, javax.annotation.Untainted, javax.annotation.WillClose, javax.annotation.WillCloseWhenClosed, javax.annotation.WillNotClose, javax.annotation.concurrent.GuardedBy, javax.annotation.concurrent.Immutable, javax.annotation.concurrent.NotThreadSafe, javax.annotation.concurrent.ThreadSafe, javax.annotation.meta.TypeQualifierValidator, javax.annotation.meta.When, javax.annotation.meta.Exclusive, javax.annotation.meta.Exhaustive, javax.annotation.meta.TypeQualifier, javax.annotation.meta.TypeQualifierDefault, javax.annotation.meta.TypeQualifierNickname" />
+                                    <!-- Prevent the expansion of Guava usages -->
+                                    <property name="illegalPkgs" value="com.google.common.base, com.google.common.escape, com.google.common.eventbus, com.google.common.graph, com.google.common.hash, com.google.common.html, com.google.common.io, com.google.common.math, com.google.common.net, com.google.common.primitives, com.google.common.reflect, com.google.common.xml, com.google.thirdparty" />
+                                </module>
+                                <module name="RedundantImport" />
+                                <module name="UnusedImports" />
+                                <!-- Javadoc Comments: https://checkstyle.sourceforge.io/config_javadoc.html -->
+                                <module name="AtclauseOrder">
+                                    <property name="tagOrder" value="@param, @return, @throws, @deprecated" />
+                                </module>
+                                <module name="InvalidJavadocPosition" />
+                                <module name="JavadocMethod">
+                                    <property name="allowedAnnotations" value="Override, Test" />
+                                    <property name="allowMissingParamTags" value="true" />
+                                    <property name="allowMissingReturnTag" value="true" />
+                                </module>
+                                <module name="JavadocMissingWhitespaceAfterAsterisk" />
+                                <module name="NonEmptyAtclauseDescription" />
+                                <!-- Miscellaneous: https://checkstyle.sourceforge.io/config_misc.html -->
+                                <module name="ArrayTypeStyle" />
+                                <module name="OuterTypeFilename" />
+                                <module name="UpperEll" />
+                                <!-- Modifiers: https://checkstyle.sourceforge.io/config_modifier.html -->
+                                <module name="ModifierOrder" />
+                                <module name="RedundantModifier" />
+                            </module>
+                        </module>
+                    </checkstyleRules>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>validate</id>
+                        <phase>validate</phase>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+        </plugins>
+    </build>
+
 </project>
