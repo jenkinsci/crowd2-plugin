@@ -192,6 +192,13 @@
                 <version>3.19.0</version>
             </plugin>
 
+            <plugin>
+                <groupId>org.jenkins-ci.tools</groupId>
+                <artifactId>maven-hpi-plugin</artifactId>
+                <configuration>
+                    <minimumJavaVersion>1.8</minimumJavaVersion>
+                </configuration>
+            </plugin>
 
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
