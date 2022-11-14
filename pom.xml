@@ -84,6 +84,7 @@
     </pluginRepositories>
 
     <dependencies>
+        
         <dependency>
             <groupId>com.atlassian.crowd</groupId>
             <artifactId>crowd-integration-client-rest</artifactId>
@@ -103,6 +104,7 @@
             <groupId>org.jenkins-ci.plugins</groupId>
             <artifactId>apache-httpcomponents-client-4-api</artifactId>
         </dependency>
+        
         <dependency>
             <groupId>org.jenkins-ci.plugins</groupId>
             <artifactId>mailer</artifactId>
@@ -111,6 +113,14 @@
             <groupId>io.jenkins.plugins</groupId>
             <artifactId>jaxb</artifactId>
         </dependency>
+        
+        <dependency>
+            <groupId>org.jenkins-ci.tools</groupId>
+            <artifactId>maven-hpi-plugin</artifactId>
+            <version>3.35</version>
+            <type>maven-plugin</type>
+        </dependency>
+
         <!-- Tests -->
         <dependency>
             <groupId>junit</groupId>
