@@ -196,9 +196,6 @@
                 <groupId>org.jenkins-ci.tools</groupId>
                 <artifactId>maven-hpi-plugin</artifactId>
                 <version>3.34</version>
-                <configuration>
-                    <minimumJavaVersion>1.8</minimumJavaVersion>
-                </configuration>
             </plugin>
 
             <plugin>
