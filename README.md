@@ -13,10 +13,10 @@ This plugin allows using [Atlassian Crowd](https://www.atlassian.com/software/cr
 
 ## Requirements
 
-Current version of plugin is tested agains `Crowd 3.7`, with `Jenkins 2.289.3`.
+Current version of plugin is tested agains `Crowd 3.7`, with `Jenkins 2.303.1`.
 This plugin uses Crowd REST APIs for connecting to Crowd and therefore
 requires Crowd \>= 2.1
-(see <http://developer.atlassian.com/display/CROWDDEV/Crowd+REST+APIs>).
+(see [Crowd REST Api docs](http://developer.atlassian.com/display/CROWDDEV/Crowd+REST+APIs)).
 If you have an older Crowd server, use the older "Crowd Plugin" instead.
 
 ## License
@@ -26,7 +26,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## Configuration
 
 To configure the plugin, you first need to create a new application in
-Crowd. <https://confluence.atlassian.com/crowd/adding-an-application-18579591.html>
+Crowd. [Atlassian adding-an-application docs](https://confluence.atlassian.com/crowd/adding-an-application-18579591.html)
 has more information on how to configure applications in Crowd.
 
 ![crowd screen](docs/images/image_crowd_screen.png)
@@ -35,8 +35,7 @@ Be sure to also allow connections to Crowd from the server Jenkins runs
 on.
 
 Next you need to configure a group that contains all users that are
-allowed to login into Jenkins.
-<https://confluence.atlassian.com/crowd/managing-users-and-groups-193223.html>
+allowed to login into Jenkins. [Atlassian managing-users-and-groups docs](https://confluence.atlassian.com/crowd/managing-users-and-groups-193223.html)
 has more information how to manage users and groups.
 
 ![crowd add group](docs/images/image_crowd_add_group.png)
@@ -54,7 +53,7 @@ credentials are valid.
 
 Crowd supports nested groups, i.e. groups which contain other groups as
 members and groups that are members of other groups (see
-<http://confluence.atlassian.com/display/CROWD/Nested+Groups+in+Crowd>).
+[nested groups docs](http://confluence.atlassian.com/display/CROWD/Nested+Groups+in+Crowd)).
 If you want to use this feature, click on the "Advanced..." button and
 enable it. This may degrade performance, depending on your server
 configuration.
