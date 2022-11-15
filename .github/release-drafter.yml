@@ -1,4 +1,4 @@
 _extends: .github
-version-template: $MAJOR.$MINOR.$PATCH
-tag-template: crowd2-$NEXT_PATCH_VERSION
-name-template: Crowd 2 Plugin $NEXT_PATCH_VERSION
+version-template: '$MAJOR.$MINOR.$PATCH'
+tag-template: 'crowd2-$NEXT_PATCH_VERSION'
+name-template: 'Crowd 2 Plugin $NEXT_PATCH_VERSION'
