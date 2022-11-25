@@ -12,10 +12,11 @@ updates:
   - skip-changelog
   
   ignore:
-  - dependency-name: "crowd-integration-client-rest"
-    # For Express, ignore all updates for version 4 and 5
+  # https://docs.github.com/en/code-security/dependabot/dependabot-version-updates/configuration-options-for-the-dependabot.yml-file
+  # https://docs.oracle.com/middleware/1212/core/MAVEN/maven_version.htm#MAVEN402
+  - dependency-name: "com.atlassian.crowd:crowd-integration-client-rest"
+    # For crowd, ignore all updates for version 1000.x and highier
     versions: ["[1000.0.0,)"]
-    # For Lodash, ignore all updates
 
 - package-ecosystem: "github-actions"
   directory: "/"
