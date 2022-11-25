@@ -10,6 +10,13 @@ updates:
   - <insert-maintainers-here-one-per-line>
   labels:
   - skip-changelog
+  
+  ignore:
+  - dependency-name: "crowd-integration-client-rest"
+    # For Express, ignore all updates for version 4 and 5
+    versions: ["[1000.0.0,)"]
+    # For Lodash, ignore all updates
+
 - package-ecosystem: "github-actions"
   directory: "/"
   schedule:
