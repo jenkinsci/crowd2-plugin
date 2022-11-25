@@ -15,8 +15,11 @@ updates:
   # https://docs.github.com/en/code-security/dependabot/dependabot-version-updates/configuration-options-for-the-dependabot.yml-file
   # https://docs.oracle.com/middleware/1212/core/MAVEN/maven_version.htm#MAVEN402
   - dependency-name: "com.atlassian.crowd:crowd-integration-client-rest"
+    # try to ignore incrementals
+    update-types: ["version-update:semver-patch"]
     # For crowd, ignore all updates for version 1000.x and highier
     versions: ["[1000.0.0,)"]
+  
 
 - package-ecosystem: "github-actions"
   directory: "/"
