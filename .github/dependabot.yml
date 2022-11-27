@@ -19,7 +19,8 @@ updates:
     update-types: ["version-update:semver-patch"]
     # For crowd, ignore all updates for version 1000.x and highier
     versions: ["[1000.0.0,)"]
-  
+  - dependency-name: ":com.atlassian.crowd:crowd-integration-client-rest"
+    versions: ["*-QR*"]
 
 - package-ecosystem: "github-actions"
   directory: "/"
