@@ -207,7 +207,7 @@
                         <groupId>com.puppycrawl.tools</groupId>
                         <artifactId>checkstyle</artifactId>
                         <!-- versions 10.x and above are unsupported by java 8-->
-                        <version>10.4</version>
+                        <version>10.5.0</version>
                     </dependency>
                 </dependencies>
                 <configuration>
