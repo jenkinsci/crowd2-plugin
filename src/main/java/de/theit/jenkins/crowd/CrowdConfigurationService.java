@@ -140,6 +140,8 @@ public class CrowdConfigurationService {
 
     private final boolean useCache;
 
+    private final boolean useTokenCache;
+
     private final Integer cacheSize;
 
     private final Integer cacheTTL;
@@ -153,6 +155,8 @@ public class CrowdConfigurationService {
     private CacheMap<String, Group> groupCache = null;
 
     private CacheMap<String, Collection<GrantedAuthority>> authoritiesForUserCache = null;
+
+    private CacheMap<String, Boolean> validationCache = null;
 
     /**
      * Creates a new Crowd configuration object.
@@ -175,6 +179,7 @@ public class CrowdConfigurationService {
      * @param useCache                  The use cache
      * @param cacheSize                 the cache size
      * @param cacheTTL                  The cache TTL
+     * @param useTokenCache             Enable SSO token caching
      * @param pGroupNames               The group names to use when authenticating
      *                                  Crowd users. May
      *                                  not be <code>null</code>.
@@ -188,7 +193,7 @@ public class CrowdConfigurationService {
             String httpProxyHost, String httpProxyPort, String httpProxyUsername,
             Secret httpProxyPassword, String socketTimeout,
             String httpTimeout, String httpMaxConnections,
-            boolean useCache, Integer cacheSize, Integer cacheTTL,
+            boolean useCache, Integer cacheSize, Integer cacheTTL, boolean useTokenCache,
             String pGroupNames, boolean pNestedGroups) {
 
         LOG.log(Level.INFO, "Groups given for Crowd configuration service: {0}", pGroupNames);
@@ -204,8 +209,23 @@ public class CrowdConfigurationService {
         this.nestedGroups = pNestedGroups;
         this.useSSO = useSSO;
         this.useCache = useCache;
+        this.useTokenCache = useTokenCache;
         this.cacheSize = cacheSize;
         this.cacheTTL = cacheTTL;
+
+
+        if(cacheSize != null) {
+
+            this.isGroupMemberCache = new CacheMap<>(cacheSize);
+            this.userFromSSOTokenCache = new CacheMap<>(cacheSize);
+            this.userCache = new CacheMap<>(cacheSize);
+            this.groupCache = new CacheMap<>(cacheSize);
+            this.authoritiesForUserCache = new CacheMap<>(cacheSize);
+            if(useTokenCache) {
+                this.validationCache = new CacheMap<>(cacheSize);
+            }
+    }
+
         Properties props = getProperties(url, applicationName, Secret.toString(password), sessionValidationInterval,
                 useSSO, cookieDomain, cookieTokenkey, useProxy, httpProxyHost, httpProxyPort, httpProxyUsername,
                 Secret.toString(httpProxyPassword), socketTimeout, httpTimeout, httpMaxConnections);
@@ -247,8 +267,11 @@ public class CrowdConfigurationService {
         // Load the entry from cache if it's valid return it
         Boolean retval = getValidValueFromCache(username, isGroupMemberCache);
         if (retval != null) {
+            LOG.log(Level.FINEST, "isGroupMember() cache hit: {0}", username);
             return retval;
         }
+
+        LOG.log(Level.FINEST, "isGroupMember() cache hit MISS: {0}", username);
 
         // no entry was found try to get one
         try {
@@ -330,8 +353,11 @@ public class CrowdConfigurationService {
         // Load the entry from cache if it's valid return it
         Collection<GrantedAuthority> authorities = getValidValueFromCache(username, authoritiesForUserCache);
         if (authorities != null) {
+            LOG.log(Level.FINEST, "getAuthoritiesForUser() cache hit: {0}", username);
             return authorities;
         }
+
+        LOG.log(Level.FINEST, "getAuthoritiesForUser() cache MISS: {0}", username);
 
         // no cache entry was found try to get one
         authorities = new TreeSet<>(
@@ -349,7 +375,7 @@ public class CrowdConfigurationService {
         try {
             int index = 0;
             String membership = this.nestedGroups ? "nested" : "direct";
-            LOG.log(Level.FINE, "Retrieve list of groups with {0} membership for user '{1}'...",
+            LOG.log(Level.FINE, "Retrieve list of groups with {0} membership for user ''{1}''...",
                     new Object[] { membership, username });
 
             while (true) {
@@ -420,8 +446,11 @@ public class CrowdConfigurationService {
         // Load the entry from cache if it's valid return it
         User retval = getValidValueFromCache(username, userCache);
         if (retval != null) {
+            LOG.log(Level.FINEST, "getUser() cache hit: {0}", username);
             return retval;
         }
+
+        LOG.log(Level.FINEST, "getUser() cache hit MISS: {0}", username);
 
         LOG.log(Level.FINEST, "CrowdClient.getUser()");
 
@@ -452,8 +481,11 @@ public class CrowdConfigurationService {
         // Load the entry from cache if it's valid return it
         Group retval = getValidValueFromCache(name, groupCache);
         if (retval != null) {
+            LOG.log(Level.FINEST, "getGroup() cache hit: {0}", name);
             return retval;
         }
+
+        LOG.log(Level.FINEST, "getGroup() cache hit MISS: {0}", name);
 
         LOG.log(Level.FINEST, "CrowdClient.getGroup()");
 
@@ -558,10 +590,16 @@ public class CrowdConfigurationService {
         }
     }
 
-    public void validateSSOAuthentication(String token, List<ValidationFactor> list)
-            throws OperationFailedException, InvalidAuthenticationException, ApplicationPermissionException,
-            InvalidTokenException {
-        LOG.log(Level.FINEST, "CrowdClient.validateSSOAuthentication()");
+    public void validateSSOAuthentication(String token, List<ValidationFactor> list) throws OperationFailedException, InvalidAuthenticationException, ApplicationPermissionException, InvalidTokenException {
+        // Load the entry from cache
+        // if it's located in cache this means it was already validated
+        Boolean retval = getValidValueFromCache(token, validationCache);
+        if (retval != null) {
+            LOG.log(Level.FINEST, "validateSSOAuthentication() cache hit: {0}...", token.substring(0,12));
+            return;
+        }
+
+        LOG.log(Level.FINEST, "validateSSOAuthentication() cache hit MISS: {0}...", token.substring(0,12));
 
         ClassLoader orgContextClassLoader = null;
         Thread currentThread = null;
@@ -572,11 +610,17 @@ public class CrowdConfigurationService {
         }
         try {
             crowdClient.validateSSOAuthentication(token, list);
-        } finally {
+            LOG.log(Level.FINEST, "Valid Token: {0}", token.substring(0,12) + "...");
+            retval = true;
+        }
+        finally {
             if (currentThread != null) {
                 currentThread.setContextClassLoader(orgContextClassLoader);
             }
         }
+
+        // Successful validation call means token is valid
+        setValueToCache(token, retval, validationCache);
     }
 
     public User findUserFromSSOToken(String token) throws OperationFailedException, InvalidAuthenticationException,
@@ -584,8 +628,12 @@ public class CrowdConfigurationService {
         // Load the entry from cache if it's valid return it
         User retval = getValidValueFromCache(token, userFromSSOTokenCache);
         if (retval != null) {
+            LOG.log(Level.FINEST, "findUserFromSSOToken() cache hit: {0}", token.substring(0,12));
             return retval;
         }
+        
+        LOG.log(Level.FINEST, "findUserFromSSOToken() cache hit MISS: {0}", token.substring(0,12));
+
 
         LOG.log(Level.FINEST, "CrowdClient.findUserFromSSOToken()");
 
@@ -749,7 +797,7 @@ public class CrowdConfigurationService {
             InvalidAuthenticationException, OperationFailedException {
         boolean retval = false;
         if (isGroupActive(group)) {
-            LOG.log(Level.FINE, "Checking group membership for user '" + username + "' and group '" + group + "'...");
+            LOG.log(Level.FINE, "Checking group membership for user '{0}' and group '{1}'...", new Object[] {username, group});
 
             if (this.nestedGroups) {
                 if (isUserNestedGroupMember(username, group)) {
@@ -833,7 +881,9 @@ public class CrowdConfigurationService {
         }
 
         public boolean isValid() {
-            return System.currentTimeMillis() < expires;
+            boolean isValid = System.currentTimeMillis() < expires;
+            LOG.log(Level.FINEST, "CacheEntry::isValid(): {0} -> {1}", new Object[] {isValid, value} );
+            return isValid;
         }
     }
 
@@ -886,9 +936,10 @@ public class CrowdConfigurationService {
 
         synchronized (this) {
             if (cacheObj == null) {
-                cacheObj = new CacheMap<>(cacheSize);
+                return;
             }
             cacheObj.put(key, new CacheEntry<>(cacheTTL, value));
+            LOG.log(Level.FINEST, "setValueToCache::cacheObj: {0}", cacheObj.toString());
         }
     }
 }

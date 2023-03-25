@@ -33,7 +33,7 @@ public class CrowdSecurityRealmTest {
         String socketTimeout = "20000";
         String httpTimeout = "5000";
         String httpMaxConnections = "20";
-        CacheConfiguration cache = new CacheConfiguration(20, 300);
+        CacheConfiguration cache = new CacheConfiguration(20, 300, false);
         CrowdSecurityRealm realm = new CrowdSecurityRealm(
             url,
             applicationName,
