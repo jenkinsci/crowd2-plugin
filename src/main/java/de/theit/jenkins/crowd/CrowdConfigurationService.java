@@ -214,18 +214,17 @@ public class CrowdConfigurationService {
         this.cacheTTL = cacheTTL;
 
 
-        if(cacheSize != null) {
-
+        if (cacheSize != null && cacheSize > 0) {
             this.isGroupMemberCache = new CacheMap<>(cacheSize);
             this.userFromSSOTokenCache = new CacheMap<>(cacheSize);
             this.userCache = new CacheMap<>(cacheSize);
             this.groupCache = new CacheMap<>(cacheSize);
             this.authoritiesForUserCache = new CacheMap<>(cacheSize);
-            if(useTokenCache) {
+            if (useTokenCache) {
                 this.validationCache = new CacheMap<>(cacheSize);
             }
-    }
-
+        }
+        
         Properties props = getProperties(url, applicationName, Secret.toString(password), sessionValidationInterval,
                 useSSO, cookieDomain, cookieTokenkey, useProxy, httpProxyHost, httpProxyPort, httpProxyUsername,
                 Secret.toString(httpProxyPassword), socketTimeout, httpTimeout, httpMaxConnections);
@@ -595,11 +594,11 @@ public class CrowdConfigurationService {
         // if it's located in cache this means it was already validated
         Boolean retval = getValidValueFromCache(token, validationCache);
         if (retval != null) {
-            LOG.log(Level.FINEST, "validateSSOAuthentication() cache hit: {0}...", token.substring(0,12));
+            LOG.log(Level.FINEST, "validateSSOAuthentication() cache hit");
             return;
         }
 
-        LOG.log(Level.FINEST, "validateSSOAuthentication() cache hit MISS: {0}...", token.substring(0,12));
+        LOG.log(Level.FINEST, "validateSSOAuthentication() cache hit MISS");
 
         ClassLoader orgContextClassLoader = null;
         Thread currentThread = null;
@@ -610,7 +609,7 @@ public class CrowdConfigurationService {
         }
         try {
             crowdClient.validateSSOAuthentication(token, list);
-            LOG.log(Level.FINEST, "Valid Token: {0}", token.substring(0,12) + "...");
+            LOG.log(Level.FINEST, "Valid Token");
             retval = true;
         }
         finally {
@@ -628,11 +627,11 @@ public class CrowdConfigurationService {
         // Load the entry from cache if it's valid return it
         User retval = getValidValueFromCache(token, userFromSSOTokenCache);
         if (retval != null) {
-            LOG.log(Level.FINEST, "findUserFromSSOToken() cache hit: {0}", token.substring(0,12));
+            LOG.log(Level.FINEST, "findUserFromSSOToken() cache hit");
             return retval;
         }
         
-        LOG.log(Level.FINEST, "findUserFromSSOToken() cache hit MISS: {0}", token.substring(0,12));
+        LOG.log(Level.FINEST, "findUserFromSSOToken() cache hit MISS");
 
 
         LOG.log(Level.FINEST, "CrowdClient.findUserFromSSOToken()");

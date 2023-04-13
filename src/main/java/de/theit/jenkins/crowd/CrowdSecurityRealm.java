@@ -318,14 +318,23 @@ public class CrowdSecurityRealm extends AbstractPasswordBasedSecurityRealm {
         return cache;
     }
 
+    /**
+     * @return the cache size
+     */
     public Integer getCacheSize() {
         return cache == null ? null : cache.getSize();
     }
 
+    /**
+     * @return cache TTL
+     */
     public Integer getCacheTTL() {
         return cache == null ? null : cache.getTtl();
     }
 
+    /**
+     * @return the value of useTokenCache
+     */
     public boolean getUseTokenCache() {
         return cache == null ? false : cache.getUseTokenCache();
     }    

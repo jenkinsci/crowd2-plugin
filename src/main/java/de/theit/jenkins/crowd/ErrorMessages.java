@@ -126,10 +126,9 @@ public class ErrorMessages {
      * @return The localized error message for invalid SSO authentication
      *         token.
      */
-    public static String invalidToken(String token) {
+    public static String invalidToken() {
 
-        return holder.format("invalidToken", 
-            token.length() >= 12 ? (token.substring(0,12) + "...") : token);
+        return holder.format("invalidToken", "<HIDDEN>");
     }    
 
     /**

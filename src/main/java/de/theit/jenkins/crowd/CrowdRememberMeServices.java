@@ -39,7 +39,6 @@ import hudson.security.SecurityRealm;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -129,7 +128,7 @@ public class CrowdRememberMeServices implements RememberMeServices {
                         result = new CrowdAuthenticationToken(user.getName(), null, authorities, ssoToken);
                     }
                 } catch (InvalidTokenException ex) {
-                    LOG.log(Level.FINE, invalidToken(Optional.ofNullable(ssoToken).orElse("<NONE>")), ex);
+                    LOG.log(Level.FINE, invalidToken(), ex);
                 } catch (ApplicationPermissionException ex) {
                     LOG.log(Level.WARNING, applicationPermission());
                 } catch (InvalidAuthenticationException ex) {
@@ -213,7 +212,7 @@ public class CrowdRememberMeServices implements RememberMeServices {
             // alright, we're successfully authenticated via SSO
             LOG.log(Level.FINE, "Successfully authenticated via SSO");
         } catch (InvalidTokenException ex) {
-            LOG.log(Level.FINE, invalidToken(Optional.ofNullable(ssoToken).orElse("<NONE>")), ex);
+            LOG.log(Level.FINE, invalidToken(), ex);
         } catch (ApplicationPermissionException ex) {
             LOG.log(Level.WARNING, applicationPermission());
         } catch (InvalidAuthenticationException ex) {

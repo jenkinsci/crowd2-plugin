@@ -2,5 +2,8 @@
 <div>
     Enable this option to cache the Crowd SSO authentication token validity for the duration of the cache records timeout (TTL).
     This can <strong>significantly</strong> improve overall performance.
-    <br/>
+    <br/><br/>
+    <strong>Important:</strong> While other caches create delayed propagation of user changes in Crowd, 
+    enabling this option will delay even the Crowd user being disabled or the Crowd application 
+    being disabled from being enforced for the duration of the Cache TTL.
 </div>
