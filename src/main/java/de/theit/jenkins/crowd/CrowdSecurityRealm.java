@@ -753,14 +753,23 @@ public class CrowdSecurityRealm extends AbstractPasswordBasedSecurityRealm {
             this.useTokenCache = useTokenCache;
         }
 
+        /**
+        * @return the cache size
+        */
         public int getSize() {
             return size;
         }
 
+        /**
+        * @return the cache TTL
+        */
         public int getTtl() {
             return ttl;
         }
 
+        /**
+        * @return the value of useTokenCache
+        */        
         public boolean getUseTokenCache() {
             return useTokenCache;
         }        
