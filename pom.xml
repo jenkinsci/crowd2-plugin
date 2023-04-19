@@ -53,7 +53,7 @@
         <revision>4.0.0</revision>
         <changelist>-SNAPSHOT</changelist>
         <gitHubRepo>jenkinsci/crowd2-plugin</gitHubRepo>
-        <jenkins.version>2.361.1</jenkins.version>
+        <jenkins.version>2.361.4</jenkins.version>
         <crowd-integration-client-rest.version>5.1.0</crowd-integration-client-rest.version>
         <findbugs.failOnError>false</findbugs.failOnError>
         <spotbugs.effort>Max</spotbugs.effort>
@@ -141,7 +141,7 @@
             <dependency>
                 <groupId>io.jenkins.tools.bom</groupId>
                 <artifactId>bom-2.361.x</artifactId>
-                <version>1763.v092b_8980a_f5e</version>
+                <version>1981.v17df70e84a_a_1</version>
                 <scope>import</scope>
                 <type>pom</type>
             </dependency>
@@ -201,7 +201,7 @@
                         <groupId>com.puppycrawl.tools</groupId>
                         <artifactId>checkstyle</artifactId>
                         <!-- versions 10.x and above are unsupported by java 8-->
-                        <version>10.7.0</version>
+                        <version>10.9.3</version>
                     </dependency>
                 </dependencies>
                 <configuration>
