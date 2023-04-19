@@ -17,7 +17,7 @@ fi
 # if there is args passed use java8
 if [[ $# -gt 0 ]] || ! docker image inspect casc_jenkins:latest &> /dev/null; then
     echo "--- Build Docker img ---"
-    export JAVA_VERSION="${1:-8}"
+    export JAVA_VERSION="${1:-11}"
     docker-compose -f casc/docker-compose.yml build
 fi
 
