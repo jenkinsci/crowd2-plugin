@@ -1,4 +1,4 @@
-#!/bin/bash -x
+#!/bin/bash
 CROWD_SNAPSHOT_FILE_PATH='target/crowd2.hpi'
 
 export GITPOD_SITE="${HOSTNAME}.${GITPOD_WORKSPACE_CLUSTER_HOST}"
