@@ -72,13 +72,13 @@
 
     <repositories>
         <repository>
-            <id>maven.jenkins-ci.org</id>
+            <id>repo.jenkins-ci.org</id>
             <url>https://repo.jenkins-ci.org/public/</url>
         </repository>
     </repositories>
     <pluginRepositories>
         <pluginRepository>
-            <id>maven.jenkins-ci.org</id>
+            <id>repo.jenkins-ci.org</id>
             <url>https://repo.jenkins-ci.org/public/</url>
         </pluginRepository>
     </pluginRepositories>
@@ -98,6 +98,12 @@
                     <artifactId>httpclient-cache</artifactId>
                 </exclusion>
             </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.jenkins-ci.tools</groupId>
+            <artifactId>maven-hpi-plugin</artifactId>
+            <version>3.35</version>
+            <type>pom</type>
         </dependency>
         <dependency>
             <groupId>org.jenkins-ci.plugins</groupId>
@@ -131,6 +137,7 @@
     </dependencies>
 
     <dependencyManagement>
+
         <dependencies>
             <dependency>
                 <groupId>org.apache.commons</groupId>
