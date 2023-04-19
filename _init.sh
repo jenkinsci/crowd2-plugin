@@ -1,4 +1,4 @@
-#!/bin/bash -x
+#!/bin/bash
 MVN_SETTINGS_PATH="${HOME}/.m2/settings.xml"
 
 # cerate folder which holds repo
