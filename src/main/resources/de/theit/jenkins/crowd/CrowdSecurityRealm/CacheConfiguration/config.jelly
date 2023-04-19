@@ -31,4 +31,7 @@ THE SOFTWARE.
     <f:entry field="ttl" title="${%crowd.cache.TTL}">
         <f:select default="300"/>
     </f:entry>
+    <f:entry title="${%crowd.useTokenCache}" field="useTokenCache">
+        <f:checkbox />
+    </f:entry>      
 </j:jelly>

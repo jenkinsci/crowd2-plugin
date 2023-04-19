@@ -140,6 +140,8 @@ public class CrowdConfigurationService {
 
     private final boolean useCache;
 
+    private final boolean useTokenCache;
+
     private final Integer cacheSize;
 
     private final Integer cacheTTL;
@@ -153,6 +155,8 @@ public class CrowdConfigurationService {
     private CacheMap<String, Group> groupCache = null;
 
     private CacheMap<String, Collection<GrantedAuthority>> authoritiesForUserCache = null;
+
+    private CacheMap<String, Boolean> validationCache = null;
 
     /**
      * Creates a new Crowd configuration object.
@@ -175,6 +179,7 @@ public class CrowdConfigurationService {
      * @param useCache                  The use cache
      * @param cacheSize                 the cache size
      * @param cacheTTL                  The cache TTL
+     * @param useTokenCache             Enable SSO token caching
      * @param pGroupNames               The group names to use when authenticating
      *                                  Crowd users. May
      *                                  not be <code>null</code>.
@@ -188,7 +193,7 @@ public class CrowdConfigurationService {
             String httpProxyHost, String httpProxyPort, String httpProxyUsername,
             Secret httpProxyPassword, String socketTimeout,
             String httpTimeout, String httpMaxConnections,
-            boolean useCache, Integer cacheSize, Integer cacheTTL,
+            boolean useCache, Integer cacheSize, Integer cacheTTL, boolean useTokenCache,
             String pGroupNames, boolean pNestedGroups) {
 
         LOG.log(Level.INFO, "Groups given for Crowd configuration service: {0}", pGroupNames);
@@ -204,6 +209,7 @@ public class CrowdConfigurationService {
         this.nestedGroups = pNestedGroups;
         this.useSSO = useSSO;
         this.useCache = useCache;
+        this.useTokenCache = useTokenCache;
         this.cacheSize = cacheSize;
         this.cacheTTL = cacheTTL;
 
@@ -213,6 +219,9 @@ public class CrowdConfigurationService {
             this.userCache = new CacheMap<>(cacheSize);
             this.groupCache = new CacheMap<>(cacheSize);
             this.authoritiesForUserCache = new CacheMap<>(cacheSize);
+            if (useTokenCache) {
+                this.validationCache = new CacheMap<>(cacheSize);
+            }            
         }
 
         Properties props = getProperties(url, applicationName, Secret.toString(password), sessionValidationInterval,
@@ -579,10 +588,16 @@ public class CrowdConfigurationService {
         }
     }
 
-    public void validateSSOAuthentication(String token, List<ValidationFactor> list)
-            throws OperationFailedException, InvalidAuthenticationException, ApplicationPermissionException,
-            InvalidTokenException {
-        LOG.log(Level.FINEST, "CrowdClient.validateSSOAuthentication()");
+    public void validateSSOAuthentication(String token, List<ValidationFactor> list) throws OperationFailedException, InvalidAuthenticationException, ApplicationPermissionException, InvalidTokenException {
+        // Load the entry from cache
+        // if it's located in cache this means it was already validated
+        Boolean retval = getValidValueFromCache(token, validationCache);
+        if (retval != null) {
+            LOG.log(Level.FINEST, "validateSSOAuthentication() cache hit");
+            return;
+        }
+
+        LOG.log(Level.FINEST, "validateSSOAuthentication() cache hit MISS");
 
         ClassLoader orgContextClassLoader = null;
         Thread currentThread = null;
@@ -593,11 +608,17 @@ public class CrowdConfigurationService {
         }
         try {
             crowdClient.validateSSOAuthentication(token, list);
-        } finally {
+            LOG.log(Level.FINEST, "Valid Token");
+            retval = true;
+        }
+        finally {
             if (currentThread != null) {
                 currentThread.setContextClassLoader(orgContextClassLoader);
             }
         }
+
+        // Successful validation call means token is valid
+        setValueToCache(token, retval, validationCache);
     }
 
     public User findUserFromSSOToken(String token) throws OperationFailedException, InvalidAuthenticationException,

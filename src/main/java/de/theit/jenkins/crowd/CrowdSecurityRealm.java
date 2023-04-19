@@ -314,17 +314,33 @@ public class CrowdSecurityRealm extends AbstractPasswordBasedSecurityRealm {
                 httpTimeout, httpMaxConnections, null);
     }
 
+    /**
+     * @return the cache configuration object
+     */  
     public CacheConfiguration getCache() {
         return cache;
     }
 
+    /**
+     * @return the cache size
+     */    
     public Integer getCacheSize() {
         return cache == null ? null : cache.getSize();
     }
 
+    /**
+     * @return cache TTL
+     */
     public Integer getCacheTTL() {
         return cache == null ? null : cache.getTtl();
     }
+
+    /**
+     * @return the value of useTokenCache
+     */
+    public boolean getUseTokenCache() {
+        return cache == null ? false : cache.getUseTokenCache();
+    }     
 
     /**
      * Initializes all objects necessary to talk to / with Crowd.
@@ -334,7 +350,7 @@ public class CrowdSecurityRealm extends AbstractPasswordBasedSecurityRealm {
                 url, applicationName, password, sessionValidationInterval,
                 useSSO, cookieDomain, cookieTokenkey, useProxy, httpProxyHost, httpProxyPort, httpProxyUsername,
                 httpProxyPassword, socketTimeout, httpTimeout, httpMaxConnections,
-                cache != null, getCacheSize(), getCacheTTL(),
+                cache != null, getCacheSize(), getCacheTTL(), getUseTokenCache(),
                 group, nestedGroups);
     }
 
@@ -689,7 +705,7 @@ public class CrowdSecurityRealm extends AbstractPasswordBasedSecurityRealm {
                     url, applicationName, Secret.fromString(password), sessionValidationInterval,
                     useSSO, cookieDomain, cookieTokenkey, useProxy, httpProxyHost, httpProxyPort, httpProxyUsername,
                     Secret.fromString(httpProxyPassword), socketTimeout, httpTimeout, httpMaxConnections,
-                    false, null, null,
+                    false, null, null, false,
                     group, false);
 
             try {
@@ -731,20 +747,34 @@ public class CrowdSecurityRealm extends AbstractPasswordBasedSecurityRealm {
     public static class CacheConfiguration extends AbstractDescribableImpl<CacheConfiguration> {
         private final int size;
         private final int ttl;
+        private final boolean useTokenCache;
 
         @DataBoundConstructor
-        public CacheConfiguration(int size, int ttl) {
+        public CacheConfiguration(int size, int ttl, boolean useTokenCache) {
             this.size = Math.max(10, Math.min(size, 1000));
             this.ttl = Math.max(30, Math.min(ttl, 3600));
+            this.useTokenCache = useTokenCache;
         }
 
+        /**
+        * @return the cache size
+        */        
         public int getSize() {
             return size;
         }
-
+        /**
+        * @return the cache TTL
+        */
         public int getTtl() {
             return ttl;
         }
+
+        /**
+        * @return the value of useTokenCache
+        */        
+        public boolean getUseTokenCache() {
+            return useTokenCache;
+        }          
 
         @Extension
         public static class DescriptorImpl extends Descriptor<CacheConfiguration> {
