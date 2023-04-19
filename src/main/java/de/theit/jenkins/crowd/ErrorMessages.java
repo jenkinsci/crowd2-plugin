@@ -120,6 +120,18 @@ public class ErrorMessages {
     }
 
     /**
+     * Returns the localized error message text when the SSO authentication
+     * token is not valid.
+     *
+     * @return The localized error message for invalid SSO authentication
+     *         token.
+     */
+    public static String invalidToken() {
+
+        return holder.format("invalidToken", "<HIDDEN>");
+    }    
+
+    /**
      * Returns the localized error message when the application has no
      * permission to perform a connection check to the Crowd server.
      *

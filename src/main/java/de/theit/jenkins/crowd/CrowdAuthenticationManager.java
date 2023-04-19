@@ -98,17 +98,16 @@ public class CrowdAuthenticationManager implements AuthenticationManager {
             return null;
         }
 
-        String username = authentication.getPrincipal().toString();
-
         // checking whether there's already a SSO token
         if (null == authentication.getCredentials()
                  && authentication instanceof CrowdAuthenticationToken
                  && null != ((CrowdAuthenticationToken) authentication).getSSOToken()) {
             // SSO token available => user already authenticated
-            LOG.log(Level.FINER, "User '{0}' already authenticated", username);
+            LOG.log(Level.FINER, "User ''{0}'' already authenticated", authentication.getName());
             return authentication;
         }
 
+        String username = authentication.getPrincipal().toString();
         String password = authentication.getCredentials().toString();
 
         // ensure that the group is available, active and that the user

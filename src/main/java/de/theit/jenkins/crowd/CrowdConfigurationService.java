@@ -247,8 +247,11 @@ public class CrowdConfigurationService {
         // Load the entry from cache if it's valid return it
         Boolean retval = getValidValueFromCache(username, isGroupMemberCache);
         if (retval != null) {
+            LOG.log(Level.FINEST, "isGroupMember() cache hit: {0}", username);
             return retval;
         }
+
+        LOG.log(Level.FINEST, "isGroupMember() cache hit MISS: {0}", username);
 
         // no entry was found try to get one
         try {
@@ -330,8 +333,11 @@ public class CrowdConfigurationService {
         // Load the entry from cache if it's valid return it
         Collection<GrantedAuthority> authorities = getValidValueFromCache(username, authoritiesForUserCache);
         if (authorities != null) {
+            LOG.log(Level.FINEST, "getAuthoritiesForUser() cache hit: {0}", username);
             return authorities;
         }
+
+        LOG.log(Level.FINEST, "getAuthoritiesForUser() cache MISS: {0}", username);
 
         // no cache entry was found try to get one
         authorities = new TreeSet<>(
@@ -349,7 +355,7 @@ public class CrowdConfigurationService {
         try {
             int index = 0;
             String membership = this.nestedGroups ? "nested" : "direct";
-            LOG.log(Level.FINE, "Retrieve list of groups with {0} membership for user '{1}'...",
+            LOG.log(Level.FINE, "Retrieve list of groups with {0} membership for user ''{1}''...",
                     new Object[] { membership, username });
 
             while (true) {
@@ -420,8 +426,11 @@ public class CrowdConfigurationService {
         // Load the entry from cache if it's valid return it
         User retval = getValidValueFromCache(username, userCache);
         if (retval != null) {
+            LOG.log(Level.FINEST, "getUser() cache hit: {0}", username);
             return retval;
         }
+
+        LOG.log(Level.FINEST, "getUser() cache hit MISS: {0}", username);
 
         LOG.log(Level.FINEST, "CrowdClient.getUser()");
 
@@ -452,8 +461,11 @@ public class CrowdConfigurationService {
         // Load the entry from cache if it's valid return it
         Group retval = getValidValueFromCache(name, groupCache);
         if (retval != null) {
+            LOG.log(Level.FINEST, "getGroup() cache hit: {0}", name);
             return retval;
         }
+
+        LOG.log(Level.FINEST, "getGroup() cache hit MISS: {0}", name);
 
         LOG.log(Level.FINEST, "CrowdClient.getGroup()");
 
@@ -584,8 +596,11 @@ public class CrowdConfigurationService {
         // Load the entry from cache if it's valid return it
         User retval = getValidValueFromCache(token, userFromSSOTokenCache);
         if (retval != null) {
+            LOG.log(Level.FINEST, "findUserFromSSOToken() cache hit");
             return retval;
         }
+
+        LOG.log(Level.FINEST, "findUserFromSSOToken() cache hit MISS");
 
         LOG.log(Level.FINEST, "CrowdClient.findUserFromSSOToken()");
 
@@ -749,7 +764,7 @@ public class CrowdConfigurationService {
             InvalidAuthenticationException, OperationFailedException {
         boolean retval = false;
         if (isGroupActive(group)) {
-            LOG.log(Level.FINE, "Checking group membership for user '" + username + "' and group '" + group + "'...");
+            LOG.log(Level.FINE, "Checking group membership for user '{0}' and group '{1}'...", new Object[] {username, group});
 
             if (this.nestedGroups) {
                 if (isUserNestedGroupMember(username, group)) {
@@ -833,7 +848,9 @@ public class CrowdConfigurationService {
         }
 
         public boolean isValid() {
-            return System.currentTimeMillis() < expires;
+            boolean isValid = System.currentTimeMillis() < expires;
+            LOG.log(Level.FINEST, "CacheEntry::isValid(): {0} -> {1}", new Object[] {isValid, value} );
+            return isValid;
         }
     }
 
@@ -889,6 +906,7 @@ public class CrowdConfigurationService {
                 cacheObj = new CacheMap<>(cacheSize);
             }
             cacheObj.put(key, new CacheEntry<>(cacheTTL, value));
+            LOG.log(Level.FINEST, "setValueToCache::cacheObj: {0}", cacheObj.toString());
         }
     }
 }

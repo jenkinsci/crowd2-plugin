@@ -503,7 +503,7 @@ public class CrowdSecurityRealm extends AbstractPasswordBasedSecurityRealm {
 
         try {
             // authenticate user
-            LOG.log(Level.FINE, "Authenticate user '{0}' using password {1}", new Object[]{pUsername, null != pPassword ? "'<available>'" : "'<not specified>'"});
+            LOG.log(Level.FINE, "Authenticate user ''{0}'' using password {1}", new Object[]{pUsername, null != pPassword ? "'<available>'" : "'<not specified>'"});
             user = this.configuration.authenticateUser(pUsername, pPassword);
         } catch (UserNotFoundException ex) {
             LOG.log(Level.INFO, userNotFound(pUsername));
