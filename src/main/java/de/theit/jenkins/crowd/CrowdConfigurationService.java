@@ -206,6 +206,15 @@ public class CrowdConfigurationService {
         this.useCache = useCache;
         this.cacheSize = cacheSize;
         this.cacheTTL = cacheTTL;
+
+        if (cacheSize != null && cacheSize > 0) {
+            this.isGroupMemberCache = new CacheMap<>(cacheSize);
+            this.userFromSSOTokenCache = new CacheMap<>(cacheSize);
+            this.userCache = new CacheMap<>(cacheSize);
+            this.groupCache = new CacheMap<>(cacheSize);
+            this.authoritiesForUserCache = new CacheMap<>(cacheSize);
+        }
+
         Properties props = getProperties(url, applicationName, Secret.toString(password), sessionValidationInterval,
                 useSSO, cookieDomain, cookieTokenkey, useProxy, httpProxyHost, httpProxyPort, httpProxyUsername,
                 Secret.toString(httpProxyPassword), socketTimeout, httpTimeout, httpMaxConnections);
@@ -886,7 +895,7 @@ public class CrowdConfigurationService {
 
         synchronized (this) {
             if (cacheObj == null) {
-                cacheObj = new CacheMap<>(cacheSize);
+                return;
             }
             cacheObj.put(key, new CacheEntry<>(cacheTTL, value));
         }
