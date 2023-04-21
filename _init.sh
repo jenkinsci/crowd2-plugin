@@ -1,4 +1,4 @@
-#!/bin/bash -x
+#!/bin/bash
 MVN_SETTINGS_PATH="${HOME}/.m2/settings.xml"
 
 # cerate folder which holds repo
@@ -10,12 +10,12 @@ if [[ -f "${MVN_SETTINGS_PATH}" ]]; then
     mv "${MVN_SETTINGS_PATH}" "${MVN_SETTINGS_PATH}.bak${BACKUP_DATE}"
 fi
 
-if [[ -n "${ARTIFACTORY_PASS}" ]]; then
+if [[ -z "${ARTIFACTORY_PASS}" ]]; then
     echo "Please define variable ARTIFACTORY_PASS"
     exit 1
 fi
 
-if [[ -n "${ARTIFACTORY_USER}" ]]; then
+if [[ -z "${ARTIFACTORY_USER}" ]]; then
     echo "Please define variable ARTIFACTORY_USER"
     exit 1
 fi

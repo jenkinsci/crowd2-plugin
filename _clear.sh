@@ -1,4 +1,4 @@
-#!/bin/bash -x
+#!/bin/bash
 # https://www.baeldung.com/maven-clear-cache
 
 

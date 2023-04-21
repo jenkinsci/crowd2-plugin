@@ -5,10 +5,9 @@ tasks:
       sed -i 's/sdkman_auto_answer=false/sdkman_auto_answer=true/' $HOME/.sdkman/etc/config
       sdk selfupdate
       sdk update
-      sdk install maven 3.8.3
-      sdk install java 8.0.322-tem
-      sdk install java 11.0.14-tem
-      sdk use maven 3.8.3
+      sdk install maven 3.9.1
+      sdk install java 11.0.18-tem
+      sdk use maven 3.9.1
       brew install gh
 vscode:
   extensions:

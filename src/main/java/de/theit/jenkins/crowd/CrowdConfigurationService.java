@@ -213,7 +213,6 @@ public class CrowdConfigurationService {
         this.cacheSize = cacheSize;
         this.cacheTTL = cacheTTL;
 
-
         if (cacheSize != null && cacheSize > 0) {
             this.isGroupMemberCache = new CacheMap<>(cacheSize);
             this.userFromSSOTokenCache = new CacheMap<>(cacheSize);
@@ -633,6 +632,8 @@ public class CrowdConfigurationService {
         
         LOG.log(Level.FINEST, "findUserFromSSOToken() cache hit MISS");
 
+
+        LOG.log(Level.FINEST, "findUserFromSSOToken() cache hit MISS");
 
         LOG.log(Level.FINEST, "CrowdClient.findUserFromSSOToken()");
 
