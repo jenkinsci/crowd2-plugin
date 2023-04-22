@@ -13,7 +13,7 @@ This plugin allows using [Atlassian Crowd](https://www.atlassian.com/software/cr
 
 ## Requirements
 
-The current version of the plugin is tested against `Crowd 3.7`, with `Jenkins 2.361.4`. This plugin uses Crowd REST APIs for connecting to the Crowd and therefore requires Crowd \>= 2.1 (see [Crowd REST API docs](http://developer.atlassian.com/display/CROWDDEV/Crowd+REST+APIs)).
+The current version of the plugin is tested against `Crowd 3.7` and `Crowd 5.1`, with `Jenkins 2.361.4`. This plugin uses Crowd REST APIs for connecting to the Crowd and therefore requires Crowd \>= 2.1 (see [Crowd REST API docs](http://developer.atlassian.com/display/CROWDDEV/Crowd+REST+APIs)).
 If you have an older Crowd server, use the older “Crowd Plugin” instead.
 
 ## License
