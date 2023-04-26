@@ -127,6 +127,9 @@ public class CrowdRememberMeServices implements RememberMeServices {
                         authorities.addAll(this.configuration.getAuthoritiesForUser(user.getName()));
                         result = new CrowdAuthenticationToken(user.getName(), null, authorities, ssoToken);
                     }
+                // See: https://github.com/jenkinsci/jenkins/pull/4107                    
+                } catch (IllegalStateException ex) {
+                    LOG.log(Level.WARNING, "Encountered IllegalStateException. System init may not have completed yet.");
                 } catch (InvalidTokenException ex) {
                     LOG.log(Level.FINE, invalidToken(), ex);
                 } catch (ApplicationPermissionException ex) {
