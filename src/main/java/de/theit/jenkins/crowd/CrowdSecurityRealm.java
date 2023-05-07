@@ -547,12 +547,12 @@ public class CrowdSecurityRealm extends AbstractPasswordBasedSecurityRealm {
      * @version $Id$
      */
     @Extension
-    public static final class DescriptorImpl extends Descriptor<SecurityRealm> {
+    public static final class DescriptorImpl extends Descriptor<CrowdSecurityRealm> {
         /**
          * Default constructor.
          */
         public DescriptorImpl() {
-            super(SecurityRealm.class);
+            super(CrowdSecurityRealm.class);
         }
 
         /**
