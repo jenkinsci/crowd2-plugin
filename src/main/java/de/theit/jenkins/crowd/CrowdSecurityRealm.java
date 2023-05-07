@@ -203,11 +203,11 @@ public class CrowdSecurityRealm extends AbstractPasswordBasedSecurityRealm {
             String cookieTokenkey, Boolean useProxy, String httpProxyHost, String httpProxyPort,
             String httpProxyUsername, Secret httpProxyPassword, String socketTimeout,
             String httpTimeout, String httpMaxConnections, CacheConfiguration configCache) {
-        this.cookieTokenkey = cookieTokenkey;
+        this.cookieTokenkey = StringUtils.trimToEmpty(cookieTokenkey);
         this.useProxy = useProxy;
-        this.httpProxyHost = httpProxyHost;
+        this.httpProxyHost = StringUtils.trimToEmpty(httpProxyHost);
         this.httpProxyPort = httpProxyPort;
-        this.httpProxyUsername = httpProxyUsername;
+        this.httpProxyUsername = StringUtils.trimToEmpty(httpProxyUsername);
         this.httpProxyPassword = httpProxyPassword;
         this.socketTimeout = socketTimeout;
         this.httpTimeout = httpTimeout;
