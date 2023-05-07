@@ -75,7 +75,7 @@ THE SOFTWARE.
                 <f:password />
             </f:entry>
         </f:optionalBlock>
-        <f:optionalProperty title="${%crowd.cache}" field="cache"  />
+        <f:optionalProperty title="${%crowd.configCache}" field="configCache"  />
     </f:advanced>
     <f:validateButton method="testConnection" title="${%crowd.checkConnection}" with="url,applicationName,password,group,useSSO,cookieDomain,cookieTokenkey,sessionValidationInterval,httpMaxConnections,httpTimeout,socketTimeout,useProxy,httpProxyHost,httpProxyPort,httpProxyUsername,httpProxyPassword" />
 </j:jelly>

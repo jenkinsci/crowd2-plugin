@@ -33,7 +33,7 @@ public class CrowdSecurityRealmTest {
         String socketTimeout = "20000";
         String httpTimeout = "5000";
         String httpMaxConnections = "20";
-        CacheConfiguration cache = new CacheConfiguration(20, 300);
+        CacheConfiguration configCache = new CacheConfiguration(20, 300);
         CrowdSecurityRealm realm = new CrowdSecurityRealm(
             url,
             applicationName,
@@ -52,7 +52,7 @@ public class CrowdSecurityRealmTest {
             socketTimeout,
             httpTimeout,
             httpMaxConnections,
-            cache);
+            configCache);
 
         Assertions.assertThat(realm.getCacheSize()).isEqualTo(20);
         Assertions.assertThat(realm.getCacheTTL()).isEqualTo(300);
@@ -77,7 +77,6 @@ public class CrowdSecurityRealmTest {
         String socketTimeout = null;
         String httpTimeout = null;
         String httpMaxConnections = null;
-        CacheConfiguration cache = null;
         CrowdSecurityRealm realm = new CrowdSecurityRealm(
             url,
             applicationName,
@@ -96,7 +95,7 @@ public class CrowdSecurityRealmTest {
             socketTimeout,
             httpTimeout,
             httpMaxConnections,
-            cache);
+            null);
 
         Assertions.assertThat(realm.getCacheSize()).isNull();
         Assertions.assertThat(realm.getCacheTTL()).isNull();
