@@ -46,6 +46,8 @@ import com.atlassian.crowd.model.user.User;
 import com.atlassian.crowd.service.client.ClientProperties;
 import com.atlassian.crowd.service.client.ClientPropertiesImpl;
 import com.atlassian.crowd.service.client.CrowdClient;
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 
 import hudson.util.Secret;
 
@@ -144,15 +146,15 @@ public class CrowdConfigurationService {
 
     private final Integer cacheTTL;
 
-    private CacheMap<String, Boolean> isGroupMemberCache = null;
+    private Cache<String, Boolean> isGroupMemberCache = null;
 
-    private CacheMap<String, User> userFromSSOTokenCache = null;
+    private Cache<String, User> userFromSSOTokenCache = null;
 
-    private CacheMap<String, User> userCache = null;
+    private Cache<String, User> userCache = null;
 
-    private CacheMap<String, Group> groupCache = null;
+    private Cache<String, Group> groupCache = null;
 
-    private CacheMap<String, Collection<GrantedAuthority>> authoritiesForUserCache = null;
+    private Cache<String, Collection<GrantedAuthority>> authoritiesForUserCache = null;
 
     /**
      * Creates a new Crowd configuration object.
@@ -208,11 +210,11 @@ public class CrowdConfigurationService {
         this.cacheTTL = cacheTTL;
 
         if (cacheSize != null && cacheSize > 0) {
-            this.isGroupMemberCache = new CacheMap<>(cacheSize);
-            this.userFromSSOTokenCache = new CacheMap<>(cacheSize);
-            this.userCache = new CacheMap<>(cacheSize);
-            this.groupCache = new CacheMap<>(cacheSize);
-            this.authoritiesForUserCache = new CacheMap<>(cacheSize);
+            this.isGroupMemberCache = CacheBuilder.newBuilder().maximumSize(cacheSize).expireAfterWrite(cacheTTL, TimeUnit.MINUTES).build();
+            this.userFromSSOTokenCache = CacheBuilder.newBuilder().maximumSize(cacheSize).expireAfterWrite(cacheTTL, TimeUnit.MINUTES).build();
+            this.userCache = CacheBuilder.newBuilder().maximumSize(cacheSize).expireAfterWrite(cacheTTL, TimeUnit.MINUTES).build();
+            this.groupCache = CacheBuilder.newBuilder().maximumSize(cacheSize).expireAfterWrite(cacheTTL, TimeUnit.MINUTES).build();
+            this.authoritiesForUserCache = CacheBuilder.newBuilder().maximumSize(cacheSize).expireAfterWrite(cacheTTL, TimeUnit.MINUTES).build();
         }
 
         Properties props = getProperties(url, applicationName, Secret.toString(password), sessionValidationInterval,
@@ -254,7 +256,7 @@ public class CrowdConfigurationService {
         }
 
         // Load the entry from cache if it's valid return it
-        Boolean retval = getValidValueFromCache(username, isGroupMemberCache);
+        Boolean retval = isGroupMemberCache.getIfPresent(username);
         if (retval != null) {
             LOG.log(Level.FINEST, "isGroupMember() cache hit: {0}", username);
             return retval;
@@ -267,6 +269,9 @@ public class CrowdConfigurationService {
             for (String group : this.allowedGroupNames) {
                 retval = isGroupMember(username, group);
                 if (retval) {
+                    // If correct object was returned save it to cache
+                    // checking if key is present is redundant
+                    isGroupMemberCache.put(username, retval);
                     break;
                 }
             }
@@ -280,10 +285,6 @@ public class CrowdConfigurationService {
             LOG.log(Level.SEVERE, operationFailed(), ex);
             retval = null;
         }
-
-        // If correct object was returned save it to cache
-        // checking if key is present is redundant
-        setValueToCache(username, retval, isGroupMemberCache);
 
         return Boolean.TRUE.equals(retval);
     }
@@ -340,7 +341,7 @@ public class CrowdConfigurationService {
         }
 
         // Load the entry from cache if it's valid return it
-        Collection<GrantedAuthority> authorities = getValidValueFromCache(username, authoritiesForUserCache);
+        Collection<GrantedAuthority> authorities = authoritiesForUserCache.getIfPresent(username);
         if (authorities != null) {
             LOG.log(Level.FINEST, "getAuthoritiesForUser() cache hit: {0}", username);
             return authorities;
@@ -405,7 +406,9 @@ public class CrowdConfigurationService {
 
         // If correct object was returned save it to cache
         // checking if key is present is redundant
-        setValueToCache(username, authorities, authoritiesForUserCache);
+        if (authorities != null) {
+            authoritiesForUserCache.put(username, authorities);
+        }
 
         return authorities;
     }
@@ -433,15 +436,13 @@ public class CrowdConfigurationService {
     public User getUser(String username) throws UserNotFoundException, OperationFailedException,
             ApplicationPermissionException, InvalidAuthenticationException {
         // Load the entry from cache if it's valid return it
-        User retval = getValidValueFromCache(username, userCache);
+        User retval = userCache.getIfPresent(username);
         if (retval != null) {
             LOG.log(Level.FINEST, "getUser() cache hit: {0}", username);
             return retval;
         }
 
         LOG.log(Level.FINEST, "getUser() cache hit MISS: {0}", username);
-
-        LOG.log(Level.FINEST, "CrowdClient.getUser()");
 
         ClassLoader orgContextClassLoader = null;
         Thread currentThread = null;
@@ -460,7 +461,9 @@ public class CrowdConfigurationService {
 
         // If correct object was returned save it to cache
         // checking if key is present is redundant
-        setValueToCache(username, retval, userCache);
+        if (retval != null) {
+            userCache.put(username, retval);
+        }
 
         return retval;
     }
@@ -468,7 +471,7 @@ public class CrowdConfigurationService {
     public Group getGroup(String name) throws GroupNotFoundException, OperationFailedException,
             InvalidAuthenticationException, ApplicationPermissionException {
         // Load the entry from cache if it's valid return it
-        Group retval = getValidValueFromCache(name, groupCache);
+        Group retval = groupCache.getIfPresent(name);
         if (retval != null) {
             LOG.log(Level.FINEST, "getGroup() cache hit: {0}", name);
             return retval;
@@ -495,7 +498,9 @@ public class CrowdConfigurationService {
 
         // If correct object was returned save it to cache
         // checking if key is present is redundant
-        setValueToCache(name, retval, groupCache);
+        if (retval != null) {
+            groupCache.put(name, retval);
+        }
 
         return retval;
     }
@@ -603,15 +608,13 @@ public class CrowdConfigurationService {
     public User findUserFromSSOToken(String token) throws OperationFailedException, InvalidAuthenticationException,
             ApplicationPermissionException, InvalidTokenException {
         // Load the entry from cache if it's valid return it
-        User retval = getValidValueFromCache(token, userFromSSOTokenCache);
+        User retval = userFromSSOTokenCache.getIfPresent(token);
         if (retval != null) {
             LOG.log(Level.FINEST, "findUserFromSSOToken() cache hit");
             return retval;
         }
 
         LOG.log(Level.FINEST, "findUserFromSSOToken() cache hit MISS");
-
-        LOG.log(Level.FINEST, "CrowdClient.findUserFromSSOToken()");
 
         ClassLoader orgContextClassLoader = null;
         Thread currentThread = null;
@@ -630,7 +633,9 @@ public class CrowdConfigurationService {
 
         // If correct object was returned save it to cache
         // checking if key is present is redundant
-        setValueToCache(token, retval, userFromSSOTokenCache);
+        if (retval != null) {
+            userFromSSOTokenCache.put(token, retval);
+        }
 
         return retval;
     }
