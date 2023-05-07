@@ -55,9 +55,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashSet;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Properties;
 import java.util.TreeSet;
 import java.util.concurrent.TimeUnit;
@@ -249,8 +247,9 @@ public class CrowdConfigurationService {
      */
     public boolean isGroupMember(String username) {
         if (username == null) {
-            return false; // prevent NPE
+            return false;
         }
+
         if (allowedGroupNames.isEmpty()) {
             return true;
         }
@@ -259,7 +258,7 @@ public class CrowdConfigurationService {
         Boolean retval = isGroupMemberCache.getIfPresent(username);
         if (retval != null) {
             LOG.log(Level.FINEST, "isGroupMember() cache hit: {0}", username);
-            return retval;
+            return Boolean.TRUE.equals(retval);
         }
 
         LOG.log(Level.FINEST, "isGroupMember() cache hit MISS: {0}", username);
@@ -846,81 +845,5 @@ public class CrowdConfigurationService {
             props.setProperty("http.timeout", httpTimeout);
 
         return props;
-    }
-
-    private static class CacheEntry<T> {
-        private final long expires;
-        private final T value;
-
-        CacheEntry(int ttlSeconds, T value) {
-            this.expires = System.currentTimeMillis() + TimeUnit.SECONDS.toMillis(ttlSeconds);
-            this.value = value;
-        }
-
-        public T getValue() {
-            return value;
-        }
-
-        public boolean isValid() {
-            boolean isValid = System.currentTimeMillis() < expires;
-            LOG.log(Level.FINEST, "CacheEntry::isValid(): {0} -> {1}", new Object[] {isValid, value} );
-            return isValid;
-        }
-    }
-
-    /**
-     * While we could use Guava's CacheBuilder the method signature changes make
-     * using it problematic. Safer to roll our own and ensure compatibility across
-     * as wide a range of Jenkins versions as possible.
-     *
-     * @param <K> Key type
-     * @param <V> Cache entry type
-     */
-    private static class CacheMap<K, V> extends LinkedHashMap<K, CacheEntry<V>> {
-
-        private static final long serialVersionUID = 1L;
-        private final int cacheSize;
-
-        CacheMap(int cacheSize) {
-            super(cacheSize + 1); // prevent realloc when hitting cache size limit
-            this.cacheSize = cacheSize;
-        }
-
-        @Override
-        protected boolean removeEldestEntry(Map.Entry<K, CacheEntry<V>> eldest) {
-            return size() > cacheSize || eldest.getValue() == null || !eldest.getValue().isValid();
-        }
-    }
-
-    private <T> T getValidValueFromCache(String key, CacheMap<String, T> cacheObj) {
-        if (!useCache || cacheObj == null) {
-            return null;
-        }
-
-        final CacheEntry<T> cached;
-        synchronized (this) {
-            cached = cacheObj.get(key);
-        }
-
-        if (cached != null && cached.isValid()) {
-            return cached.getValue();
-        } else {
-            return null;
-        }
-    }
-
-    private <T> void setValueToCache(String key, T value, CacheMap<String, T> cacheObj) {
-        // Let's save the entry in the cache if necessary
-        if (!useCache || value == null) {
-            return;
-        }
-
-        synchronized (this) {
-            if (cacheObj == null) {
-                return;
-            }
-            cacheObj.put(key, new CacheEntry<>(cacheTTL, value));
-            LOG.log(Level.FINEST, "setValueToCache::cacheObj: {0}", cacheObj.toString());
-        }
     }
 }
