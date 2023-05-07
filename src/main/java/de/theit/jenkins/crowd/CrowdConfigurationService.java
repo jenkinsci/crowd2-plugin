@@ -215,9 +215,9 @@ public class CrowdConfigurationService {
             this.authoritiesForUserCache = CacheBuilder.newBuilder().maximumSize(cacheSize).expireAfterWrite(cacheTTL, TimeUnit.MINUTES).build();
         }
 
-        Properties props = getProperties(url, applicationName, Secret.toString(password), sessionValidationInterval,
+        Properties props = getProperties(url, applicationName, password, sessionValidationInterval,
                 useSSO, cookieDomain, cookieTokenkey, useProxy, httpProxyHost, httpProxyPort, httpProxyUsername,
-                Secret.toString(httpProxyPassword), socketTimeout, httpTimeout, httpMaxConnections);
+                httpProxyPassword, socketTimeout, httpTimeout, httpMaxConnections);
         this.clientProperties = ClientPropertiesImpl.newInstanceFromProperties(props);
         this.crowdClient = new RestCrowdClientFactory().newInstance(this.clientProperties);
         this.tokenHelper = CrowdHttpTokenHelperImpl.getInstance(CrowdHttpValidationFactorExtractorImpl.getInstance());
@@ -794,11 +794,11 @@ public class CrowdConfigurationService {
         return retval;
     }
 
-    private Properties getProperties(String url, String applicationName, String password,
+    private Properties getProperties(String url, String applicationName, Secret password,
             int sessionValidationInterval, boolean useSSO,
             String cookieDomain, String cookieTokenkey, Boolean useProxy,
             String httpProxyHost, String httpProxyPort, String httpProxyUsername,
-            String httpProxyPassword, String socketTimeout,
+            Secret httpProxyPassword, String socketTimeout,
             String httpTimeout, String httpMaxConnections) {
         // for
         // https://docs.atlassian.com/crowd/2.7.1/com/atlassian/crowd/service/client/ClientPropertiesImpl.html
@@ -809,7 +809,7 @@ public class CrowdConfigurationService {
             crowdUrl += "/";
         }
         props.setProperty("application.name", applicationName);
-        props.setProperty("application.password", password);
+        props.setProperty("application.password", password.getPlainText());
         props.setProperty("crowd.base.url", crowdUrl);
         props.setProperty("application.login.url", crowdUrl + "console/");
         props.setProperty("crowd.server.url", crowdUrl + "services/");
@@ -833,8 +833,8 @@ public class CrowdConfigurationService {
                 props.setProperty("http.proxy.port", httpProxyPort);
             if (httpProxyUsername != null && !httpProxyUsername.equals(""))
                 props.setProperty("http.proxy.username", httpProxyUsername);
-            if (httpProxyPassword != null && !httpProxyPassword.equals(""))
-                props.setProperty("http.proxy.password", httpProxyPassword);
+            if (httpProxyPassword != null && !httpProxyPassword.getPlainText().equals(""))
+                props.setProperty("http.proxy.password", httpProxyPassword.getPlainText());
         }
 
         if (socketTimeout != null && !socketTimeout.equals(""))
