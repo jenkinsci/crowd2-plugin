@@ -255,7 +255,7 @@ public class CrowdConfigurationService {
         }
 
         // Load the entry from cache if it's valid return it
-        Boolean retval = isGroupMemberCache.getIfPresent(username);
+        Boolean retval = getValidValueFromCache(username, isGroupMemberCache);
         if (retval != null) {
             LOG.log(Level.FINEST, "isGroupMember() cache hit: {0}", username);
             return Boolean.TRUE.equals(retval);
@@ -270,7 +270,7 @@ public class CrowdConfigurationService {
                 if (retval) {
                     // If correct object was returned save it to cache
                     // checking if key is present is redundant
-                    isGroupMemberCache.put(username, retval);
+                    setValueToCache(username, retval, isGroupMemberCache);
                     break;
                 }
             }
@@ -340,7 +340,7 @@ public class CrowdConfigurationService {
         }
 
         // Load the entry from cache if it's valid return it
-        Collection<GrantedAuthority> authorities = authoritiesForUserCache.getIfPresent(username);
+        Collection<GrantedAuthority> authorities = getValidValueFromCache(username, authoritiesForUserCache);
         if (authorities != null) {
             LOG.log(Level.FINEST, "getAuthoritiesForUser() cache hit: {0}", username);
             return authorities;
@@ -405,9 +405,7 @@ public class CrowdConfigurationService {
 
         // If correct object was returned save it to cache
         // checking if key is present is redundant
-        if (authorities != null) {
-            authoritiesForUserCache.put(username, authorities);
-        }
+        setValueToCache(username, authorities, authoritiesForUserCache);
 
         return authorities;
     }
@@ -435,7 +433,7 @@ public class CrowdConfigurationService {
     public User getUser(String username) throws UserNotFoundException, OperationFailedException,
             ApplicationPermissionException, InvalidAuthenticationException {
         // Load the entry from cache if it's valid return it
-        User retval = userCache.getIfPresent(username);
+        User retval = getValidValueFromCache(username, userCache);
         if (retval != null) {
             LOG.log(Level.FINEST, "getUser() cache hit: {0}", username);
             return retval;
@@ -460,9 +458,7 @@ public class CrowdConfigurationService {
 
         // If correct object was returned save it to cache
         // checking if key is present is redundant
-        if (retval != null) {
-            userCache.put(username, retval);
-        }
+        setValueToCache(username, retval, userCache);
 
         return retval;
     }
@@ -470,7 +466,7 @@ public class CrowdConfigurationService {
     public Group getGroup(String name) throws GroupNotFoundException, OperationFailedException,
             InvalidAuthenticationException, ApplicationPermissionException {
         // Load the entry from cache if it's valid return it
-        Group retval = groupCache.getIfPresent(name);
+        Group retval = getValidValueFromCache(name, groupCache);
         if (retval != null) {
             LOG.log(Level.FINEST, "getGroup() cache hit: {0}", name);
             return retval;
@@ -497,9 +493,7 @@ public class CrowdConfigurationService {
 
         // If correct object was returned save it to cache
         // checking if key is present is redundant
-        if (retval != null) {
-            groupCache.put(name, retval);
-        }
+        setValueToCache(name, retval, groupCache);
 
         return retval;
     }
@@ -607,7 +601,8 @@ public class CrowdConfigurationService {
     public User findUserFromSSOToken(String token) throws OperationFailedException, InvalidAuthenticationException,
             ApplicationPermissionException, InvalidTokenException {
         // Load the entry from cache if it's valid return it
-        User retval = userFromSSOTokenCache.getIfPresent(token);
+        User retval = getValidValueFromCache(token, userFromSSOTokenCache);
+
         if (retval != null) {
             LOG.log(Level.FINEST, "findUserFromSSOToken() cache hit");
             return retval;
@@ -632,9 +627,7 @@ public class CrowdConfigurationService {
 
         // If correct object was returned save it to cache
         // checking if key is present is redundant
-        if (retval != null) {
-            userFromSSOTokenCache.put(token, retval);
-        }
+        setValueToCache(token, retval, userFromSSOTokenCache);
 
         return retval;
     }
@@ -777,7 +770,7 @@ public class CrowdConfigurationService {
             InvalidAuthenticationException, OperationFailedException {
         boolean retval = false;
         if (isGroupActive(group)) {
-            LOG.log(Level.FINE, "Checking group membership for user '{0}' and group '{1}'...", new Object[] {username, group});
+            LOG.log(Level.FINE, "Checking group membership for user ''{0}'' and group ''{1}''...", new Object[] {username, group});
 
             if (this.nestedGroups) {
                 if (isUserNestedGroupMember(username, group)) {
@@ -845,5 +838,22 @@ public class CrowdConfigurationService {
             props.setProperty("http.timeout", httpTimeout);
 
         return props;
+    }
+
+    private <V> V getValidValueFromCache(String key, Cache<String, V> cacheObj) {
+        if (!useCache || cacheObj == null) {
+            return null;
+        }
+
+        return cacheObj.getIfPresent(key);
+    }
+
+    private <V> void setValueToCache(String key, V value, Cache<String,V> cacheObj) {
+        // Let's save the entry in the cache if necessary
+        if (!useCache || value == null) {
+            return;
+        }
+
+        cacheObj.put(key, value);
     }
 }
