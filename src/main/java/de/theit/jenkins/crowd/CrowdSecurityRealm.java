@@ -221,6 +221,10 @@ public class CrowdSecurityRealm extends AbstractPasswordBasedSecurityRealm {
         this.useSSO = useSSO;
         this.cookieDomain = cookieDomain;
         this.configCache = configCache;
+
+        // If this constructor is called, make sure to re-save the configuration.
+        // This way, migrated secrets are persisted securely without user interaction.
+        this.getDescriptor().save();
     }
 
     /**
@@ -265,9 +269,6 @@ public class CrowdSecurityRealm extends AbstractPasswordBasedSecurityRealm {
                 useSSO,
                 cookieDomain, cookieTokenkey, useProxy, httpProxyHost, httpProxyPort, httpProxyUsername,
                 Secret.fromString(httpProxyPassword), socketTimeout, httpTimeout, httpMaxConnections, configCache);
-        // If this constructor is called, make sure to re-save the configuration.
-        // This way, migrated secrets are persisted securely without user interaction.
-        this.getDescriptor().save();
     }
 
     /**

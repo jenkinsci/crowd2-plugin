@@ -97,7 +97,25 @@
                     <groupId>org.apache.httpcomponents</groupId>
                     <artifactId>httpclient-cache</artifactId>
                 </exclusion>
+                <!-- <exclusion>
+                    <groupId>com.atlassian.crowd</groupId>
+                    <artifactId>atlassian-annotations</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.atlassian.crowd</groupId>
+                    <artifactId>atlassian-collectors-util</artifactId>
+                </exclusion> -->
             </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>com.atlassian.crowd</groupId>
+            <artifactId>crowd-integration-api</artifactId>
+            <version>${crowd-integration-client-rest.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.atlassian.crowd</groupId>
+            <artifactId>crowd-integration-client-common</artifactId>
+            <version>${crowd-integration-client-rest.version}</version>
         </dependency>
 
         <dependency>
