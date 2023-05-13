@@ -317,14 +317,14 @@ public class CrowdSecurityRealm extends AbstractPasswordBasedSecurityRealm {
 
     /**
      * @return the cache configuration object
-     */  
+     */
     public CacheConfiguration getCache() {
         return cache;
     }
 
     /**
      * @return the cache size
-     */    
+     */
     public Integer getCacheSize() {
         return cache == null ? null : cache.getSize();
     }
@@ -341,7 +341,7 @@ public class CrowdSecurityRealm extends AbstractPasswordBasedSecurityRealm {
      */
     public boolean getUseTokenCache() {
         return cache == null ? false : cache.getUseTokenCache();
-    }     
+    }
 
     /**
      * Initializes all objects necessary to talk to / with Crowd.
@@ -759,7 +759,7 @@ public class CrowdSecurityRealm extends AbstractPasswordBasedSecurityRealm {
 
         /**
         * @return the cache size
-        */        
+        */
         public int getSize() {
             return size;
         }
@@ -772,10 +772,10 @@ public class CrowdSecurityRealm extends AbstractPasswordBasedSecurityRealm {
 
         /**
         * @return the value of useTokenCache
-        */        
+        */
         public boolean getUseTokenCache() {
             return useTokenCache;
-        }          
+        }
 
         @Extension
         public static class DescriptorImpl extends Descriptor<CacheConfiguration> {
@@ -810,7 +810,6 @@ public class CrowdSecurityRealm extends AbstractPasswordBasedSecurityRealm {
                 m.add("1 hour", "3600");
                 return m;
             }
-
         }
     }
 }

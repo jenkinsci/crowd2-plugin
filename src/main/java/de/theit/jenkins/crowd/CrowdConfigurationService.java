@@ -221,7 +221,7 @@ public class CrowdConfigurationService {
             this.authoritiesForUserCache = CacheBuilder.newBuilder().maximumSize(cacheSize).expireAfterWrite(cacheTTL, TimeUnit.MINUTES).build();
             if (useTokenCache) {
                 this.validationCache = CacheBuilder.newBuilder().maximumSize(cacheSize).expireAfterWrite(cacheTTL, TimeUnit.MINUTES).build();
-            }            
+            }
         }
 
         Properties props = getProperties(url, applicationName, password, sessionValidationInterval,
