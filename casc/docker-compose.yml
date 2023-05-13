@@ -16,6 +16,7 @@ services:
     container_name: jenkins
     networks:
       - crowd_net
+    restart: always
 
     volumes:
      - jenkins_home:/var/jenkins_home

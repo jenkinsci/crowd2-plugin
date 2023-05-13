@@ -46,6 +46,8 @@ import com.atlassian.crowd.model.user.User;
 import com.atlassian.crowd.service.client.ClientProperties;
 import com.atlassian.crowd.service.client.ClientPropertiesImpl;
 import com.atlassian.crowd.service.client.CrowdClient;
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 
 import hudson.util.Secret;
 
@@ -53,9 +55,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashSet;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Properties;
 import java.util.TreeSet;
 import java.util.concurrent.TimeUnit;
@@ -146,17 +146,17 @@ public class CrowdConfigurationService {
 
     private final Integer cacheTTL;
 
-    private CacheMap<String, Boolean> isGroupMemberCache = null;
+    private Cache<String, Boolean> isGroupMemberCache = null;
 
-    private CacheMap<String, User> userFromSSOTokenCache = null;
+    private Cache<String, User> userFromSSOTokenCache = null;
 
-    private CacheMap<String, User> userCache = null;
+    private Cache<String, User> userCache = null;
 
-    private CacheMap<String, Group> groupCache = null;
+    private Cache<String, Group> groupCache = null;
 
-    private CacheMap<String, Collection<GrantedAuthority>> authoritiesForUserCache = null;
+    private Cache<String, Collection<GrantedAuthority>> authoritiesForUserCache = null;
 
-    private CacheMap<String, Boolean> validationCache = null;
+    private Cache<String, Boolean> validationCache = null;
 
     /**
      * Creates a new Crowd configuration object.
@@ -214,19 +214,19 @@ public class CrowdConfigurationService {
         this.cacheTTL = cacheTTL;
 
         if (cacheSize != null && cacheSize > 0) {
-            this.isGroupMemberCache = new CacheMap<>(cacheSize);
-            this.userFromSSOTokenCache = new CacheMap<>(cacheSize);
-            this.userCache = new CacheMap<>(cacheSize);
-            this.groupCache = new CacheMap<>(cacheSize);
-            this.authoritiesForUserCache = new CacheMap<>(cacheSize);
+            this.isGroupMemberCache = CacheBuilder.newBuilder().maximumSize(cacheSize).expireAfterWrite(cacheTTL, TimeUnit.MINUTES).build();
+            this.userFromSSOTokenCache = CacheBuilder.newBuilder().maximumSize(cacheSize).expireAfterWrite(cacheTTL, TimeUnit.MINUTES).build();
+            this.userCache = CacheBuilder.newBuilder().maximumSize(cacheSize).expireAfterWrite(cacheTTL, TimeUnit.MINUTES).build();
+            this.groupCache = CacheBuilder.newBuilder().maximumSize(cacheSize).expireAfterWrite(cacheTTL, TimeUnit.MINUTES).build();
+            this.authoritiesForUserCache = CacheBuilder.newBuilder().maximumSize(cacheSize).expireAfterWrite(cacheTTL, TimeUnit.MINUTES).build();
             if (useTokenCache) {
-                this.validationCache = new CacheMap<>(cacheSize);
+                this.validationCache = CacheBuilder.newBuilder().maximumSize(cacheSize).expireAfterWrite(cacheTTL, TimeUnit.MINUTES).build();
             }            
         }
 
-        Properties props = getProperties(url, applicationName, Secret.toString(password), sessionValidationInterval,
+        Properties props = getProperties(url, applicationName, password, sessionValidationInterval,
                 useSSO, cookieDomain, cookieTokenkey, useProxy, httpProxyHost, httpProxyPort, httpProxyUsername,
-                Secret.toString(httpProxyPassword), socketTimeout, httpTimeout, httpMaxConnections);
+                httpProxyPassword, socketTimeout, httpTimeout, httpMaxConnections);
         this.clientProperties = ClientPropertiesImpl.newInstanceFromProperties(props);
         this.crowdClient = new RestCrowdClientFactory().newInstance(this.clientProperties);
         this.tokenHelper = CrowdHttpTokenHelperImpl.getInstance(CrowdHttpValidationFactorExtractorImpl.getInstance());
@@ -256,8 +256,9 @@ public class CrowdConfigurationService {
      */
     public boolean isGroupMember(String username) {
         if (username == null) {
-            return false; // prevent NPE
+            return false;
         }
+
         if (allowedGroupNames.isEmpty()) {
             return true;
         }
@@ -266,7 +267,7 @@ public class CrowdConfigurationService {
         Boolean retval = getValidValueFromCache(username, isGroupMemberCache);
         if (retval != null) {
             LOG.log(Level.FINEST, "isGroupMember() cache hit: {0}", username);
-            return retval;
+            return Boolean.TRUE.equals(retval);
         }
 
         LOG.log(Level.FINEST, "isGroupMember() cache hit MISS: {0}", username);
@@ -276,6 +277,9 @@ public class CrowdConfigurationService {
             for (String group : this.allowedGroupNames) {
                 retval = isGroupMember(username, group);
                 if (retval) {
+                    // If correct object was returned save it to cache
+                    // checking if key is present is redundant
+                    setValueToCache(username, retval, isGroupMemberCache);
                     break;
                 }
             }
@@ -289,10 +293,6 @@ public class CrowdConfigurationService {
             LOG.log(Level.SEVERE, operationFailed(), ex);
             retval = null;
         }
-
-        // If correct object was returned save it to cache
-        // checking if key is present is redundant
-        setValueToCache(username, retval, isGroupMemberCache);
 
         return Boolean.TRUE.equals(retval);
     }
@@ -449,8 +449,6 @@ public class CrowdConfigurationService {
         }
 
         LOG.log(Level.FINEST, "getUser() cache hit MISS: {0}", username);
-
-        LOG.log(Level.FINEST, "CrowdClient.getUser()");
 
         ClassLoader orgContextClassLoader = null;
         Thread currentThread = null;
@@ -625,14 +623,13 @@ public class CrowdConfigurationService {
             ApplicationPermissionException, InvalidTokenException {
         // Load the entry from cache if it's valid return it
         User retval = getValidValueFromCache(token, userFromSSOTokenCache);
+
         if (retval != null) {
             LOG.log(Level.FINEST, "findUserFromSSOToken() cache hit");
             return retval;
         }
 
         LOG.log(Level.FINEST, "findUserFromSSOToken() cache hit MISS");
-
-        LOG.log(Level.FINEST, "CrowdClient.findUserFromSSOToken()");
 
         ClassLoader orgContextClassLoader = null;
         Thread currentThread = null;
@@ -794,7 +791,7 @@ public class CrowdConfigurationService {
             InvalidAuthenticationException, OperationFailedException {
         boolean retval = false;
         if (isGroupActive(group)) {
-            LOG.log(Level.FINE, "Checking group membership for user '{0}' and group '{1}'...", new Object[] {username, group});
+            LOG.log(Level.FINE, "Checking group membership for user ''{0}'' and group ''{1}''...", new Object[] {username, group});
 
             if (this.nestedGroups) {
                 if (isUserNestedGroupMember(username, group)) {
@@ -811,11 +808,11 @@ public class CrowdConfigurationService {
         return retval;
     }
 
-    private Properties getProperties(String url, String applicationName, String password,
+    private Properties getProperties(String url, String applicationName, Secret password,
             int sessionValidationInterval, boolean useSSO,
             String cookieDomain, String cookieTokenkey, Boolean useProxy,
             String httpProxyHost, String httpProxyPort, String httpProxyUsername,
-            String httpProxyPassword, String socketTimeout,
+            Secret httpProxyPassword, String socketTimeout,
             String httpTimeout, String httpMaxConnections) {
         // for
         // https://docs.atlassian.com/crowd/2.7.1/com/atlassian/crowd/service/client/ClientPropertiesImpl.html
@@ -826,7 +823,7 @@ public class CrowdConfigurationService {
             crowdUrl += "/";
         }
         props.setProperty("application.name", applicationName);
-        props.setProperty("application.password", password);
+        props.setProperty("application.password", password.getPlainText());
         props.setProperty("crowd.base.url", crowdUrl);
         props.setProperty("application.login.url", crowdUrl + "console/");
         props.setProperty("crowd.server.url", crowdUrl + "services/");
@@ -850,8 +847,8 @@ public class CrowdConfigurationService {
                 props.setProperty("http.proxy.port", httpProxyPort);
             if (httpProxyUsername != null && !httpProxyUsername.equals(""))
                 props.setProperty("http.proxy.username", httpProxyUsername);
-            if (httpProxyPassword != null && !httpProxyPassword.equals(""))
-                props.setProperty("http.proxy.password", httpProxyPassword);
+            if (httpProxyPassword != null && !httpProxyPassword.getPlainText().equals(""))
+                props.setProperty("http.proxy.password", httpProxyPassword.getPlainText());
         }
 
         if (socketTimeout != null && !socketTimeout.equals(""))
@@ -864,79 +861,20 @@ public class CrowdConfigurationService {
         return props;
     }
 
-    private static class CacheEntry<T> {
-        private final long expires;
-        private final T value;
-
-        CacheEntry(int ttlSeconds, T value) {
-            this.expires = System.currentTimeMillis() + TimeUnit.SECONDS.toMillis(ttlSeconds);
-            this.value = value;
-        }
-
-        public T getValue() {
-            return value;
-        }
-
-        public boolean isValid() {
-            boolean isValid = System.currentTimeMillis() < expires;
-            LOG.log(Level.FINEST, "CacheEntry::isValid(): {0} -> {1}", new Object[] {isValid, value} );
-            return isValid;
-        }
-    }
-
-    /**
-     * While we could use Guava's CacheBuilder the method signature changes make
-     * using it problematic. Safer to roll our own and ensure compatibility across
-     * as wide a range of Jenkins versions as possible.
-     *
-     * @param <K> Key type
-     * @param <V> Cache entry type
-     */
-    private static class CacheMap<K, V> extends LinkedHashMap<K, CacheEntry<V>> {
-
-        private static final long serialVersionUID = 1L;
-        private final int cacheSize;
-
-        CacheMap(int cacheSize) {
-            super(cacheSize + 1); // prevent realloc when hitting cache size limit
-            this.cacheSize = cacheSize;
-        }
-
-        @Override
-        protected boolean removeEldestEntry(Map.Entry<K, CacheEntry<V>> eldest) {
-            return size() > cacheSize || eldest.getValue() == null || !eldest.getValue().isValid();
-        }
-    }
-
-    private <T> T getValidValueFromCache(String key, CacheMap<String, T> cacheObj) {
+    private <V> V getValidValueFromCache(String key, Cache<String, V> cacheObj) {
         if (!useCache || cacheObj == null) {
             return null;
         }
 
-        final CacheEntry<T> cached;
-        synchronized (this) {
-            cached = cacheObj.get(key);
-        }
-
-        if (cached != null && cached.isValid()) {
-            return cached.getValue();
-        } else {
-            return null;
-        }
+        return cacheObj.getIfPresent(key);
     }
 
-    private <T> void setValueToCache(String key, T value, CacheMap<String, T> cacheObj) {
+    private <V> void setValueToCache(String key, V value, Cache<String,V> cacheObj) {
         // Let's save the entry in the cache if necessary
         if (!useCache || value == null) {
             return;
         }
 
-        synchronized (this) {
-            if (cacheObj == null) {
-                return;
-            }
-            cacheObj.put(key, new CacheEntry<>(cacheTTL, value));
-            LOG.log(Level.FINEST, "setValueToCache::cacheObj: {0}", cacheObj.toString());
-        }
+        cacheObj.put(key, value);
     }
 }
