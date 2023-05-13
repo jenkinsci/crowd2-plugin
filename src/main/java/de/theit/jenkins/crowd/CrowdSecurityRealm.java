@@ -156,7 +156,7 @@ public class CrowdSecurityRealm extends AbstractPasswordBasedSecurityRealm {
      *
      * @since 1.9
      */
-    private final CacheConfiguration configCache;
+    private final CacheConfiguration cache;
 
     /**
      * The configuration data necessary for accessing the services on the remote
@@ -195,14 +195,14 @@ public class CrowdSecurityRealm extends AbstractPasswordBasedSecurityRealm {
      * @param socketTimeout             The socket timeout
      * @param httpTimeout               The http timeout
      * @param httpMaxConnections        The http max connections
-     * @param configCache               The cache configuration
+     * @param cache                     The cache configuration
      */
     @DataBoundConstructor
     public CrowdSecurityRealm(String url, String applicationName, Secret password, String group, boolean nestedGroups,
             int sessionValidationInterval, boolean useSSO, String cookieDomain,
             String cookieTokenkey, Boolean useProxy, String httpProxyHost, String httpProxyPort,
             String httpProxyUsername, Secret httpProxyPassword, String socketTimeout,
-            String httpTimeout, String httpMaxConnections, CacheConfiguration configCache) {
+            String httpTimeout, String httpMaxConnections, CacheConfiguration cache) {
         this.cookieTokenkey = StringUtils.trimToEmpty(cookieTokenkey);
         this.useProxy = useProxy;
         this.httpProxyHost = StringUtils.trimToEmpty(httpProxyHost);
@@ -220,7 +220,7 @@ public class CrowdSecurityRealm extends AbstractPasswordBasedSecurityRealm {
         this.sessionValidationInterval = sessionValidationInterval;
         this.useSSO = useSSO;
         this.cookieDomain = cookieDomain;
-        this.configCache = configCache;
+        this.cache = cache;
 
         // If this constructor is called, make sure to re-save the configuration.
         // This way, migrated secrets are persisted securely without user interaction.
@@ -255,7 +255,7 @@ public class CrowdSecurityRealm extends AbstractPasswordBasedSecurityRealm {
      * @param socketTimeout             The socket timeout
      * @param httpTimeout               The http timeout
      * @param httpMaxConnections        The http max connections
-     * @param configCache               The cache configuration
+     * @param cache                     The cache configuration
      *
      * @deprecated retained for backwards binary compatibility.
      */
@@ -264,11 +264,11 @@ public class CrowdSecurityRealm extends AbstractPasswordBasedSecurityRealm {
             int sessionValidationInterval, boolean useSSO, String cookieDomain,
             String cookieTokenkey, Boolean useProxy, String httpProxyHost, String httpProxyPort,
             String httpProxyUsername, String httpProxyPassword, String socketTimeout,
-            String httpTimeout, String httpMaxConnections, CacheConfiguration configCache) {
+            String httpTimeout, String httpMaxConnections, CacheConfiguration cache) {
         this(url, applicationName, Secret.fromString(password), group, nestedGroups, sessionValidationInterval,
                 useSSO,
                 cookieDomain, cookieTokenkey, useProxy, httpProxyHost, httpProxyPort, httpProxyUsername,
-                Secret.fromString(httpProxyPassword), socketTimeout, httpTimeout, httpMaxConnections, configCache);
+                Secret.fromString(httpProxyPassword), socketTimeout, httpTimeout, httpMaxConnections, cache);
     }
 
     /**
@@ -316,15 +316,15 @@ public class CrowdSecurityRealm extends AbstractPasswordBasedSecurityRealm {
     }
 
     public CacheConfiguration getCache() {
-        return configCache;
+        return cache;
     }
 
     public Integer getCacheSize() {
-        return configCache == null ? null : configCache.getSize();
+        return cache == null ? null : cache.getSize();
     }
 
     public Integer getCacheTTL() {
-        return configCache == null ? null : configCache.getTtl();
+        return cache == null ? null : cache.getTtl();
     }
 
     /**
@@ -335,7 +335,7 @@ public class CrowdSecurityRealm extends AbstractPasswordBasedSecurityRealm {
                 url, applicationName, password, sessionValidationInterval,
                 useSSO, cookieDomain, cookieTokenkey, useProxy, httpProxyHost, httpProxyPort, httpProxyUsername,
                 httpProxyPassword, socketTimeout, httpTimeout, httpMaxConnections,
-                configCache != null, getCacheSize(), getCacheTTL(),
+                cache != null, getCacheSize(), getCacheTTL(),
                 group, nestedGroups);
     }
 
