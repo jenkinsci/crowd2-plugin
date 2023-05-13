@@ -97,8 +97,27 @@
                     <groupId>org.apache.httpcomponents</groupId>
                     <artifactId>httpclient-cache</artifactId>
                 </exclusion>
+                <!-- <exclusion>
+                    <groupId>com.atlassian.crowd</groupId>
+                    <artifactId>atlassian-annotations</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.atlassian.crowd</groupId>
+                    <artifactId>atlassian-collectors-util</artifactId>
+                </exclusion> -->
             </exclusions>
         </dependency>
+        <dependency>
+            <groupId>com.atlassian.crowd</groupId>
+            <artifactId>crowd-integration-api</artifactId>
+            <version>${crowd-integration-client-rest.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.atlassian.crowd</groupId>
+            <artifactId>crowd-integration-client-common</artifactId>
+            <version>${crowd-integration-client-rest.version}</version>
+        </dependency>
+
         <dependency>
             <groupId>org.jenkins-ci.plugins</groupId>
             <artifactId>apache-httpcomponents-client-4-api</artifactId>
@@ -111,6 +130,26 @@
             <groupId>io.jenkins.plugins</groupId>
             <artifactId>jaxb</artifactId>
         </dependency>
+
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <exclusions>
+                <exclusion>
+                <groupId>com.google.errorprone</groupId>
+                <artifactId>error_prone_annotations</artifactId>
+                </exclusion>
+                <exclusion>
+                <groupId>com.google.j2objc</groupId>
+                <artifactId>j2objc-annotations</artifactId>
+                </exclusion>
+                <exclusion>
+                <groupId>org.checkerframework</groupId>
+                <artifactId>checker-qual</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
         <!-- Tests -->
         <dependency>
             <groupId>junit</groupId>
