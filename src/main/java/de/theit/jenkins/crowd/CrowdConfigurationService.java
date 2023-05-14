@@ -214,13 +214,13 @@ public class CrowdConfigurationService {
         this.cacheTTL = cacheTTL;
 
         if (cacheSize != null && cacheSize > 0) {
-            this.isGroupMemberCache = CacheBuilder.newBuilder().maximumSize(cacheSize).expireAfterWrite(cacheTTL, TimeUnit.MINUTES).build();
-            this.userFromSSOTokenCache = CacheBuilder.newBuilder().maximumSize(cacheSize).expireAfterWrite(cacheTTL, TimeUnit.MINUTES).build();
-            this.userCache = CacheBuilder.newBuilder().maximumSize(cacheSize).expireAfterWrite(cacheTTL, TimeUnit.MINUTES).build();
-            this.groupCache = CacheBuilder.newBuilder().maximumSize(cacheSize).expireAfterWrite(cacheTTL, TimeUnit.MINUTES).build();
-            this.authoritiesForUserCache = CacheBuilder.newBuilder().maximumSize(cacheSize).expireAfterWrite(cacheTTL, TimeUnit.MINUTES).build();
+            this.isGroupMemberCache = CacheBuilder.newBuilder().maximumSize(cacheSize).expireAfterWrite(cacheTTL, TimeUnit.SECONDS).build();
+            this.userFromSSOTokenCache = CacheBuilder.newBuilder().maximumSize(cacheSize).expireAfterWrite(cacheTTL, TimeUnit.SECONDS).build();
+            this.userCache = CacheBuilder.newBuilder().maximumSize(cacheSize).expireAfterWrite(cacheTTL, TimeUnit.SECONDS).build();
+            this.groupCache = CacheBuilder.newBuilder().maximumSize(cacheSize).expireAfterWrite(cacheTTL, TimeUnit.SECONDS).build();
+            this.authoritiesForUserCache = CacheBuilder.newBuilder().maximumSize(cacheSize).expireAfterWrite(cacheTTL, TimeUnit.SECONDS).build();
             if (useTokenCache) {
-                this.validationCache = CacheBuilder.newBuilder().maximumSize(cacheSize).expireAfterWrite(cacheTTL, TimeUnit.MINUTES).build();
+                this.validationCache = CacheBuilder.newBuilder().maximumSize(cacheSize).expireAfterWrite(cacheTTL, TimeUnit.SECONDS).build();
             }
         }
 
@@ -874,6 +874,10 @@ public class CrowdConfigurationService {
         if (!useCache || value == null) {
             return;
         }
+
+        if (cacheObj == null) {
+            return;
+        }        
 
         cacheObj.put(key, value);
     }
