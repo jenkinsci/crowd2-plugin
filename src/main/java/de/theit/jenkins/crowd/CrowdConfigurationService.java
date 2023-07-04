@@ -871,7 +871,7 @@ public class CrowdConfigurationService {
 
     private <V> void setValueToCache(String key, V value, Cache<String,V> cacheObj) {
         // Let's save the entry in the cache if necessary
-        if (!useCache || value == null) {
+        if (!useCache || value == null || cacheObj == null) {
             return;
         }
 

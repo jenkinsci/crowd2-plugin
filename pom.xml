@@ -4,7 +4,7 @@
     <parent>
         <groupId>org.jenkins-ci.plugins</groupId>
         <artifactId>plugin</artifactId>
-        <version>4.62</version>
+        <version>4.69</version>
     </parent>
 
     <artifactId>crowd2</artifactId>
@@ -174,7 +174,7 @@
         <dependency>
             <groupId>net.bytebuddy</groupId>
             <artifactId>byte-buddy</artifactId>
-            <version>1.14.4</version>
+            <version>1.14.5</version>
         </dependency>
     </dependencies>
 
@@ -190,7 +190,7 @@
             <dependency>
                 <groupId>io.jenkins.tools.bom</groupId>
                 <artifactId>bom-2.375.x</artifactId>
-                <version>2025.v816d28f1e04f</version>
+                <version>2198.v39c76fc308ca</version>
                 <scope>import</scope>
                 <type>pom</type>
             </dependency>
@@ -238,19 +238,19 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-pmd-plugin</artifactId>
-                <version>3.20.0</version>
+                <version>3.21.0</version>
             </plugin>
 
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-checkstyle-plugin</artifactId>
-                <version>3.2.2</version>
+                <version>3.3.0</version>
                 <dependencies>
                     <dependency>
                         <groupId>com.puppycrawl.tools</groupId>
                         <artifactId>checkstyle</artifactId>
                         <!-- versions 10.x and above are unsupported by java 8-->
-                        <version>10.10.0</version>
+                        <version>10.12.1</version>
                     </dependency>
                 </dependencies>
                 <configuration>
