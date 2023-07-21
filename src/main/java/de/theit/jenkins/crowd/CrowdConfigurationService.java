@@ -875,10 +875,6 @@ public class CrowdConfigurationService {
             return;
         }
 
-        if (cacheObj == null) {
-            return;
-        }        
-
         cacheObj.put(key, value);
     }
 }

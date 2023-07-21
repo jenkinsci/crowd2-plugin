@@ -22,4 +22,4 @@ RUN     jenkins-plugin-cli --plugins configuration-as-code \
                                      monitoring \
                                      jaxb
 
-COPY    --chown=jenkins:jenkins target/crowd2.hpi /usr/share/jenkins/ref/plugins/
+COPY    --chown=jenkins:jenkins target/crowd2.hpi /usr/share/jenkins/ref/plugins/crowd2.hpi.override

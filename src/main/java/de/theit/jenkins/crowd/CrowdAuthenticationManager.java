@@ -114,7 +114,7 @@ public class CrowdAuthenticationManager implements AuthenticationManager {
         // is a member of it
         if (!this.configuration.isGroupMember(username)) {
             throw new InsufficientAuthenticationException(
-            userNotValid(username, this.configuration.getAllowedGroupNames()));
+                    userNotValid(username, this.configuration.getAllowedGroupNames()));
         }
 
         try {
