@@ -13,13 +13,13 @@ This plugin allows using [Atlassian Crowd](https://www.atlassian.com/software/cr
 
 ## Requirements
 
-The current version of the plugin is tested against `Crowd 3.7` and `Crowd 5.1`, with `Jenkins 2.275.4`. 
+The current version of the plugin is tested against `Crowd 3.7` and `Crowd 5.1`, with `Jenkins 2.387.3`. 
 This plugin uses Crowd REST APIs for connecting to the Crowd and therefore requires Crowd \>= 2.1 (see [Crowd REST API docs](http://developer.atlassian.com/display/CROWDDEV/Crowd+REST+APIs)).
-If you have an older Crowd server, use the older “Crowd Plugin” instead.
+If you have an older Crowd server, use the older "Crowd Plugin" instead.
 
 ## License
 
-This project is licensed under the MIT License – see the [LICENSE](LICENSE) file for details
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details
 
 ## Configuration
 
@@ -39,16 +39,16 @@ has further information on how to manage users and groups.
 ![Crowd add group](docs/images/image_crowd_add_group.png)
 
 Once you have the application and group configured in Crowd, you can
-enable Crowd-based security in Jenkins on the “Manage Jenkins” page.
+enable Crowd-based security in Jenkins on the "Manage Jenkins" page.
 Enter the URL of your Crowd server (will typically end with …/crowd) as well as the application name, password, and group name you configured in the Crowd.
 
 ![Jenkins' security configuration](docs/images/jenkins_crowd.png)
 
-Click on the “Check Connection” button to ensure that your connection
+Click on the "Check Connection" button to ensure that your connection
 credentials are valid.
 
 Crowd supports nested groups, i.e. groups which contain other groups as
-members and groups that are members of other groups (see [nested groups documentation](http://confluence.atlassian.com/display/CROWD/Nested+Groups+in+Crowd)). If you want to use this feature, click on the “Advanced…” button and enable it. This may degrade performance, depending on your server configuration.
+members and groups that are members of other groups (see [nested groups documentation](http://confluence.atlassian.com/display/CROWD/Nested+Groups+in+Crowd)). If you want to use this feature, click on the "Advanced…" button and enable it. This may degrade performance, depending on your server configuration.
 
 This plugin doesn't support Crowd roles. As long as there's not enough interest, it's unlikely that they will be supported in a future version because they have been deprecated since Crowd 2.0 (see [here](http://confluence.atlassian.com/display/CROWD/Crowd+2.0+Upgrade+Notes) for details).
 
@@ -115,13 +115,13 @@ See the list of [contributors](https://github.com/jenkinsci/crowd2-plugin/contri
 
 Yes :-) That was the main reason I wrote this plugin.
 
-### What's the difference between this plugin and “Crowd Plugin”?
+### What's the difference between this plugin and "Crowd Plugin"?
 
-Apart from SSO, this plugin contains fixes for almost all open issues of the “Crowd Plugin”. (If you look at the issue navigator, there are current seven; five of them are almost or even older than one year. Looking at the source code at GitHub (<https://github.com/jenkinsci/crowd-plugin>), there doesn't seem to be much activity trying to fix them). I have to admit that I haven't tested [JENKINS-9924](https://issues.jenkins-ci.org/browse/JENKINS-9924) so far, i.e. what happens when the Crowd server is down. This will be done in the near future.
+Apart from SSO, this plugin contains fixes for almost all open issues of the "Crowd Plugin". (If you look at the issue navigator, there are current seven; five of them are almost or even older than one year. Looking at the source code at GitHub (<https://github.com/jenkinsci/crowd-plugin>), there doesn't seem to be much activity trying to fix them). I have to admit that I haven't tested [JENKINS-9924](https://issues.jenkins-ci.org/browse/JENKINS-9924) so far, i.e. what happens when the Crowd server is down. This will be done in the near future.
 
 A more technically answer is that this plugin code was written from scratch using a different API to connect to the Crowd server, i.e. the Crowd REST APIs. These are recommended by Atlassian for long-term compatibility.
 
-In contrary, the “Crowd Plugin” uses Crowd's Java integration libraries that have the disadvantage that one perhaps has to re-compile the source code when a new Crowd release is available and one has to update these libraries.
+In contrary, the "Crowd Plugin" uses Crowd's Java integration libraries that have the disadvantage that one perhaps has to re-compile the source code when a new Crowd release is available and one has to update these libraries.
 
 ### Why do I have to choose a group for users?
 
@@ -140,10 +140,7 @@ After proper review, it will be automatically added to the plugin.
 
 The following changes and improvements are planned for the following releases
 
-### 3.x.x
+### 4.x.x
 
 * [ ] Work on the open JIRA issues
 * [ ] Improve test coverage by adding new tests
-* [ ] Merge open pull requests to fix caching and http client to solve performance and compatibility issues
-* [ ] Fix logging for plugin
-
