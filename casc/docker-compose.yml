@@ -23,7 +23,7 @@ services:
      - /var/run/docker.sock:/var/run/docker.sock
 
   crowd:
-    image: atlassian/crowd:5.1.0-jdk11
+    image: atlassian/crowd:5.1.5-jdk11
     container_name: crowd
     networks:
       - crowd_net

@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -x
 CROWD_SNAPSHOT_FILE_PATH='target/crowd2.hpi'
 
 export GITPOD_SITE="${HOSTNAME}.${GITPOD_WORKSPACE_CLUSTER_HOST}"
@@ -11,21 +11,25 @@ export CROWD_BACKUP_FILE="casc/crowd_backup.xml"
 if [[ ! -f "$CROWD_SNAPSHOT_FILE_PATH" ]]; then
     echo "--- No builds found - building plugin ---"
     mvn -ntp clean verify
+else
+    echo "--- Build found - using it ---"
+    mvn -ntp clean verify -DskipTests
 fi
+
+export JAVA_VERSION="${1:-11}"
 
 # create new img with crowd2-snapshot file installed
 # if there is args passed use java8
 if [[ $# -gt 0 ]] || ! docker image inspect casc_jenkins:latest &> /dev/null; then
     echo "--- Build Docker img ---"
-    export JAVA_VERSION="${1:-11}"
-    docker-compose -f casc/docker-compose.yml build
+    docker compose -f casc/docker-compose.yml build
 fi
 
 # fetch all needed images (crowd and jenkins one)
-docker-compose -f casc/docker-compose.yml pull
+docker compose -f casc/docker-compose.yml pull
 
 echo '--- Start docker services ---'
-docker-compose -f casc/docker-compose.yml up -d --remove-orphans
+docker compose -f casc/docker-compose.yml up -d --remove-orphans
 
 # TODO: Remove those comments after confirmation that this setup is also working localy
 # replace crowd address to current one
