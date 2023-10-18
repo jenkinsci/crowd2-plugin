@@ -40,3 +40,8 @@ Crowd login credentials are:
 Application:
 * application:  jenkins
 * pass:         jenkins
+
+## Other docs
+
+Apart of jenkins plugin developer documentation it's recommended to also read this one.
+https://docs.google.com/document/d/1PKYIpPlRVGsBqrz0Ob1Cv3cefOZ5j2xtGZdWs27kLuw/edit?usp=sharing
