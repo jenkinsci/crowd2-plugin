@@ -1,11 +1,13 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <parent>
-        <groupId>org.jenkins-ci.plugins</groupId>
-        <artifactId>plugin</artifactId>
-        <version>4.75</version>
+  <parent>
+    <groupId>org.jenkins-ci.plugins</groupId>
+    <artifactId>plugin</artifactId>
+    <version>4.75</version>
+    <relativePath/>
     </parent>
 
     <artifactId>crowd2</artifactId>
@@ -188,6 +190,40 @@
     <build>
         <plugins>
             <plugin>
+                <groupId>org.openrewrite.maven</groupId>
+                <artifactId>rewrite-maven-plugin</artifactId>
+                <version>5.13.0</version>
+                <configuration>
+                    <activeRecipes>
+                        <recipe>org.openrewrite.jenkins.AddPluginsBom</recipe>
+                        <recipe>org.openrewrite.jenkins.CreateIndexJelly</recipe>
+                        <recipe>org.openrewrite.jenkins.DisableLocalResolutionForParentPom</recipe>
+                        <recipe>org.openrewrite.jenkins.JavaxAnnotationsToSpotbugs</recipe>
+                        <recipe>org.openrewrite.jenkins.UpgradeHtmlUnit_3_3_0</recipe>
+                        <recipe>org.openrewrite.jenkins.ModernizeJenkinsfile</recipe>
+                        <recipe>org.openrewrite.jenkins.CommonsLang3ToApiPlugin</recipe>
+                        <recipe>org.openrewrite.jenkins.migrate.hudson.UtilGetPastTimeStringToGetTimeSpanString</recipe>
+                    </activeRecipes>
+                </configuration>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.openrewrite.recipe</groupId>
+                        <artifactId>rewrite-jenkins</artifactId>
+                        <version>0.2.4</version>
+                    </dependency>
+                </dependencies>
+                <executions>
+                    <execution>
+                        <id>rewrite</id>
+                        <phase>validate</phase>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                    </execution>
+                </executions>
+
+            </plugin>
+            <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>properties-maven-plugin</artifactId>
                 <version>1.2.1</version>
@@ -251,14 +287,17 @@
                             <module name="LineLength">
                                 <property name="fileExtensions" value="java" />
                                 <property name="max" value="240" />
-                                <property name="ignorePattern" value="^package.*|^import.*|a href|href|http://|https://|ftp://" />
+                                <property name="ignorePattern"
+                                    value="^package.*|^import.*|a href|href|http://|https://|ftp://" />
                             </module>
                             <module name="TreeWalker">
-                                <!-- Annotations: https://checkstyle.sourceforge.io/config_annotation.html -->
+                                <!-- Annotations:
+                                https://checkstyle.sourceforge.io/config_annotation.html -->
                                 <module name="AnnotationUseStyle" />
                                 <module name="MissingDeprecated" />
                                 <module name="MissingOverride" />
-                                <!--  Class Design: https://checkstyle.sourceforge.io/config_design.html -->
+                                <!--  Class Design:
+                                https://checkstyle.sourceforge.io/config_design.html -->
                                 <module name="OneTopLevelClass" />
                                 <!-- Coding: https://checkstyle.sourceforge.io/config_coding.html -->
                                 <module name="ArrayTrailingComma" />
@@ -282,10 +321,12 @@
                                 <module name="VariableDeclarationUsageDistance">
                                     <property name="allowedDistance" value="10" />
                                 </module>
-                                <!-- Imports: https://checkstyle.sourceforge.io/config_imports.html-->
+                                <!-- Imports:
+                                https://checkstyle.sourceforge.io/config_imports.html-->
                                 <module name="AvoidStarImport" />
                                 <module name="ImportOrder">
-                                    <property name="groups" value="*,com,dagger,de,hudson,io,java,javax,jenkins,okhttp3,org,retrofit2,software," />
+                                    <property name="groups"
+                                        value="*,com,dagger,de,hudson,io,java,javax,jenkins,okhttp3,org,retrofit2,software," />
                                     <property name="ordered" value="true" />
                                     <property name="separated" value="true" />
                                     <property name="option" value="bottom" />
@@ -293,15 +334,19 @@
                                 </module>
                                 <module name="IllegalImport">
                                     <!-- prevent the use of jsr-305 annotations -->
-                                    <property name="illegalClasses" value="javax.annotation.MatchesPattern.Checker, javax.annotation.Nonnegative.Checker, javax.annotation.Nonnull.Checker, javax.annotation.RegEx.Checker, javax.annotation.CheckForNull, javax.annotation.CheckForSigned, javax.annotation.CheckReturnValue, javax.annotation.Detainted, javax.annotation.MatchesPattern, javax.annotation.Nonnegative, javax.annotation.Nonnull, javax.annotation.Nullable, javax.annotation.OverridingMethodsMustInvokeSuper, javax.annotation.ParametersAreNonnullByDefault, javax.annotation.ParametersAreNullableByDefault, javax.annotation.PropertyKey, javax.annotation.RegEx, javax.annotation.Signed, javax.annotation.Syntax, javax.annotation.Tainted, javax.annotation.Untainted, javax.annotation.WillClose, javax.annotation.WillCloseWhenClosed, javax.annotation.WillNotClose, javax.annotation.concurrent.GuardedBy, javax.annotation.concurrent.Immutable, javax.annotation.concurrent.NotThreadSafe, javax.annotation.concurrent.ThreadSafe, javax.annotation.meta.TypeQualifierValidator, javax.annotation.meta.When, javax.annotation.meta.Exclusive, javax.annotation.meta.Exhaustive, javax.annotation.meta.TypeQualifier, javax.annotation.meta.TypeQualifierDefault, javax.annotation.meta.TypeQualifierNickname" />
+                                    <property name="illegalClasses"
+                                        value="javax.annotation.MatchesPattern.Checker, javax.annotation.Nonnegative.Checker, javax.annotation.Nonnull.Checker, javax.annotation.RegEx.Checker, javax.annotation.CheckForNull, javax.annotation.CheckForSigned, javax.annotation.CheckReturnValue, javax.annotation.Detainted, javax.annotation.MatchesPattern, javax.annotation.Nonnegative, javax.annotation.Nonnull, javax.annotation.Nullable, javax.annotation.OverridingMethodsMustInvokeSuper, javax.annotation.ParametersAreNonnullByDefault, javax.annotation.ParametersAreNullableByDefault, javax.annotation.PropertyKey, javax.annotation.RegEx, javax.annotation.Signed, javax.annotation.Syntax, javax.annotation.Tainted, javax.annotation.Untainted, javax.annotation.WillClose, javax.annotation.WillCloseWhenClosed, javax.annotation.WillNotClose, javax.annotation.concurrent.GuardedBy, javax.annotation.concurrent.Immutable, javax.annotation.concurrent.NotThreadSafe, javax.annotation.concurrent.ThreadSafe, javax.annotation.meta.TypeQualifierValidator, javax.annotation.meta.When, javax.annotation.meta.Exclusive, javax.annotation.meta.Exhaustive, javax.annotation.meta.TypeQualifier, javax.annotation.meta.TypeQualifierDefault, javax.annotation.meta.TypeQualifierNickname" />
                                     <!-- Prevent the expansion of Guava usages -->
-                                    <property name="illegalPkgs" value="com.google.common.base, com.google.common.escape, com.google.common.eventbus, com.google.common.graph, com.google.common.hash, com.google.common.html, com.google.common.io, com.google.common.math, com.google.common.net, com.google.common.primitives, com.google.common.reflect, com.google.common.xml, com.google.thirdparty" />
+                                    <property name="illegalPkgs"
+                                        value="com.google.common.base, com.google.common.escape, com.google.common.eventbus, com.google.common.graph, com.google.common.hash, com.google.common.html, com.google.common.io, com.google.common.math, com.google.common.net, com.google.common.primitives, com.google.common.reflect, com.google.common.xml, com.google.thirdparty" />
                                 </module>
                                 <module name="RedundantImport" />
                                 <module name="UnusedImports" />
-                                <!-- Javadoc Comments: https://checkstyle.sourceforge.io/config_javadoc.html -->
+                                <!-- Javadoc Comments:
+                                https://checkstyle.sourceforge.io/config_javadoc.html -->
                                 <module name="AtclauseOrder">
-                                    <property name="tagOrder" value="@param, @return, @throws, @deprecated" />
+                                    <property name="tagOrder"
+                                        value="@param, @return, @throws, @deprecated" />
                                 </module>
                                 <module name="InvalidJavadocPosition" />
                                 <module name="JavadocMethod">
@@ -311,11 +356,13 @@
                                 </module>
                                 <module name="JavadocMissingWhitespaceAfterAsterisk" />
                                 <module name="NonEmptyAtclauseDescription" />
-                                <!-- Miscellaneous: https://checkstyle.sourceforge.io/config_misc.html -->
+                                <!-- Miscellaneous:
+                                https://checkstyle.sourceforge.io/config_misc.html -->
                                 <module name="ArrayTypeStyle" />
                                 <module name="OuterTypeFilename" />
                                 <module name="UpperEll" />
-                                <!-- Modifiers: https://checkstyle.sourceforge.io/config_modifier.html -->
+                                <!-- Modifiers:
+                                https://checkstyle.sourceforge.io/config_modifier.html -->
                                 <module name="ModifierOrder" />
                                 <module name="RedundantModifier" />
                             </module>
