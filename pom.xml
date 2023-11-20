@@ -53,7 +53,7 @@
     </contributors>
 
     <properties>
-        <revision>4.1.1</revision>
+        <revision>4.2.0</revision>
         <changelist>-SNAPSHOT</changelist>
         <gitHubRepo>jenkinsci/crowd2-plugin</gitHubRepo>
         <jenkins.version>2.387.3</jenkins.version>
