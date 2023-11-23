@@ -55,7 +55,7 @@
         <changelist>-SNAPSHOT</changelist>
         <gitHubRepo>jenkinsci/crowd2-plugin</gitHubRepo>
         <jenkins.version>2.401.3</jenkins.version>
-        <crowd-integration-client-rest.version>5.1.5</crowd-integration-client-rest.version>
+        <crowd-integration-client-rest.version>1000.113.0</crowd-integration-client-rest.version>
         <findbugs.failOnError>false</findbugs.failOnError>
         <spotbugs.effort>Max</spotbugs.effort>
         <spotbugs.failOnError>true</spotbugs.failOnError>
