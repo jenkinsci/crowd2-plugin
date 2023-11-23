@@ -2,7 +2,7 @@
 ARG JAVA_VERSION
 ARG JENKINS_SITE_NAME
 
-FROM jenkins/jenkins:2.387.3-jdk$JAVA_VERSION
+FROM jenkins/jenkins:2.401.3-jdk$JAVA_VERSION
 
 # use the value to set the ENV var default
 ENV JENKINS_SITE_NAME=$JENKINS_SITE_NAME
