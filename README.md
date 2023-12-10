@@ -1,3 +1,18 @@
+# [Plugin distribution suspended](https://github.com/jenkins-infra/helpdesk/issues/3854)
+
+Distribution of this plugin has been suspended by the Jenkins project because it uses several closed source dependencies.
+The closed source dependencies in the most recent release include:
+
+* com.atlassian.crowd:crowd-integration-api:5.1.5
+* com.atlassian.crowd:crowd-integration-client-rest:5.1.5
+* com.atlassian.crowd:embedded-crowd-api:5.1.5
+* com.atlassian.crowd:crowd-integration-client-common:5.1.5
+* com.atlassian.collectors:atlassian-collectors-util:1.1
+
+The Jenkins project [governance document](https://www.jenkins.io/project/governance/#license) and the [plugin hosting instructions](https://www.jenkins.io/doc/developer/publishing/preparation/#license) both note that the Jenkins project requires that plugins distributed by the Jenkins project must be open source and use open source dependencies.
+
+Atlassian has announced [Crowd Server will no longer be supported after February 15, 2024](https://www.atlassian.com/licensing/crowd#crowd-data-center).
+Users of Crowd Server must migrate to Crowd Data Center.
 
 [![Build Status](https://ci.jenkins.io/buildStatus/icon?job=Plugins/crowd2-plugin/master)](https://ci.jenkins.io/job/Plugins/job/crowd2-plugin/job/master/)
 [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=jenkins-crowd2-plugin&metric=coverage)](https://sonarcloud.io/dashboard?id=jenkins-crowd2-plugin)
