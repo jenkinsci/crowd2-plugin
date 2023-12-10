@@ -1,4 +1,4 @@
-# [Plugin distribution suspended](https://github.com/jenkins-infra/helpdesk/issues/3854)
+# ⚠️ [Plugin distribution suspended](https://github.com/jenkins-infra/helpdesk/issues/3854)
 
 Distribution of this plugin has been suspended by the Jenkins project because it uses several closed source dependencies.
 The closed source dependencies in the most recent release include:
@@ -11,8 +11,17 @@ The closed source dependencies in the most recent release include:
 
 The Jenkins project [governance document](https://www.jenkins.io/project/governance/#license) and the [plugin hosting instructions](https://www.jenkins.io/doc/developer/publishing/preparation/#license) both note that the Jenkins project requires that plugins distributed by the Jenkins project must be open source and use open source dependencies.
 
+## Atlassian announcement
+
 Atlassian has announced [Crowd Server will no longer be supported after February 15, 2024](https://www.atlassian.com/licensing/crowd#crowd-data-center).
 Users of Crowd Server must migrate to Crowd Data Center.
+
+## Restoring distibituion
+
+This plugin distribution may be restored if there are any volunteers willing to replace closed-source products with their own open-source implementation.
+If you are willing to do this, please open a ticket at https://github.com/jenkins-infra/helpdesk to unarchive this repo and add yourself to the maintainers.
+
+# Crowd 2 Plugin for Jenkins (crowd2-plugin)
 
 [![Build Status](https://ci.jenkins.io/buildStatus/icon?job=Plugins/crowd2-plugin/master)](https://ci.jenkins.io/job/Plugins/job/crowd2-plugin/job/master/)
 [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=jenkins-crowd2-plugin&metric=coverage)](https://sonarcloud.io/dashboard?id=jenkins-crowd2-plugin)
@@ -20,10 +29,6 @@ Users of Crowd Server must migrate to Crowd Data Center.
 [![Crowdin](https://badges.crowdin.net/e/5bc518646218c4dbffd033e19f64e1ad/localized.svg)](https://jenkins.crowdin.com/crowd2-plugin)
 
 [![Open in Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io/#https://github.com/jenkinsci/crowd2-plugin)
-
-
-# Crowd 2 Plugin for Jenkins (crowd2-plugin)
-
 This plugin allows using [Atlassian Crowd](https://www.atlassian.com/software/crowd) or [JIRA](https://www.atlassian.com/software/jira) as an authentication and authorization provider for Jenkins (Crowd version 2 and later). Crowd is a commercial identity management and Single Sign-On (SSO) application.
 
 ## Requirements
